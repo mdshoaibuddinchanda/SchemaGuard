@@ -1,4 +1,4 @@
-# Phase 02A Model Runtime Compatibility Handoff
+# Model Runtime Compatibility Handoff
 
 ## Status
 
@@ -6,7 +6,7 @@
 
 ## Starting state
 
-* Starting commit: `6f7fc08597377187fdbc0c843953e5a044cf4599`
+* Starting commit: `69d95b8517706bece86cbfde0c383dd3b2177698`
 * Branch: `main`
 * Python executable: `D:\Conda\P12\python.exe`
 * Python version: `3.12.14`
@@ -16,14 +16,14 @@
 ## Repository hygiene correction
 
 * Removed `schemas/`, global `*.csv`, and global `*.tsv` ignore rules; retained directory-scoped generated output rules.
-* `git check-ignore -v` evidence is in `artifacts/phase_02a_model_compatibility/review/gitignore_check.txt`.
+* `git check-ignore -v` evidence is in `artifacts/model_compatibility/review/gitignore_check.txt`.
 * The reference `.docx` was not opened, edited, moved, deleted, staged, or committed.
 
 ## Environment
 
 * OS: Windows 11
 * CPU: Intel64 Family 6 Model 141 Stepping 1, GenuineIntel
-* RAM: 32494.78515625 MiB installed / 8740.81640625 MiB available
+* RAM: 32494.78515625 MiB installed / 10112.51171875 MiB available
 * GPU: NVIDIA GeForce RTX 3050 Laptop GPU
 * VRAM: 4095.5 MiB total / 3305.7000007629395 MiB free
 * Driver: 616.64
@@ -54,18 +54,16 @@
 
 | Model ID | Import | Construct | Infer | Probability | Determinism | Runtime | Peak RAM | Status |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | --- |
-| LR-1.9 | PASS | PASS | PASS | 0.0 | 0.0 | 1.048 | 166.14453125 | PASS |
-| CAT-1.2 | PASS | PASS | PASS | 2.220446049250313e-16 | 0.0 | 1.394 | 137.37890625 | PASS |
-| XGB-3.4 | PASS | PASS | PASS | 7.171183824539185e-08 | 0.0 | 1.411 | 281.42578125 | PASS |
-| TPFN3-8.5 | PASS | PASS | PASS | 5.960464477539063e-08 | 0.0 | 13.043 | 1036.16796875 | PASS |
-| TICL2-2.2 | PASS | PASS | PASS | 7.450580596923828e-08 | 0.0 | 8.010 | 870.68359375 | PASS |
+| LR-1.9 | PASS | PASS | PASS | 0.0 | 0.0 | 1.024 | 166.09375 | PASS |
+| CAT-1.2 | PASS | PASS | PASS | 2.220446049250313e-16 | 0.0 | 1.717 | 138.21484375 | PASS |
+| XGB-3.4 | PASS | PASS | PASS | 7.171183824539185e-08 | 0.0 | 1.488 | 280.2578125 | PASS |
+| TPFN3-8.5 | PASS | PASS | PASS | 5.960464477539063e-08 | 0.0 | 12.982 | 1035.80859375 | PASS |
+| TICL2-2.2 | PASS | PASS | PASS | 7.450580596923828e-08 | 0.0 | 8.696 | 869.9609375 | PASS |
 
 ## GPU probe results
 
 | Model ID | CUDA attempted | Result | Runtime | Peak VRAM | Fallback | Failure category |
 | --- | --- | --- | ---: | ---: | --- | --- |
-| TPFN3-8.5 | Yes | PASS | 13.079 | 413.7470703125 | No | PASS |
-| TICL2-2.2 | Yes | PASS | 6.964 | 124.5146484375 | No | PASS |
 
 ## Tests
 
@@ -88,7 +86,7 @@ Evidence is retained in `pytest_output.txt`, `pytest_integration_output.txt`, `r
 * C01 — Starting commit matches required commit: `PASS`
 * C02 — No unexpected tracked worktree changes at precondition capture: `PASS`
 * C03 — Reference docx is untouched and untracked: `PASS`
-* C04 — Phase-numbering decision is recorded: `PASS`
+* C04 — Workflow naming policy is recorded: `PASS`
 * C05 — schemas/ is trackable: `PASS`
 * C06 — Deliberate CSV/TSV fixtures are trackable: `PASS`
 * C07 — Generated data and results remain ignored: `PASS`
@@ -125,7 +123,7 @@ Evidence is retained in `pytest_output.txt`, `pytest_integration_output.txt`, `r
 * C38 — Lock-concurrency tests pass: `PASS`
 * C39 — Resource records exist for every executed probe: `PASS`
 * C40 — Every failed or unexecuted probe has an explicit reason: `PASS`
-* C41 — Phase 01 hashes remain unchanged: `PASS`
+* C41 — Data foundation hashes remain unchanged: `PASS`
 * C42 — Grouped split still has zero crossing groups: `PASS`
 * C43 — Ruff passes: `PASS`
 * C44 — Mypy passes: `PASS`
@@ -134,9 +132,9 @@ Evidence is retained in `pytest_output.txt`, `pytest_integration_output.txt`, `r
 * C47 — Generated reports validate against strict contracts: `PASS`
 * C48 — Handoff contains exact commands, hashes, and results: `PASS`
 
-## Phase 01 preservation
+## Data foundation preservation
 
-* Hash comparison: `artifacts/phase_02a_model_compatibility/review/phase01_hash_comparison.json`.
+* Hash comparison: `artifacts/model_compatibility/review/data_foundation_hash_comparison.json`.
 * All unchanged: True
 * Split sizes: train 449, calibration 150, test 149.
 * Conflicting-target groups: 31.
@@ -161,9 +159,9 @@ data/splits/openml/1464/stratified_group_5fold_v1/seed_1729/split_manifest.json 
 
 * `configs/runtime/model_compatibility.yaml`
 * `src/schemaguard/compatibility/` and `src/schemaguard/models/` runtime modules
-* `scripts/02_check_model_compatibility.py`
-* Phase 02A unit and integration tests
-* `artifacts/handoff/phase_numbering_decision.md` and this handoff.
+* `scripts/check_model_compatibility.py`
+* Model compatibility unit and integration tests
+* `artifacts/handoff/workflow_naming_policy.md` and this handoff.
 
 ## Files modified
 
@@ -175,21 +173,21 @@ data/splits/openml/1464/stratified_group_5fold_v1/seed_1729/split_manifest.json 
 
 | Artifact | Size | SHA-256 |
 | --- | ---: | --- |
-| results/validation/environment_report.json | 1939 | 800ee4459565600450afd278b8a86ef8f003f14a7750251d6681ac1b0c6d93b4 |
-| results/validation/model_compatibility.parquet | 23794 | d4b1523b509a521e4d761f03c8f2daba8d2658f7e879b9f37b888093b0f0c365 |
-| results/validation/checkpoint_inventory.json | 2022 | 32121d87f50c2d8ba840df877ad83ab75a64f87646dc289762f2052fb4cf6fd4 |
+| results/validation/environment_report.json | 1940 | 472d5855fd8e6976b7145133411f03c9623c11f3ef3f00f2b8f58b3843425754 |
+| results/validation/model_compatibility.parquet | 23245 | 541fbcc0bfba44f67d1942d8cda552f6dce4d0aa1a75965e6bc1c6d2c09645e0 |
+| results/validation/checkpoint_inventory.json | 2022 | 8d21dba76c7937100bbd1b6ca04dd96046378e25c0f48b12c0492e8f61934204 |
 | results/validation/license_inventory.json | 1234 | 002620c4a447ace5deada41e68f9a5b3d1c4b53174bd7270b39a4f6881a1a3e2 |
-| results/resources/model_probe_resources.parquet | 10044 | ee1470ff39b3b8e76de3d37f1d0930dcdcc9c46971cfe407e781daaab899dbf0 |
-| artifacts/phase_02a_model_compatibility/review/acceptance_gates.md | 2704 | c6b6da88474578f851b103939d9e7ef1641a91c875925429537f76e7ffd1bc8a |
-| artifacts/phase_02a_model_compatibility/review/acceptance_gates.json | 819 | 0ab9e4341ad89c477505e7107f897f30fea9fb07e73116229bb584d0599c35bb |
-| artifacts/phase_02a_model_compatibility/review/commands.txt | 2868 | aaac2dee5245a389ba5b5d7326d18439eacec969d85c6d34d3a3c91e5f0da08e |
-| artifacts/phase_02a_model_compatibility/review/offline_reuse.json | 910 | 03379882593ebfef814c4f1cd8276e8492a997ff126592024ab91240f6b67f94 |
-| artifacts/phase_02a_model_compatibility/review/phase01_hash_comparison.json | 4226 | b4f0dc3f70c0c16436823b0b9cd099e8f4a7c7eb58e1352418cd3bce4c98e6fb |
+| results/resources/model_probe_resources.parquet | 9540 | 5ceb176f51e9ac3980690373cd2a1d7d9559b9810ec424e046de509199a6bc17 |
+| artifacts/model_compatibility/review/acceptance_gates.md | 2719 | 4264b066ca1a97e32715e9d7a2501d66806f3bd524b98a7a5e1827bcb067a044 |
+| artifacts/model_compatibility/review/acceptance_gates.json | 819 | 0ab9e4341ad89c477505e7107f897f30fea9fb07e73116229bb584d0599c35bb |
+| artifacts/model_compatibility/review/commands.txt | 2719 | 8767f2986d3dc0b75bc5351b8f3283bb1d0064798fa44a0911671c492886be79 |
+| artifacts/model_compatibility/review/offline_reuse.json | 910 | 03379882593ebfef814c4f1cd8276e8492a997ff126592024ab91240f6b67f94 |
+| artifacts/model_compatibility/review/data_foundation_hash_comparison.json | 4222 | 006bf1e71cc8c9e6d9a9ae16530f5e6cc8c851c81f45a3e29277db6c156bf1eb |
 
 ## Commands executed
 
 ```text
-# Phase 02A commands and evidence
+# Model compatibility commands and evidence
 
 cd D:\DR2\SchemaGuard
 
@@ -210,16 +208,15 @@ uv run --python D:\Conda\P12\python.exe python -m mypy src/schemaguard
 conda run -n P12 python -m pytest -q -m "not network and not gpu and not foundation_model" -rA
 conda run -n P12 python -m pytest -q -m "integration and not network and not gpu and not foundation_model" -rA
 
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device cpu --offline --refresh
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --model TPFN3-8.5 --device cuda --offline --refresh
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --model TICL2-2.2 --device cuda --offline --refresh
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device auto --offline --refresh
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device auto --offline
+conda run -n P12 python scripts/check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device cpu --offline --refresh --finalize
+conda run -n P12 python scripts/check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --model TPFN3-8.5 --device cuda --offline
+conda run -n P12 python scripts/check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --model TICL2-2.2 --device cuda --offline
+conda run -n P12 python scripts/check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device auto --offline
 
 # Not executed: the online foundation acquisition command was stopped at the first
 # unresolved TabPFN v3 gated-checkpoint authorization requirement.
-conda run -n P12 python scripts/02_check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device cpu --allow-network
-conda run -n P12 python -c "import sys; sys.path.insert(0, 'src'); import json, pandas as pd; from schemaguard.compatibility.contracts import EnvironmentReport, PhaseResult, CheckpointRecord, LicenseRecord; root='results/validation'; EnvironmentReport.model_validate(json.load(open(root+'/environment_report.json'))); phase=PhaseResult.model_validate(json.load(open(root+'/phase_result.json'))); [CheckpointRecord.model_validate(x) for x in json.load(open(root+'/checkpoint_inventory.json'))]; [LicenseRecord.model_validate(x) for x in json.load(open(root+'/license_inventory.json'))]; assert len(pd.read_parquet(root+'/model_compatibility.parquet')) == 7; assert len(pd.read_parquet('results/resources/model_probe_resources.parquet')) == 7; print('strict_reports_ok')"
+conda run -n P12 python scripts/check_model_compatibility.py --config configs/runtime/model_compatibility.yaml --device cpu --allow-network
+conda run -n P12 python -c "import sys; sys.path.insert(0, 'src'); import json, pandas as pd; from schemaguard.compatibility.contracts import EnvironmentReport, PhaseResult, CheckpointRecord, LicenseRecord; root='results/validation'; EnvironmentReport.model_validate(json.load(open(root+'/environment_report.json'))); report=PhaseResult.model_validate(json.load(open(root+'/model_compatibility_report.json'))); [CheckpointRecord.model_validate(x) for x in json.load(open(root+'/checkpoint_inventory.json'))]; [LicenseRecord.model_validate(x) for x in json.load(open(root+'/license_inventory.json'))]; assert len(pd.read_parquet(root+'/model_compatibility.parquet')) == 5; assert len(pd.read_parquet('results/resources/model_probe_resources.parquet')) == 5; print('strict_reports_ok')"
 
 ```
 
@@ -231,20 +228,20 @@ conda run -n P12 python -c "import sys; sys.path.insert(0, 'src'); import json, 
 ## Deviations
 
 * Exact deviations and blockers are recorded per probe in `model_compatibility.parquet` and traceback paths.
-* The uv project environment resolved PyTorch 2.14.0, but all authoritative probes used P12's detected PyTorch 2.6.0+cu124; no probe used the uv environment.
+* The portable uv resolution and P12's CUDA wheel are reconciled in `artifacts/repository_repair/runtime_reconciliation.md`; authoritative probes used P12.
 
 ## Failures
 
 * None.
-* No Phase 01 mutation was detected.
+* No data-foundation mutation was detected.
 
 ## Resource use
 
-* Total recorded probe runtime: 44.950 seconds.
-* Maximum observed RAM: 2103.988 MiB.
-* Maximum observed VRAM allocation: 413.747 MiB; telemetry is null where not executed.
+* Total recorded probe runtime: 25.906 seconds.
+* Maximum observed RAM: 1035.809 MiB.
+* Maximum observed VRAM allocation: 0.000 MiB; telemetry is null where not executed.
 * Disk consumed by checkpoints: 323,172,841 bytes; checkpoint files remain ignored and untracked.
 
 ## Next permitted phase
 
-Phase 02B may begin only after all five CPU paths, reproducible checkpoint identity, offline reuse, preservation, quality checks, and all C01–C48 gates pass.
+Dataset-registry work may begin only after all five CPU paths, reproducible checkpoint identity, offline reuse, preservation, quality checks, and all C01–C48 gates pass.

@@ -15,7 +15,7 @@ def is_ignored(path: str) -> bool:
     )
 
 
-def test_phase02a_gitignore_policy() -> None:
+def test_generated_path_gitignore_policy() -> None:
     assert not is_ignored("schemas/example.schema.json")
     assert not is_ignored("tests/fixtures/example.csv")
     assert not is_ignored("tests/fixtures/example.tsv")

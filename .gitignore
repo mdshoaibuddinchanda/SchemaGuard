@@ -11,6 +11,7 @@ data/raw/
 data/processed/
 data/splits/
 data/cache/
+data/cache/models/
 data/tmp/
 logs/
 cache/
@@ -23,8 +24,18 @@ artifacts/*
 !artifacts/handoff/*.md
 !artifacts/handoff/*.json
 
+# Generated evidence directories remain local; only concise handoffs are tracked.
+artifacts/repository_repair/
+artifacts/data_foundation/
+artifacts/model_compatibility/
+artifacts/dataset_registry/
+artifacts/gpu_capacity/
+
 # Other generated outputs and local build state
 results/
+results/validation/
+results/resources/
+results/logs/
 tmp/
 temp/
 *.jsonl

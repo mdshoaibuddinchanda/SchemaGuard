@@ -9,9 +9,8 @@ the strict experiment registry and deterministic condition manifests.
 ## Quick start
 
 ```powershell
-uv sync --extra dev
-uv run python scripts/generate_manifests.py
-uv run pytest -q -m "not network"
+conda run -n P12 python scripts/generate_manifests.py
+conda run -n P12 python -m pytest -q -m "not network and not evidence"
 ```
 
 The freeze command is safe to run repeatedly. It writes manifests through a temporary file and
@@ -19,16 +18,24 @@ atomic rename, and does not append duplicate conditions when the workspace is re
 command is retried.
 
 All project execution must use the existing `P12` Conda environment. The repository lockfile is
-kept for reproducibility, and the active Phase 01 split is deterministic predictor-group-aware
+kept for reproducibility, and the active data-foundation split is deterministic predictor-group-aware
 stratification under `stratified_group_5fold_v1`.
 
 ## Current status
 
-| Phase | Scope | Status |
+| Stage | Scope | Status |
 | --- | --- | --- |
-| Phase 00 | Specification freeze, identifiers, manifest counts | PASS |
-| Phase 01 | Reproducible data foundation and predictor-group split audit | VERIFIED_PASS |
-| Phase 02 | Models, transformations, and execution | Not started |
+| Experiment registry | Specification freeze, identifiers, manifest counts | PASS |
+| Data foundation | Reproducible data foundation and predictor-group split audit | VERIFIED_PASS |
+| Model compatibility | Frozen model runtime gate | PASS |
+| Dataset registry | SchemaOrbit-14 acquisition and validation | PASS_PENDING_REPAIR_REVIEW |
+| GPU capacity | Foundation-model resource envelope | PASS_PENDING_REPAIR_REVIEW |
+| Split generation | Additional grouped splits | NOT_STARTED |
+| Transformation engine | Lossless schema views | NOT_STARTED |
+| Model adapters | Frozen model adapters | NOT_STARTED |
+| Smoke experiment | Controlled smoke experiment | NOT_STARTED |
+| Pilot experiment | Pilot experiment | NOT_STARTED |
+| Main experiment | Main experiment | NOT_STARTED |
 
-The heavy model dependencies are intentionally not installed in the registry foundation. They will be added only
-when their corresponding compatibility phase begins.
+All project execution uses the existing `P12` Conda environment. Foundation-model
+compatibility is separately gated and does not authorize experiments.

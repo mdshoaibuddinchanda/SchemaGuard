@@ -17,6 +17,9 @@ acquisition:
   min_classes: 2
   max_classes: 10
   parquet_compression: zstd
+  download_attempts: 3
+  request_timeout_seconds: 120
+  retry_backoff_seconds: [1, 2, 4]
 datasets:
   - {id: 3, name: kr-vs-kp, file_id: 3, version: "1", rows: 3196, predictors: 36, target: class, provider_md5: ad6eb32b7492524d4382a40e23cdbb8e, ignore_attributes: []}
   - {id: 23, name: cmc, file_id: 23, version: "1", rows: 1473, predictors: 9, target: Contraceptive_method_used, provider_md5: 3149646ecff276abac3e892d1556655f, ignore_attributes: []}

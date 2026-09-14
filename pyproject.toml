@@ -30,8 +30,9 @@ models-cpu = [
   "xgboost==3.4.1",
 ]
 models-foundation = [
-  "tabpfn==8.5.0",
-  "tabicl==2.2.0",
+    "tabpfn==8.5.0",
+    "tabicl==2.2.0",
+    "torch==2.6.0",
 ]
 monitoring = [
   "psutil>=7,<8",
@@ -56,6 +57,7 @@ markers = [
   "foundation_model: tests that import or execute TabPFN or TabICL",
   "slow: tests that may exceed normal unit-test duration",
   "integration: end-to-end integration tests",
+  "evidence: tests that read locally retained generated evidence",
 ]
 
 [tool.ruff]

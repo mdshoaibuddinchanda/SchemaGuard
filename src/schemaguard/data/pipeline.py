@@ -39,7 +39,7 @@ class PipelinePaths:
     raw_manifest_path: Path
     quality_report_path: Path
     validation_summary_path: Path
-    phase_result_path: Path
+    stage_result_path: Path
     handoff_path: Path
 
 
@@ -77,17 +77,17 @@ def build_paths(root: str | Path, config: SmokeDatasetConfig) -> PipelinePaths:
         / config.split.strategy
         / (f"seed_{config.split.master_seed}")
     )
-    foundation_dir = base / "artifacts" / "phase_01_data_foundation"
+    foundation_dir = base / "artifacts" / "data_foundation"
     return PipelinePaths(
         raw_dir=dataset_dir,
         processed_dir=processed_dir,
         split_dir=split_dir,
         foundation_dir=foundation_dir,
-        log_path=base / "logs" / "phase_01_data_foundation" / "events.jsonl",
+        log_path=base / "logs" / "data_foundation" / "events.jsonl",
         raw_manifest_path=dataset_dir / "source_manifest.json",
         quality_report_path=processed_dir / "quality_report.json",
         validation_summary_path=foundation_dir / "validation_summary.json",
-        phase_result_path=foundation_dir / "phase_result.json",
+        stage_result_path=foundation_dir / "stage_result.json",
         handoff_path=foundation_dir / "handoff.md",
     )
 
@@ -173,7 +173,7 @@ def _summary(
         *processed_validation.report.warnings,
     ]
     return ValidationSummary(
-        phase="P01 — Reproducible Data Foundation",
+        stage="data_foundation",
         status="FAILED" if checks_failed else "PASS",
         dataset_identity={
             "internal_id": config.dataset.internal_id,
@@ -256,7 +256,7 @@ def _summary(
     )
 
 
-def _write_phase_result(
+def _write_stage_result(
     paths: PipelinePaths,
     status: Literal["PASS", "FAILED"],
     stages: list[str],
@@ -264,7 +264,7 @@ def _write_phase_result(
     message: str | None = None,
 ) -> None:
     result = PhaseResult(
-        phase="P01 — Reproducible Data Foundation",
+        stage="data_foundation",
         status=status,
         dataset_id="blood-transfusion-service-center",
         failed_stage=stage,
@@ -272,7 +272,7 @@ def _write_phase_result(
         completed_stages=stages,
         created_at_utc=datetime.now(UTC),
     )
-    atomic_write_json(paths.phase_result_path, result.canonical_dict())
+    atomic_write_json(paths.stage_result_path, result.canonical_dict())
 
 
 def _artifact_inventory(
@@ -312,7 +312,7 @@ def _write_handoff(
     splits: SplitArtifacts,
 ) -> None:
     lines = [
-        "# Phase 01 Handoff",
+        "# Data Foundation Handoff",
         "",
         "## Status",
         "",
@@ -349,11 +349,11 @@ def _write_handoff(
         "",
         "```text",
         (
-            "python scripts/01_prepare_smoke_data.py "
+            "python scripts/prepare_smoke_data.py "
             "--config configs/datasets/smoke_blood_transfusion.yaml"
         ),
         (
-            "python scripts/01_prepare_smoke_data.py "
+            "python scripts/prepare_smoke_data.py "
             "--config configs/datasets/smoke_blood_transfusion.yaml --offline"
         ),
         "```",
@@ -409,7 +409,7 @@ def _write_handoff(
             "",
             "## Next Permitted Phase",
             "",
-            "Phase 02 may begin only after independent review of this handoff.",
+            "The next workstream may begin only after independent review of this handoff.",
             "",
         ]
     )
@@ -434,7 +434,7 @@ def run_pipeline(
     project_root = Path(root) if root is not None else repository_root()
     paths = build_paths(project_root, config)
     _create_directories(paths)
-    logger = EventLogger(paths.log_path, "P01", config.dataset.internal_id)
+    logger = EventLogger(paths.log_path, "data_foundation", config.dataset.internal_id)
     stages: list[str] = []
     current_stage = "configuration"
     try:
@@ -550,7 +550,7 @@ def run_pipeline(
         )
         atomic_write_json(paths.validation_summary_path, summary.canonical_dict())
         _write_handoff(paths, summary, download, processed, splits)
-        _write_phase_result(paths, "PASS", stages + [current_stage, "handoff"])
+        _write_stage_result(paths, "PASS", stages + [current_stage, "handoff"])
         logger.log(current_stage, event="pipeline_passed")
         return PipelineOutcome(
             config=config,
@@ -567,7 +567,7 @@ def run_pipeline(
         logger.log(
             current_stage, level="ERROR", event="pipeline_failed", details={"message": str(exc)}
         )
-        _write_phase_result(paths, "FAILED", stages, current_stage, str(exc))
+        _write_stage_result(paths, "FAILED", stages, current_stage, str(exc))
         if isinstance(exc, (PipelineError, DownloadError)):
             raise
         raise PipelineError(f"{current_stage}: {exc}") from exc

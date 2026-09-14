@@ -1,4 +1,4 @@
-"""Independently audit the persisted SchemaGuard Phase 01 evidence."""
+"""Independently audit the persisted SchemaGuard data-foundation evidence."""
 
 from __future__ import annotations
 
@@ -38,10 +38,10 @@ REQUIRED_FILES = [
     "configs/experiment_registry.yaml",
     "SCHEMAGUARD_MASTER_PLAN.md",
     "src/schemaguard/data/splits.py",
-    "scripts/01_prepare_smoke_data.py",
+    "scripts/prepare_smoke_data.py",
     "scripts/audit_data_foundation.py",
     "tests/unit/test_splits.py",
-    "tests/integration/test_phase01_pipeline.py",
+    "tests/integration/test_data_foundation_pipeline.py",
     "data/raw/openml/1464/blood-transfusion-service-center.arff",
     "data/raw/openml/1464/openml_metadata.json",
     "data/raw/openml/1464/source_manifest.json",
@@ -53,9 +53,9 @@ REQUIRED_FILES = [
     "data/processed/openml/1464/data_manifest.json",
     str(ACTIVE_SPLIT_RELATIVE / "assignments.parquet"),
     str(ACTIVE_SPLIT_RELATIVE / "split_manifest.json"),
-    "artifacts/phase_01_data_foundation/validation_summary.json",
-    "artifacts/phase_01_data_foundation/phase_result.json",
-    "artifacts/phase_01_data_foundation/handoff.md",
+    "artifacts/data_foundation/validation_summary.json",
+    "artifacts/data_foundation/stage_result.json",
+    "artifacts/data_foundation/handoff.md",
 ]
 
 
@@ -259,7 +259,7 @@ def make_gates(
     targets: pd.DataFrame,
     split: dict[str, Any],
     summary: ValidationSummary,
-    phase_result: PhaseResult,
+    stage_result: PhaseResult,
     missing_required_files: list[str],
 ) -> list[dict[str, Any]]:
     manifest = split["manifest"]
@@ -521,10 +521,10 @@ def make_gates(
         ),
         (
             "A36",
-            "phase_result.json reports PASS",
-            "phase_result.json",
-            phase_result.status == "PASS",
-            phase_result.status,
+            "stage_result.json reports PASS",
+            "stage_result.json",
+            stage_result.status == "PASS",
+            stage_result.status,
         ),
         (
             "A37",
@@ -532,7 +532,7 @@ def make_gates(
             "handoff.md",
             all(
                 section
-                in (root / "artifacts/phase_01_data_foundation/handoff.md").read_text(
+                in (root / "artifacts/data_foundation/handoff.md").read_text(
                     encoding="utf-8"
                 )
                 for section in (
@@ -570,7 +570,7 @@ def write_handoff(
     review_status: str,
 ) -> None:
     lines = [
-        "# Phase 01 Handoff",
+        "# Data Foundation Handoff",
         "",
         "## Status",
         "",
@@ -606,14 +606,14 @@ def write_handoff(
         "",
         "## Commands Executed",
         "",
-        "See the exact command outputs in `artifacts/phase_01_data_foundation/review/`.",
+        "See the exact command outputs in `artifacts/data_foundation/review/`.",
         "",
         "## Acceptance Gates",
         "",
         f"- {sum(item['result'] == 'PASS' for item in gates)}/37 gates pass.",
         "- A26–A28 are formally superseded from exact row-count requirements to "
         "manifest-recorded grouped sizes.",
-        "- Full A01–A37 table: `artifacts/phase_01_data_foundation/review/acceptance_gates.md`.",
+        "- Full A01–A37 table: `artifacts/data_foundation/review/acceptance_gates.md`.",
         "",
         "## Data Artifacts",
         "",
@@ -646,15 +646,16 @@ def write_handoff(
             "",
             "## Next Permitted Phase",
             "",
-            "Phase 02 remains not started. Do not begin it until this handoff is accepted.",
+            "The next workstream remains not started. Do not begin it until this handoff is "
+            "accepted.",
             "",
         ]
     )
-    atomic_write_text(root / "artifacts/phase_01_data_foundation/handoff.md", "\n".join(lines))
+    atomic_write_text(root / "artifacts/data_foundation/handoff.md", "\n".join(lines))
 
 
 def run_audit(root: Path) -> int:
-    review_dir = root / "artifacts/phase_01_data_foundation/review"
+    review_dir = root / "artifacts/data_foundation/review"
     review_dir.mkdir(parents=True, exist_ok=True)
     config = load_smoke_config(root / "configs/datasets/smoke_blood_transfusion.yaml")
     source = read_json_validated(root / "data/raw/openml/1464/source_manifest.json", SourceManifest)
@@ -690,10 +691,10 @@ def run_audit(root: Path) -> int:
         )
 
     summary = read_json_validated(
-        root / "artifacts/phase_01_data_foundation/validation_summary.json", ValidationSummary
+        root / "artifacts/data_foundation/validation_summary.json", ValidationSummary
     )
-    phase_result = read_json_validated(
-        root / "artifacts/phase_01_data_foundation/phase_result.json", PhaseResult
+    stage_result = read_json_validated(
+        root / "artifacts/data_foundation/stage_result.json", PhaseResult
     )
     gates = make_gates(
         root,
@@ -705,7 +706,7 @@ def run_audit(root: Path) -> int:
         targets,
         split,
         summary,
-        phase_result,
+        stage_result,
         missing_required_files,
     )
     gate_counts = {
@@ -787,7 +788,7 @@ def run_audit(root: Path) -> int:
     atomic_write_json(review_dir / "audit_result.json", report)
     write_handoff(root, source, split, legacy, gates, missing_required_files, status)
     review = [
-        "# Independent Phase 01 Evidence Review",
+        "# Independent Data Foundation Evidence Review",
         "",
         f"## Status\n\n{status}",
         "",
@@ -815,8 +816,8 @@ def run_audit(root: Path) -> int:
         else f"Independent evidence audit: {status}."
     )
     atomic_write_json(
-        root / "artifacts/phase_01_data_foundation/phase_result.json",
-        phase_result.model_copy(update={"message": phase_message}).canonical_dict(),
+        root / "artifacts/data_foundation/stage_result.json",
+        stage_result.model_copy(update={"message": phase_message}).canonical_dict(),
     )
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if status == "VERIFIED_PASS" else 1

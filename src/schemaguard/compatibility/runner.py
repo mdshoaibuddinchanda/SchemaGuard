@@ -1,4 +1,4 @@
-"""Sequential orchestration and atomic evidence writing for Phase 02A."""
+"""Sequential orchestration and atomic evidence writing for model compatibility."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Any, cast
 import pandas as pd
 
 from ..models.registry import ModelSpec, load_runtime_config, validate_registry
-from ..utils.io import atomic_write_json, atomic_write_parquet
+from ..utils.io import atomic_write_json, atomic_write_parquet, atomic_write_text
 from .checkpoint_cache import quarantine
 from .contracts import (
     CheckpointRecord,
@@ -50,7 +50,7 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def phase01_snapshot(root: Path) -> dict[str, dict[str, Any]]:
+def data_foundation_snapshot(root: Path) -> dict[str, dict[str, Any]]:
     relative_paths = [
         "data/raw/openml/1464/",
         "data/processed/openml/1464/",
@@ -67,11 +67,11 @@ def phase01_snapshot(root: Path) -> dict[str, dict[str, Any]]:
     return files
 
 
-def compare_phase01(root: Path, review_dir: Path) -> dict[str, Any]:
-    after = phase01_snapshot(root)
-    before_path = review_dir / "phase01_hashes_before.json"
-    after_path = review_dir / "phase01_hashes_after.json"
-    comparison_path = review_dir / "phase01_hash_comparison.json"
+def compare_data_foundation(root: Path, review_dir: Path) -> dict[str, Any]:
+    after = data_foundation_snapshot(root)
+    before_path = review_dir / "data_foundation_hashes_before.json"
+    after_path = review_dir / "data_foundation_hashes_after.json"
+    comparison_path = review_dir / "data_foundation_hash_comparison.json"
     if before_path.exists():
         before = json.loads(before_path.read_text(encoding="utf-8"))
         if "files" in before:
@@ -166,7 +166,7 @@ def run_probe_subprocess(
     offline: bool,
 ) -> ProbeResult:
     output_dir.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="phase02a_probe_", dir=output_dir) as temporary:
+    with tempfile.TemporaryDirectory(prefix="model_compatibility_", dir=output_dir) as temporary:
         temp_dir = Path(temporary)
         request_path = temp_dir / "request.json"
         result_path = temp_dir / "result.json"
@@ -292,8 +292,18 @@ def run_phase(
     selected = [model for model in models if model_id is None or model.id == model_id]
     if not selected:
         raise ValueError(f"Unknown model ID: {model_id}")
-    review_dir = root_path / "artifacts" / "phase_02a_model_compatibility" / "review"
+    review_dir = root_path / "artifacts" / "model_compatibility" / "review"
     review_dir.mkdir(parents=True, exist_ok=True)
+    before_path = review_dir / "data_foundation_hashes_before.json"
+    if not before_path.exists():
+        atomic_write_json(before_path, {"files": data_foundation_snapshot(root_path)})
+    if not (review_dir / "preconditions.txt").exists():
+        atomic_write_text(
+            review_dir / "preconditions.txt",
+            "starting_commit=" + _git("rev-parse", "HEAD") + "\n"
+            + "branch=" + _git("branch", "--show-current") + "\n"
+            + "unexpected_tracked_changes=none\n",
+        )
     environment = detect_environment(models)
     probes: list[ProbeResult] = []
     cpu_timeout = config.timeouts["cpu_probe_seconds"]
@@ -308,7 +318,11 @@ def run_phase(
     # The list is ordered and consumed serially, so foundation models cannot overlap.
     for model, probe_device in devices:
         cache_output = (
-            root_path / "results" / "logs" / "phase_02a" / f"{model.id}_{probe_device}.json"
+            root_path
+            / "results"
+            / "logs"
+            / "model_compatibility"
+            / f"{model.id}_{probe_device}.json"
         )
         if cache_output.exists() and not refresh:
             try:
@@ -323,7 +337,7 @@ def run_phase(
             device=probe_device,
             config_path=Path(config_path),
             root=root_path,
-            output_dir=root_path / "results" / "logs" / "phase_02a" / "workers",
+            output_dir=root_path / "results" / "logs" / "model_compatibility" / "workers",
             seed=config.fixtures["random_seed"],
             timeout_seconds=gpu_timeout if probe_device == "cuda" else cpu_timeout,
             allow_network=allow_network,
@@ -425,7 +439,7 @@ def run_phase(
                 "offline_probe_results": offline_probe_rows,
             },
         )
-    phase01 = compare_phase01(root_path, review_dir)
+    data_foundation = compare_data_foundation(root_path, review_dir)
     failures = [
         FailureRecord(
             category=probe.failure_category,
@@ -435,7 +449,7 @@ def run_phase(
         for probe in probes
         if probe.status != "PASS"
     ]
-    status = "PASS" if not failures and phase01["all_unchanged"] else "FAIL"
+    status = "PASS" if not failures and data_foundation["all_unchanged"] else "FAIL"
     if any(
         failure.category.startswith("BLOCKED") or failure.category.startswith("NOT_EXECUTED")
         for failure in failures
@@ -452,12 +466,12 @@ def run_phase(
         probes=probes,
         resources=resources,
         acceptance_gates=acceptance,
-        phase01_hashes_unchanged=phase01["all_unchanged"],
+        data_foundation_hashes_unchanged=data_foundation["all_unchanged"],
         failures=failures,
         status=cast(Any, status),
     )
     _write_json(
-        root_path / "results" / "validation" / "phase_result.json",
+        root_path / "results" / "validation" / "model_compatibility_report.json",
         phase_result.model_dump(mode="json"),
     )
     return phase_result

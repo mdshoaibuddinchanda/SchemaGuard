@@ -1,0 +1,464 @@
+{
+  "$defs": {
+    "DatasetInventoryRecordContract": {
+      "additionalProperties": false,
+      "properties": {
+        "class_count": {
+          "minimum": 2,
+          "title": "Class Count",
+          "type": "integer"
+        },
+        "class_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Class Counts",
+          "type": "object"
+        },
+        "dataset_name": {
+          "title": "Dataset Name",
+          "type": "string"
+        },
+        "dataset_version": {
+          "title": "Dataset Version",
+          "type": "string"
+        },
+        "default_target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Default Target"
+        },
+        "download_url": {
+          "title": "Download Url",
+          "type": "string"
+        },
+        "expected_predictors": {
+          "exclusiveMinimum": 0,
+          "title": "Expected Predictors",
+          "type": "integer"
+        },
+        "expected_rows": {
+          "exclusiveMinimum": 0,
+          "title": "Expected Rows",
+          "type": "integer"
+        },
+        "feature_metadata": {
+          "items": {
+            "$ref": "#/$defs/FeatureMetadataContract"
+          },
+          "title": "Feature Metadata",
+          "type": "array"
+        },
+        "ignored_attributes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ignored Attributes",
+          "type": "array"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "License"
+        },
+        "metadata_url": {
+          "title": "Metadata Url",
+          "type": "string"
+        },
+        "observed_predictors": {
+          "exclusiveMinimum": 0,
+          "title": "Observed Predictors",
+          "type": "integer"
+        },
+        "observed_rows": {
+          "exclusiveMinimum": 0,
+          "title": "Observed Rows",
+          "type": "integer"
+        },
+        "openml_data_id": {
+          "exclusiveMinimum": 0,
+          "title": "Openml Data Id",
+          "type": "integer"
+        },
+        "openml_file_id": {
+          "exclusiveMinimum": 0,
+          "title": "Openml File Id",
+          "type": "integer"
+        },
+        "provider_md5": {
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Provider Md5",
+          "type": "string"
+        },
+        "quality": {
+          "$ref": "#/$defs/DatasetQualityReportContract"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "raw_size_bytes": {
+          "minimum": 0,
+          "title": "Raw Size Bytes",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "visibility": {
+          "title": "Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "openml_data_id",
+        "dataset_name",
+        "openml_file_id",
+        "dataset_version",
+        "provider_md5",
+        "raw_sha256",
+        "raw_size_bytes",
+        "metadata_url",
+        "download_url",
+        "default_target",
+        "ignored_attributes",
+        "feature_metadata",
+        "expected_rows",
+        "observed_rows",
+        "expected_predictors",
+        "observed_predictors",
+        "class_count",
+        "class_counts",
+        "quality",
+        "license",
+        "visibility",
+        "status"
+      ],
+      "title": "DatasetInventoryRecordContract",
+      "type": "object"
+    },
+    "DatasetQualityReportContract": {
+      "additionalProperties": false,
+      "properties": {
+        "class_count": {
+          "minimum": 2,
+          "title": "Class Count",
+          "type": "integer"
+        },
+        "class_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Class Counts",
+          "type": "object"
+        },
+        "conflicting_target_groups": {
+          "minimum": 0,
+          "title": "Conflicting Target Groups",
+          "type": "integer"
+        },
+        "duplicate_predictor_groups": {
+          "minimum": 0,
+          "title": "Duplicate Predictor Groups",
+          "type": "integer"
+        },
+        "exact_duplicate_rows": {
+          "minimum": 0,
+          "title": "Exact Duplicate Rows",
+          "type": "integer"
+        },
+        "grouping_algorithm": {
+          "const": "typed_predictor_sha256_v1",
+          "title": "Grouping Algorithm",
+          "type": "string"
+        },
+        "missing_by_column": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Missing By Column",
+          "type": "object"
+        },
+        "missing_cells": {
+          "minimum": 0,
+          "title": "Missing Cells",
+          "type": "integer"
+        },
+        "predictor_count": {
+          "minimum": 1,
+          "title": "Predictor Count",
+          "type": "integer"
+        },
+        "predictor_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Predictor Hash",
+          "type": "string"
+        },
+        "row_count": {
+          "minimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "row_count",
+        "predictor_count",
+        "class_count",
+        "class_counts",
+        "missing_cells",
+        "missing_by_column",
+        "duplicate_predictor_groups",
+        "conflicting_target_groups",
+        "exact_duplicate_rows",
+        "predictor_hash",
+        "grouping_algorithm"
+      ],
+      "title": "DatasetQualityReportContract",
+      "type": "object"
+    },
+    "DatasetValidationRecordContract": {
+      "additionalProperties": false,
+      "properties": {
+        "class_counts": {
+          "title": "Class Counts",
+          "type": "string"
+        },
+        "classes": {
+          "minimum": 2,
+          "title": "Classes",
+          "type": "integer"
+        },
+        "conflicting_target_groups": {
+          "minimum": 0,
+          "title": "Conflicting Target Groups",
+          "type": "integer"
+        },
+        "dataset_name": {
+          "title": "Dataset Name",
+          "type": "string"
+        },
+        "dataset_version": {
+          "title": "Dataset Version",
+          "type": "string"
+        },
+        "duplicate_predictor_groups": {
+          "minimum": 0,
+          "title": "Duplicate Predictor Groups",
+          "type": "integer"
+        },
+        "ignored_attributes": {
+          "title": "Ignored Attributes",
+          "type": "string"
+        },
+        "missing_cells": {
+          "minimum": 0,
+          "title": "Missing Cells",
+          "type": "integer"
+        },
+        "openml_data_id": {
+          "exclusiveMinimum": 0,
+          "title": "Openml Data Id",
+          "type": "integer"
+        },
+        "predictors_expected": {
+          "exclusiveMinimum": 0,
+          "title": "Predictors Expected",
+          "type": "integer"
+        },
+        "predictors_observed": {
+          "exclusiveMinimum": 0,
+          "title": "Predictors Observed",
+          "type": "integer"
+        },
+        "provider_md5": {
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Provider Md5",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "rows_expected": {
+          "exclusiveMinimum": 0,
+          "title": "Rows Expected",
+          "type": "integer"
+        },
+        "rows_observed": {
+          "exclusiveMinimum": 0,
+          "title": "Rows Observed",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "openml_data_id",
+        "dataset_name",
+        "dataset_version",
+        "rows_expected",
+        "rows_observed",
+        "predictors_expected",
+        "predictors_observed",
+        "classes",
+        "class_counts",
+        "ignored_attributes",
+        "raw_sha256",
+        "provider_md5",
+        "missing_cells",
+        "duplicate_predictor_groups",
+        "conflicting_target_groups",
+        "status"
+      ],
+      "title": "DatasetValidationRecordContract",
+      "type": "object"
+    },
+    "FeatureMetadataContract": {
+      "additionalProperties": false,
+      "properties": {
+        "data_type": {
+          "title": "Data Type",
+          "type": "string"
+        },
+        "is_ignore": {
+          "title": "Is Ignore",
+          "type": "boolean"
+        },
+        "is_row_identifier": {
+          "title": "Is Row Identifier",
+          "type": "boolean"
+        },
+        "is_target": {
+          "title": "Is Target",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "data_type",
+        "is_target",
+        "is_ignore",
+        "is_row_identifier"
+      ],
+      "title": "FeatureMetadataContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark": {
+      "const": "SchemaOrbit-14",
+      "title": "Benchmark",
+      "type": "string"
+    },
+    "data_foundation": {
+      "additionalProperties": true,
+      "title": "Data Foundation",
+      "type": "object"
+    },
+    "dataset_count": {
+      "minimum": 0,
+      "title": "Dataset Count",
+      "type": "integer"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "#/$defs/DatasetInventoryRecordContract"
+      },
+      "title": "Datasets",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stage": {
+      "const": "dataset_registry",
+      "default": "dataset_registry",
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "validation_records": {
+      "items": {
+        "$ref": "#/$defs/DatasetValidationRecordContract"
+      },
+      "title": "Validation Records",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark",
+    "dataset_count",
+    "datasets",
+    "data_foundation",
+    "status"
+  ],
+  "title": "DatasetRegistryReportContract",
+  "type": "object"
+}

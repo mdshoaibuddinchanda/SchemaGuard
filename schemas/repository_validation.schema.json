@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "GateCheckContract": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        },
+        "gate_id": {
+          "pattern": "^R[0-9]{2}$",
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "requirement": {
+          "title": "Requirement",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_VERIFIED"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "requirement",
+        "result",
+        "evidence"
+      ],
+      "title": "GateCheckContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/GateCheckContract"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stage": {
+      "const": "repository_repair",
+      "default": "repository_repair",
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "checks"
+  ],
+  "title": "RepositoryValidationReportContract",
+  "type": "object"
+}

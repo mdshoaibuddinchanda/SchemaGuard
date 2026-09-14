@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "ConditionRecordContract": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "status": {
+          "default": "scheduled",
+          "enum": [
+            "scheduled",
+            "completed",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "view_id": {
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "seed",
+        "model_id",
+        "view_id"
+      ],
+      "title": "ConditionRecordContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark": {
+      "const": "SchemaOrbit-14",
+      "title": "Benchmark",
+      "type": "string"
+    },
+    "config_checksum": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Config Checksum",
+      "type": "string"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/ConditionRecordContract"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "scheduled_count": {
+      "exclusiveMinimum": 0,
+      "title": "Scheduled Count",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "scope": {
+      "enum": [
+        "pilot",
+        "main"
+      ],
+      "title": "Scope",
+      "type": "string"
+    },
+    "stage": {
+      "const": "condition_manifest",
+      "default": "condition_manifest",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scope",
+    "benchmark",
+    "config_checksum",
+    "scheduled_count",
+    "records"
+  ],
+  "title": "ConditionManifestContract",
+  "type": "object"
+}

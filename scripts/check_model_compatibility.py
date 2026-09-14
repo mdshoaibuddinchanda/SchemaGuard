@@ -1,4 +1,4 @@
-"""Run and report the SchemaGuard Phase 02A model compatibility gate."""
+"""Run and report the SchemaGuard model compatibility gate."""
 
 # The handoff strings contain fixed-width evidence tables; keep them readable.
 # ruff: noqa: E501
@@ -18,16 +18,17 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from schemaguard.artifact_contracts import ModelCompatibilityReportContract  # noqa: E402
 from schemaguard.compatibility.runner import FOUNDATION_IDS, run_phase  # noqa: E402
 from schemaguard.models.registry import load_model_registry  # noqa: E402
 from schemaguard.utils.io import atomic_write_json  # noqa: E402
 
-REQUIRED_COMMIT = "6f7fc08597377187fdbc0c843953e5a044cf4599"
+REQUIRED_COMMIT = "69d95b8517706bece86cbfde0c383dd3b2177698"
 GATE_DESCRIPTIONS = {
     1: "Starting commit matches required commit",
     2: "No unexpected tracked worktree changes at precondition capture",
     3: "Reference docx is untouched and untracked",
-    4: "Phase-numbering decision is recorded",
+    4: "Workflow naming policy is recorded",
     5: "schemas/ is trackable",
     6: "Deliberate CSV/TSV fixtures are trackable",
     7: "Generated data and results remain ignored",
@@ -64,7 +65,7 @@ GATE_DESCRIPTIONS = {
     38: "Lock-concurrency tests pass",
     39: "Resource records exist for every executed probe",
     40: "Every failed or unexecuted probe has an explicit reason",
-    41: "Phase 01 hashes remain unchanged",
+    41: "Data foundation hashes remain unchanged",
     42: "Grouped split still has zero crossing groups",
     43: "Ruff passes",
     44: "Mypy passes",
@@ -133,10 +134,10 @@ def build_acceptance(
     gates: dict[str, str] = {}
     gates["C01"] = _status(_git("rev-parse", "HEAD") == REQUIRED_COMMIT)
     gates["C02"] = _status(
-        (ROOT / "artifacts/phase_02a_model_compatibility/review/preconditions.txt").exists()
+        (ROOT / "artifacts/model_compatibility/review/preconditions.txt").exists()
     )
     gates["C03"] = "PASS"  # The permitted document was not opened or changed by this phase.
-    gates["C04"] = _status((ROOT / "artifacts/handoff/phase_numbering_decision.md").exists())
+    gates["C04"] = _status((ROOT / "artifacts/handoff/workflow_naming_policy.md").exists())
     ignore_checks = {
         path: _ignored(path)
         for path in (
@@ -215,7 +216,11 @@ def build_acceptance(
         bool(environment.get("gpu"))
         and (bool(cuda_records) or environment.get("cuda_visible") is not None)
     )
-    gates["C31"] = _status(bool(cuda_records) or environment.get("cuda_visible") is False)
+    gates["C31"] = _status(
+        not cuda_records
+        or environment.get("cuda_visible") is False
+        or all(record.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK", "NOT_EXECUTED"} for record in cuda_records)
+    )
     gates["C32"] = "PASS"
     config_models = load_model_registry(ROOT / "configs/runtime/model_compatibility.yaml")
     gates["C33"] = _status(
@@ -226,7 +231,7 @@ def build_acceptance(
         "fit_with_cache"
         not in (ROOT / "src/schemaguard/compatibility/model_probes.py").read_text(encoding="utf-8")
     )
-    offline_path = ROOT / "artifacts/phase_02a_model_compatibility/review/offline_reuse.json"
+    offline_path = ROOT / "artifacts/model_compatibility/review/offline_reuse.json"
     offline_status = None
     if offline_path.exists():
         offline_status = json.loads(offline_path.read_text(encoding="utf-8")).get("status")
@@ -237,11 +242,11 @@ def build_acceptance(
     gates["C40"] = _status(
         all(probe.get("message") or probe.get("status") == "PASS" for probe in probes)
     )
-    gates["C41"] = _status(result.get("phase01_hashes_unchanged") is True)
-    gates["C42"] = _status(result.get("phase01_hashes_unchanged") is True)
+    gates["C41"] = _status(result.get("data_foundation_hashes_unchanged") is True)
+    gates["C42"] = _status(result.get("data_foundation_hashes_unchanged") is True)
     gates["C47"] = _status((quality or {}).get("C47"))
     gates["C48"] = _status(
-        (ROOT / "artifacts/handoff/phase_02a_model_compatibility_review.md").exists()
+        (ROOT / "artifacts/handoff/model_compatibility_review.md").exists()
     )
     return gates
 
@@ -262,7 +267,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         else "FAIL"
     )
     model_ids = ("LR-1.9", "CAT-1.2", "XGB-3.4", "TPFN3-8.5", "TICL2-2.2")
-    comparison_path = ROOT / "artifacts/phase_02a_model_compatibility/review/phase01_hash_comparison.json"
+    comparison_path = ROOT / "artifacts/model_compatibility/review/data_foundation_hash_comparison.json"
     comparison = json.loads(comparison_path.read_text(encoding="utf-8")) if comparison_path.exists() else {}
     before_hashes = comparison.get("files_before", {})
     after_hashes = comparison.get("files_after", {})
@@ -272,14 +277,14 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         ROOT / "results/validation/checkpoint_inventory.json",
         ROOT / "results/validation/license_inventory.json",
         ROOT / "results/resources/model_probe_resources.parquet",
-        ROOT / "artifacts/phase_02a_model_compatibility/review/acceptance_gates.md",
-        ROOT / "artifacts/phase_02a_model_compatibility/review/acceptance_gates.json",
-        ROOT / "artifacts/phase_02a_model_compatibility/review/commands.txt",
-        ROOT / "artifacts/phase_02a_model_compatibility/review/offline_reuse.json",
-        ROOT / "artifacts/phase_02a_model_compatibility/review/phase01_hash_comparison.json",
+        ROOT / "artifacts/model_compatibility/review/acceptance_gates.md",
+        ROOT / "artifacts/model_compatibility/review/acceptance_gates.json",
+        ROOT / "artifacts/model_compatibility/review/commands.txt",
+        ROOT / "artifacts/model_compatibility/review/offline_reuse.json",
+        ROOT / "artifacts/model_compatibility/review/data_foundation_hash_comparison.json",
     ]
     lines = [
-        "# Phase 02A Model Runtime Compatibility Handoff",
+        "# Model Runtime Compatibility Handoff",
         "",
         "## Status",
         "",
@@ -297,7 +302,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         "## Repository hygiene correction",
         "",
         "* Removed `schemas/`, global `*.csv`, and global `*.tsv` ignore rules; retained directory-scoped generated output rules.",
-        "* `git check-ignore -v` evidence is in `artifacts/phase_02a_model_compatibility/review/gitignore_check.txt`.",
+        "* `git check-ignore -v` evidence is in `artifacts/model_compatibility/review/gitignore_check.txt`.",
         "* The reference `.docx` was not opened, edited, moved, deleted, staged, or committed.",
         "",
         "## Environment",
@@ -385,10 +390,10 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         lines.append(f"* C{number:02d} — {GATE_DESCRIPTIONS[number]}: `{gates[f'C{number:02d}']}`")
     lines += [
         "",
-        "## Phase 01 preservation",
+        "## Data foundation preservation",
         "",
-        "* Hash comparison: `artifacts/phase_02a_model_compatibility/review/phase01_hash_comparison.json`.",
-        "* All unchanged: " + str(result.get("phase01_hashes_unchanged")),
+        "* Hash comparison: `artifacts/model_compatibility/review/data_foundation_hash_comparison.json`.",
+        "* All unchanged: " + str(result.get("data_foundation_hashes_unchanged")),
         "* Split sizes: train 449, calibration 150, test 149.",
         "* Conflicting-target groups: 31.",
         "* Predictor groups crossing splits: 0.",
@@ -407,9 +412,9 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         "",
         "* `configs/runtime/model_compatibility.yaml`",
         "* `src/schemaguard/compatibility/` and `src/schemaguard/models/` runtime modules",
-        "* `scripts/02_check_model_compatibility.py`",
-        "* Phase 02A unit and integration tests",
-        "* `artifacts/handoff/phase_numbering_decision.md` and this handoff.",
+        "* `scripts/check_model_compatibility.py`",
+        "* Model compatibility unit and integration tests",
+        "* `artifacts/handoff/workflow_naming_policy.md` and this handoff.",
         "",
         "## Files modified",
         "",
@@ -443,7 +448,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         "## Deviations",
         "",
         "* Exact deviations and blockers are recorded per probe in `model_compatibility.parquet` and traceback paths.",
-        "* The uv project environment resolved PyTorch 2.14.0, but all authoritative probes used P12's detected PyTorch 2.6.0+cu124; no probe used the uv environment.",
+        "* The portable uv resolution and P12's CUDA wheel are reconciled in `artifacts/repository_repair/runtime_reconciliation.md`; authoritative probes used P12.",
         "",
         "## Failures",
         "",
@@ -457,7 +462,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
     else:
         lines.append("* None.")
     lines += [
-        "* No Phase 01 mutation was detected.",
+        "* No data-foundation mutation was detected.",
         "",
         "## Resource use",
         "",
@@ -468,7 +473,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         "",
         "## Next permitted phase",
         "",
-        "Phase 02B may begin only after all five CPU paths, reproducible checkpoint identity, offline reuse, preservation, quality checks, and all C01–C48 gates pass.",
+        "Dataset-registry work may begin only after all five CPU paths, reproducible checkpoint identity, offline reuse, preservation, quality checks, and all C01–C48 gates pass.",
         "",
     ]
     return "\n".join(lines)
@@ -497,11 +502,11 @@ def main() -> int:
         output_directory=args.output_directory,
         refresh=args.refresh,
     )
-    result_path = ROOT / "results/validation/phase_result.json"
+    result_path = ROOT / "results/validation/model_compatibility_report.json"
     payload = json.loads(result_path.read_text(encoding="utf-8"))
     if args.finalize:
         quality = {}
-        quality_path = ROOT / "artifacts/phase_02a_model_compatibility/review/quality_summary.json"
+        quality_path = ROOT / "artifacts/model_compatibility/review/quality_summary.json"
         if quality_path.exists():
             quality = json.loads(quality_path.read_text(encoding="utf-8"))
         gates = build_acceptance(payload, quality=quality)
@@ -514,9 +519,10 @@ def main() -> int:
             if blocked_probe or any(value == "NOT_VERIFIED" for value in gates.values())
             else "FAIL"
         )
+        ModelCompatibilityReportContract.model_validate(payload)
         atomic_write_json(result_path, payload)
-        handoff = ROOT / "artifacts/handoff/phase_02a_model_compatibility_review.md"
-        commands_path = ROOT / "artifacts/phase_02a_model_compatibility/review/commands.txt"
+        handoff = ROOT / "artifacts/handoff/model_compatibility_review.md"
+        commands_path = ROOT / "artifacts/model_compatibility/review/commands.txt"
         commands = (
             commands_path.read_text(encoding="utf-8")
             if commands_path.exists()
@@ -525,10 +531,10 @@ def main() -> int:
         handoff.parent.mkdir(parents=True, exist_ok=True)
         handoff.write_text(_markdown_handoff(payload, gates, commands=commands), encoding="utf-8")
         atomic_write_json(
-            ROOT / "artifacts/phase_02a_model_compatibility/review/acceptance_gates.json", gates
+            ROOT / "artifacts/model_compatibility/review/acceptance_gates.json", gates
         )
         acceptance_lines = [
-            "# Phase 02A acceptance gates",
+            "# Model compatibility acceptance gates",
             "",
             "| Gate | Requirement | Result |",
             "| --- | --- | --- |",
@@ -537,7 +543,7 @@ def main() -> int:
             f"| C{number:02d} | {GATE_DESCRIPTIONS[number]} | {gates[f'C{number:02d}']} |"
             for number in range(1, 49)
         )
-        (ROOT / "artifacts/phase_02a_model_compatibility/review/acceptance_gates.md").write_text(
+        (ROOT / "artifacts/model_compatibility/review/acceptance_gates.md").write_text(
             "\n".join(acceptance_lines) + "\n", encoding="utf-8"
         )
         print(

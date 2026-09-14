@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_phase01_grouped_split_remains_valid() -> None:
+def test_data_foundation_grouped_split_remains_valid() -> None:
     manifest = json.loads(
         (
             ROOT / "data/splits/openml/1464/stratified_group_5fold_v1/seed_1729/split_manifest.json"

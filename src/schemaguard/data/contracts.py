@@ -4,9 +4,18 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
+
+Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 
 
 class StrictContract(BaseModel):
@@ -259,7 +268,7 @@ class SplitManifest(StrictContract):
 
 
 class ValidationSummary(StrictContract):
-    phase: str
+    stage: str
     status: Literal["PASS", "FAILED"]
     dataset_identity: dict[str, Any]
     source_verification: dict[str, Any]
@@ -287,7 +296,7 @@ class ValidationSummary(StrictContract):
 
 
 class PhaseResult(StrictContract):
-    phase: str
+    stage: str
     status: Literal["PASS", "FAILED"]
     dataset_id: str
     failed_stage: str | None = None
@@ -301,3 +310,272 @@ class PhaseResult(StrictContract):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("created_at_utc must be timezone-aware")
         return value.astimezone(UTC)
+
+
+# These closed-world contracts describe the dataset-registry artifacts.  They
+# deliberately live beside the frozen smoke-data contracts so that both data
+# workstreams use Pydantic as their authoritative artifact schema.
+class DatasetSpecContract(StrictContract):
+    id: int = Field(gt=0)
+    name: str
+    file_id: int = Field(gt=0)
+    version: str
+    rows: int = Field(gt=0)
+    predictors: int = Field(gt=0)
+    target: str
+    provider_md5: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")]
+    ignore_attributes: list[str] = Field(default_factory=list)
+
+
+class AcquisitionRulesContract(StrictContract):
+    seed: int
+    offline_default: bool
+    require_version: str
+    require_public: bool
+    require_active: bool
+    require_default_target: bool
+    require_stable_checksum: bool
+    min_rows: int = Field(gt=0)
+    max_rows: int = Field(gt=0)
+    min_predictors: int = Field(gt=0)
+    max_predictors: int = Field(gt=0)
+    min_classes: int = Field(ge=2)
+    max_classes: int = Field(ge=2)
+    parquet_compression: Literal["zstd"]
+    download_attempts: int = Field(ge=1, le=3)
+    request_timeout_seconds: float = Field(gt=0)
+    retry_backoff_seconds: list[float]
+
+    @model_validator(mode="after")
+    def validate_ranges(self) -> AcquisitionRulesContract:
+        if self.min_rows > self.max_rows or self.min_predictors > self.max_predictors:
+            raise ValueError("acquisition ranges must be ordered")
+        if self.min_classes > self.max_classes:
+            raise ValueError("class ranges must be ordered")
+        if len(self.retry_backoff_seconds) != self.download_attempts:
+            raise ValueError("one retry backoff value is required per download attempt")
+        if any(value < 0 for value in self.retry_backoff_seconds):
+            raise ValueError("retry backoff values must be nonnegative")
+        return self
+
+
+class SchemaOrbitConfigContract(StrictContract):
+    benchmark: Literal["SchemaOrbit-14"]
+    openml_api_base: str
+    download_base: str
+    acquisition: AcquisitionRulesContract
+    datasets: list[DatasetSpecContract]
+
+    @model_validator(mode="after")
+    def validate_registry(self) -> SchemaOrbitConfigContract:
+        identifiers = [item.id for item in self.datasets]
+        if len(identifiers) != 14 or len(set(identifiers)) != 14:
+            raise ValueError("SchemaOrbit-14 requires fourteen unique datasets")
+        return self
+
+
+class OpenMLMetadataContract(StrictContract):
+    data_id: int = Field(gt=0)
+    file_id: int = Field(gt=0)
+    name: str
+    version: str
+    format: Literal["ARFF"]
+    default_target_attribute: str | None
+    status: str
+    visibility: str
+    licence: str | None
+    md5_checksum: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")] | None
+    metadata_url: str
+    download_url: str
+    raw: dict[str, Any]
+
+
+class FeatureMetadataContract(StrictContract):
+    name: str
+    data_type: str
+    is_target: bool
+    is_ignore: bool
+    is_row_identifier: bool
+
+
+class RawSourceManifestContract(StrictContract):
+    cache_status: Literal["downloaded", "hit"]
+    provider: Literal["openml"]
+    openml_data_id: int = Field(gt=0)
+    openml_file_id: int = Field(gt=0)
+    dataset_name: str
+    dataset_version: str
+    data_format: Literal["ARFF"]
+    default_target_attribute: str | None
+    metadata_url: str
+    requested_download_url: str
+    resolved_download_url: str
+    source_page: str | None = None
+    provider_md5: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")]
+    computed_md5: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")]
+    computed_sha256: Sha256
+    file_size_bytes: int = Field(ge=0)
+    raw_relative_path: str
+    retrieved_at_utc: str
+    http_status: int | None = Field(default=None, ge=100, le=599)
+    content_length_bytes: int | None = Field(default=None, ge=0)
+    http_etag: str | None = None
+    http_last_modified: str | None = None
+    package_versions: dict[str, str]
+    attempts: int = Field(default=1, ge=1, le=3)
+
+    @model_validator(mode="after")
+    def validate_checksum(self) -> RawSourceManifestContract:
+        if self.provider_md5 != self.computed_md5:
+            raise ValueError("provider and computed MD5 must match")
+        if (
+            self.content_length_bytes is not None
+            and self.content_length_bytes != self.file_size_bytes
+        ):
+            raise ValueError("content length and file size must match")
+        return self
+
+
+class DatasetAttributeContract(StrictContract):
+    name: str
+    raw_type: str
+    kind: Literal["numeric", "categorical"]
+    position: int = Field(ge=0)
+
+
+class DatasetSchemaContract(StrictContract):
+    internal_dataset_id: str
+    openml_data_id: int = Field(gt=0)
+    target_column: str
+    row_id_column: Literal["__sg_row_id"]
+    feature_columns: list[str]
+    feature_row_count: int = Field(ge=0)
+    target_row_count: int = Field(ge=0)
+    raw_sha256: Sha256
+    attributes: list[DatasetAttributeContract]
+
+    @model_validator(mode="after")
+    def validate_schema(self) -> DatasetSchemaContract:
+        if [item.position for item in self.attributes] != list(range(len(self.attributes))):
+            raise ValueError("attribute positions must be contiguous")
+        if [item.name for item in self.attributes] != self.feature_columns:
+            raise ValueError("attribute and feature ordering must match")
+        if self.feature_row_count != self.target_row_count:
+            raise ValueError("feature and target row counts must match")
+        return self
+
+
+class LabelMappingContract(StrictContract):
+    raw_sha256: Sha256
+    original_to_code: dict[str, int]
+    code_to_original: dict[str, str]
+
+    @model_validator(mode="after")
+    def validate_mapping(self) -> LabelMappingContract:
+        if set(self.code_to_original) != {str(value) for value in self.original_to_code.values()}:
+            raise ValueError("label mapping codes are not reversible")
+        if any(value < 0 for value in self.original_to_code.values()):
+            raise ValueError("target codes must be nonnegative")
+        for label, code in self.original_to_code.items():
+            if self.code_to_original.get(str(code)) != label:
+                raise ValueError("label mapping is not an inverse mapping")
+        return self
+
+
+class ProcessedManifestContract(StrictContract):
+    internal_dataset_id: str
+    openml_data_id: int = Field(gt=0)
+    row_count: int = Field(ge=0)
+    feature_columns: list[str]
+    target_columns: list[str]
+    raw_sha256: Sha256
+    source_manifest_sha256: Sha256
+    processing_config_sha256: Sha256
+    row_id_formula: str
+    artifact_hashes: dict[str, Sha256]
+    compression: Literal["zstd"]
+    compression_level: int = Field(ge=1, le=22)
+
+    @model_validator(mode="after")
+    def validate_artifacts(self) -> ProcessedManifestContract:
+        required = {
+            "features.parquet",
+            "targets.parquet",
+            "schema.json",
+            "label_mapping.json",
+            "quality_report.json",
+        }
+        if set(self.artifact_hashes) != required:
+            raise ValueError("processed manifest must hash exactly the four data artifacts")
+        return self
+
+
+class DatasetQualityReportContract(StrictContract):
+    row_count: int = Field(ge=0)
+    predictor_count: int = Field(ge=1)
+    class_count: int = Field(ge=2)
+    class_counts: dict[str, int]
+    missing_cells: int = Field(ge=0)
+    missing_by_column: dict[str, int]
+    duplicate_predictor_groups: int = Field(ge=0)
+    conflicting_target_groups: int = Field(ge=0)
+    exact_duplicate_rows: int = Field(ge=0)
+    predictor_hash: Sha256
+    grouping_algorithm: Literal["typed_predictor_sha256_v1"]
+
+
+class DatasetInventoryRecordContract(StrictContract):
+    openml_data_id: int = Field(gt=0)
+    dataset_name: str
+    openml_file_id: int = Field(gt=0)
+    dataset_version: str
+    provider_md5: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")]
+    raw_sha256: Sha256
+    raw_size_bytes: int = Field(ge=0)
+    metadata_url: str
+    download_url: str
+    default_target: str | None
+    ignored_attributes: list[str]
+    feature_metadata: list[FeatureMetadataContract]
+    expected_rows: int = Field(gt=0)
+    observed_rows: int = Field(gt=0)
+    expected_predictors: int = Field(gt=0)
+    observed_predictors: int = Field(gt=0)
+    class_count: int = Field(ge=2)
+    class_counts: dict[str, int]
+    quality: DatasetQualityReportContract
+    license: str | None
+    visibility: str
+    status: Literal["PASS", "FAIL", "BLOCKED"]
+
+
+class DatasetInventoryContract(StrictContract):
+    benchmark: Literal["SchemaOrbit-14"]
+    dataset_count: int = Field(ge=0)
+    datasets: list[DatasetInventoryRecordContract]
+    data_foundation: dict[str, Any]
+
+    @model_validator(mode="after")
+    def validate_count(self) -> DatasetInventoryContract:
+        if self.dataset_count != len(self.datasets):
+            raise ValueError("dataset_count does not match datasets")
+        return self
+
+
+class DatasetValidationRecordContract(StrictContract):
+    openml_data_id: int = Field(gt=0)
+    dataset_name: str
+    dataset_version: str
+    rows_expected: int = Field(gt=0)
+    rows_observed: int = Field(gt=0)
+    predictors_expected: int = Field(gt=0)
+    predictors_observed: int = Field(gt=0)
+    classes: int = Field(ge=2)
+    class_counts: str
+    ignored_attributes: str
+    raw_sha256: Sha256
+    provider_md5: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{32}$")]
+    missing_cells: int = Field(ge=0)
+    duplicate_predictor_groups: int = Field(ge=0)
+    conflicting_target_groups: int = Field(ge=0)
+    status: Literal["PASS", "FAIL", "BLOCKED"]

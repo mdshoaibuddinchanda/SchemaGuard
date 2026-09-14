@@ -1,4 +1,4 @@
-"""Strict evidence contracts used by the Phase 02A compatibility gate."""
+"""Strict evidence contracts used by the model compatibility gate."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ FailureCategory = Literal[
     "FAIL_CLASS_ORDER",
     "FAIL_NONDETERMINISM",
     "FAIL_RESOURCE_MONITOR",
-    "FAIL_PHASE01_MUTATION",
+    "FAIL_DATA_FOUNDATION_MUTATION",
     "FAIL_TEST",
     "BLOCKED_UNEXPECTED_WORKTREE",
     "NOT_EXECUTED_NO_CUDA",
@@ -175,8 +175,8 @@ class ProbeResult(StrictModel):
 
 
 class PhaseResult(StrictModel):
-    schema_version: int = 1
-    phase: Literal["02A"] = "02A"
+    schema_version: int = 2
+    stage: Literal["model_compatibility"] = "model_compatibility"
     status: Literal["PASS", "FAIL", "BLOCKED"]
     starting_commit: str
     branch: str
@@ -187,5 +187,5 @@ class PhaseResult(StrictModel):
     probes: list[ProbeResult]
     resources: list[ResourceRecord]
     acceptance_gates: dict[str, str]
-    phase01_hashes_unchanged: bool
+    data_foundation_hashes_unchanged: bool
     failures: list[FailureRecord]

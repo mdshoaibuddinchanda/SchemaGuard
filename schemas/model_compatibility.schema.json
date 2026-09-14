@@ -1,0 +1,1097 @@
+{
+  "$defs": {
+    "CheckpointRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "authorization_status": {
+          "title": "Authorization Status",
+          "type": "string"
+        },
+        "cache_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Key"
+        },
+        "cache_status": {
+          "title": "Cache Status",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "identity_valid": {
+          "title": "Identity Valid",
+          "type": "boolean"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "resolved_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolved Path"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        }
+      },
+      "required": [
+        "model_id",
+        "cache_status",
+        "identity_valid",
+        "authorization_status",
+        "license_status"
+      ],
+      "title": "CheckpointRecord",
+      "type": "object"
+    },
+    "DeviceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "cuda_visible": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuda Visible"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "driver": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Driver"
+        },
+        "free_memory_mib": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Free Memory Mib"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "total_memory_mib": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Memory Mib"
+        }
+      },
+      "required": [
+        "device",
+        "available"
+      ],
+      "title": "DeviceRecord",
+      "type": "object"
+    },
+    "EnvironmentReport": {
+      "additionalProperties": false,
+      "properties": {
+        "available_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Available Ram Mib"
+        },
+        "conda_environment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conda Environment"
+        },
+        "cpu": {
+          "title": "Cpu",
+          "type": "string"
+        },
+        "cuda_visible": {
+          "title": "Cuda Visible",
+          "type": "boolean"
+        },
+        "gpu": {
+          "$ref": "#/$defs/DeviceRecord"
+        },
+        "installed_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Installed Ram Mib"
+        },
+        "logical_cpu_count": {
+          "minimum": 1,
+          "title": "Logical Cpu Count",
+          "type": "integer"
+        },
+        "operating_system": {
+          "title": "Operating System",
+          "type": "string"
+        },
+        "packages": {
+          "items": {
+            "$ref": "#/$defs/PackageRecord"
+          },
+          "title": "Packages",
+          "type": "array"
+        },
+        "physical_cpu_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Physical Cpu Count"
+        },
+        "python_executable": {
+          "title": "Python Executable",
+          "type": "string"
+        },
+        "python_version": {
+          "title": "Python Version",
+          "type": "string"
+        },
+        "pytorch_cuda_build": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pytorch Cuda Build"
+        },
+        "pytorch_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pytorch Version"
+        },
+        "relevant_environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Relevant Environment",
+          "type": "object"
+        },
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "python_executable",
+        "python_version",
+        "operating_system",
+        "cpu",
+        "logical_cpu_count",
+        "gpu",
+        "cuda_visible",
+        "relevant_environment",
+        "packages"
+      ],
+      "title": "EnvironmentReport",
+      "type": "object"
+    },
+    "FailureRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "PASS",
+            "PASS_WITH_CPU_FALLBACK",
+            "FAIL_VERSION_MISMATCH",
+            "FAIL_IMPORT",
+            "FAIL_CONSTRUCTOR",
+            "BLOCKED_API_MISMATCH",
+            "BLOCKED_CHECKPOINT_AUTHORIZATION",
+            "FAIL_CHECKPOINT_DOWNLOAD",
+            "FAIL_CHECKPOINT_HASH",
+            "FAIL_CACHE_CORRUPTION",
+            "FAIL_CPU_INFERENCE",
+            "FAIL_GPU_INFERENCE",
+            "FAIL_GPU_OOM",
+            "FAIL_TIMEOUT",
+            "FAIL_INVALID_PROBABILITY",
+            "FAIL_CLASS_ORDER",
+            "FAIL_NONDETERMINISM",
+            "FAIL_RESOURCE_MONITOR",
+            "FAIL_DATA_FOUNDATION_MUTATION",
+            "FAIL_TEST",
+            "BLOCKED_UNEXPECTED_WORKTREE",
+            "NOT_EXECUTED_NO_CUDA",
+            "NOT_EXECUTED_UNSAFE_VRAM",
+            "NOT_EXECUTED_OFFLINE_CACHE_MISS"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "exception_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exception Type"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "traceback_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Traceback Path"
+        }
+      },
+      "required": [
+        "category",
+        "message"
+      ],
+      "title": "FailureRecord",
+      "type": "object"
+    },
+    "LicenseRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "authorization_status": {
+          "title": "Authorization Status",
+          "type": "string"
+        },
+        "checkpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checkpoint"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "package": {
+          "title": "Package",
+          "type": "string"
+        },
+        "terms_accepted_automatically": {
+          "default": false,
+          "title": "Terms Accepted Automatically",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "model_id",
+        "package",
+        "authorization_status",
+        "license_status"
+      ],
+      "title": "LicenseRecord",
+      "type": "object"
+    },
+    "PackageRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "string"
+        },
+        "import_name": {
+          "title": "Import Name",
+          "type": "string"
+        },
+        "installed": {
+          "title": "Installed",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "observed_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Version"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "expected_version",
+        "import_name",
+        "installed",
+        "status"
+      ],
+      "title": "PackageRecord",
+      "type": "object"
+    },
+    "ProbeResult": {
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "additionalProperties": true,
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "checkpoint_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checkpoint Path"
+        },
+        "checkpoint_record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CheckpointRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checkpoint Sha256"
+        },
+        "class_order": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Class Order",
+          "type": "array"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "end_time": {
+          "title": "End Time",
+          "type": "string"
+        },
+        "expected_version": {
+          "title": "Expected Version",
+          "type": "string"
+        },
+        "failure_category": {
+          "enum": [
+            "PASS",
+            "PASS_WITH_CPU_FALLBACK",
+            "FAIL_VERSION_MISMATCH",
+            "FAIL_IMPORT",
+            "FAIL_CONSTRUCTOR",
+            "BLOCKED_API_MISMATCH",
+            "BLOCKED_CHECKPOINT_AUTHORIZATION",
+            "FAIL_CHECKPOINT_DOWNLOAD",
+            "FAIL_CHECKPOINT_HASH",
+            "FAIL_CACHE_CORRUPTION",
+            "FAIL_CPU_INFERENCE",
+            "FAIL_GPU_INFERENCE",
+            "FAIL_GPU_OOM",
+            "FAIL_TIMEOUT",
+            "FAIL_INVALID_PROBABILITY",
+            "FAIL_CLASS_ORDER",
+            "FAIL_NONDETERMINISM",
+            "FAIL_RESOURCE_MONITOR",
+            "FAIL_DATA_FOUNDATION_MUTATION",
+            "FAIL_TEST",
+            "BLOCKED_UNEXPECTED_WORKTREE",
+            "NOT_EXECUTED_NO_CUDA",
+            "NOT_EXECUTED_UNSAFE_VRAM",
+            "NOT_EXECUTED_OFFLINE_CACHE_MISS"
+          ],
+          "title": "Failure Category",
+          "type": "string"
+        },
+        "fixture_hash": {
+          "title": "Fixture Hash",
+          "type": "string"
+        },
+        "full_traceback_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Full Traceback Path"
+        },
+        "git_commit": {
+          "title": "Git Commit",
+          "type": "string"
+        },
+        "maximum_probability_sum_error": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Probability Sum Error"
+        },
+        "maximum_repeated_run_difference": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Repeated Run Difference"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "observed_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Version"
+        },
+        "package_name": {
+          "title": "Package Name",
+          "type": "string"
+        },
+        "parameter_hash": {
+          "title": "Parameter Hash",
+          "type": "string"
+        },
+        "peak_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Ram Mib"
+        },
+        "peak_vram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Vram Mib"
+        },
+        "prediction_shape": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Prediction Shape",
+          "type": "array"
+        },
+        "resource_record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "runtime_seconds": {
+          "minimum": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "start_time": {
+          "title": "Start Time",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "PASS_WITH_CPU_FALLBACK",
+            "FAIL",
+            "BLOCKED",
+            "NOT_EXECUTED"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "package_name",
+        "expected_version",
+        "device",
+        "seed",
+        "fixture_hash",
+        "parameter_hash",
+        "git_commit",
+        "start_time",
+        "end_time",
+        "runtime_seconds",
+        "prediction_shape",
+        "class_order",
+        "status",
+        "failure_category"
+      ],
+      "title": "ProbeResult",
+      "type": "object"
+    },
+    "ResourceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "child_peak_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Child Peak Ram Mib"
+        },
+        "cpu_time_seconds": {
+          "minimum": 0,
+          "title": "Cpu Time Seconds",
+          "type": "number"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "gpu_allocated_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Allocated Mib"
+        },
+        "gpu_free_mib_after": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Free Mib After"
+        },
+        "gpu_free_mib_before": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Free Mib Before"
+        },
+        "gpu_reserved_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Reserved Mib"
+        },
+        "gpu_total_mib_after": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Total Mib After"
+        },
+        "gpu_total_mib_before": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Total Mib Before"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "monitoring_error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Monitoring Error"
+        },
+        "oom": {
+          "default": false,
+          "title": "Oom",
+          "type": "boolean"
+        },
+        "peak_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Ram Mib"
+        },
+        "runtime_seconds": {
+          "minimum": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "termination_signal": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Termination Signal"
+        },
+        "timed_out": {
+          "default": false,
+          "title": "Timed Out",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "model_id",
+        "device",
+        "runtime_seconds",
+        "cpu_time_seconds"
+      ],
+      "title": "ResourceRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_gates": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Acceptance Gates",
+      "type": "object"
+    },
+    "branch": {
+      "title": "Branch",
+      "type": "string"
+    },
+    "checkpoint_records": {
+      "items": {
+        "$ref": "#/$defs/CheckpointRecord"
+      },
+      "title": "Checkpoint Records",
+      "type": "array"
+    },
+    "data_foundation_hashes_unchanged": {
+      "title": "Data Foundation Hashes Unchanged",
+      "type": "boolean"
+    },
+    "environment": {
+      "$ref": "#/$defs/EnvironmentReport"
+    },
+    "failures": {
+      "items": {
+        "$ref": "#/$defs/FailureRecord"
+      },
+      "title": "Failures",
+      "type": "array"
+    },
+    "license_records": {
+      "items": {
+        "$ref": "#/$defs/LicenseRecord"
+      },
+      "title": "License Records",
+      "type": "array"
+    },
+    "package_records": {
+      "items": {
+        "$ref": "#/$defs/PackageRecord"
+      },
+      "title": "Package Records",
+      "type": "array"
+    },
+    "probes": {
+      "items": {
+        "$ref": "#/$defs/ProbeResult"
+      },
+      "title": "Probes",
+      "type": "array"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/ResourceRecord"
+      },
+      "title": "Resources",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stage": {
+      "const": "model_compatibility",
+      "default": "model_compatibility",
+      "title": "Stage",
+      "type": "string"
+    },
+    "starting_commit": {
+      "title": "Starting Commit",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "starting_commit",
+    "branch",
+    "environment",
+    "package_records",
+    "checkpoint_records",
+    "license_records",
+    "probes",
+    "resources",
+    "acceptance_gates",
+    "data_foundation_hashes_unchanged",
+    "failures"
+  ],
+  "title": "ModelCompatibilityReportContract",
+  "type": "object"
+}

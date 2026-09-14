@@ -59,4 +59,4 @@ The former row-stratified split remains preserved at
 - Independent acceptance gates: `37/37 passed`
 - Generated data and cache files are ignored and not staged.
 
-Evidence files are retained locally under `artifacts/phase_01_data_foundation/review/`.
+Evidence files are retained locally under `artifacts/data_foundation/review/`.

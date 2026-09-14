@@ -984,19 +984,19 @@ schemaguard/
 │       ├── build_report.py
 │       └── lineage.py
 ├── scripts/
-│   ├── 00_check_environment.py
-│   ├── 01_fetch_datasets.py
-│   ├── 02_build_splits.py
-│   ├── 03_build_views.py
-│   ├── 04_run_smoke.py
-│   ├── 05_run_pilot.py
-│   ├── 06_validate_pilot.py
-│   ├── 07_freeze_main.py
-│   ├── 08_run_main.py
-│   ├── 09_run_repair.py
-│   ├── 10_analyze.py
-│   ├── 11_make_paper_artifacts.py
-│   └── 12_reproduce.py
+│   ├── check_environment.py
+│   ├── fetch_datasets.py
+│   ├── build_splits.py
+│   ├── build_views.py
+│   ├── run_smoke.py
+│   ├── run_pilot.py
+│   ├── validate_pilot.py
+│   ├── freeze_main.py
+│   ├── run_main.py
+│   ├── run_repair.py
+│   ├── analyze_results.py
+│   ├── make_paper_artifacts.py
+│   └── reproduce_results.py
 ├── tests/
 │   ├── unit/
 │   ├── property/
@@ -1408,7 +1408,7 @@ Tests:
 Exit artifact:
 
 ```text
-artifacts/handoff/phase_00_freeze.md
+artifacts/handoff/experiment_registry_review.md
 ```
 
 Do not continue if the Cartesian-product counts differ.
@@ -1675,7 +1675,7 @@ Generate:
 Final command:
 
 ```bash
-uv run python scripts/12_reproduce.py \
+uv run python scripts/reproduce_results.py \
   --manifest results/manifests/release_manifest.json
 ```
 
@@ -1782,13 +1782,13 @@ git diff --stat
 uv run ruff check .
 uv run mypy src/schemaguard
 uv run pytest -q
-uv run python scripts/06_validate_pilot.py
+uv run python scripts/validate_pilot.py
 ```
 
 For the main experiment:
 
 ```bash
-uv run python scripts/12_reproduce.py \
+uv run python scripts/reproduce_results.py \
   --manifest results/manifests/release_manifest.json
 ```
 

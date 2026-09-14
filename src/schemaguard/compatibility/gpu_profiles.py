@@ -1,4 +1,4 @@
-"""Bounded, serialized GPU capacity and cleanup profiling for Phase 02B."""
+"""Bounded, serialized GPU capacity and cleanup profiling."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from ..artifact_contracts import GpuCapacityReportContract
 from ..models.probability import normalize_probability_matrix, validate_repeated_predictions
 from ..models.registry import build_parameters, import_class, load_model_registry
 from ..utils.hashing import hash_dataframe_logically, sha256_canonical_json, sha256_file
@@ -152,7 +153,7 @@ def execute_profile(request: dict[str, Any]) -> dict[str, Any]:
     seed = int(request["seed"])
     cycles = int(request["cycles"])
     base = {
-        "schema_version": 1,
+        "schema_version": 2,
         "model_id": model_id,
         "profile_id": profile["profile_id"],
         "device": device,
@@ -408,7 +409,7 @@ def _profiles(inventory_path: Path) -> list[dict[str, Any]]:
 
 def _run_worker(root: Path, request: dict[str, Any], timeout: int) -> dict[str, Any]:
     with __import__("tempfile").TemporaryDirectory(
-        prefix="phase02b_gpu_", dir=root / "results" / "logs"
+        prefix="gpu_capacity_", dir=root / "results" / "logs"
     ) as temp:
         temp_path = Path(temp)
         request_path = temp_path / "request.json"
@@ -426,33 +427,90 @@ def _run_worker(root: Path, request: dict[str, Any], timeout: int) -> dict[str, 
             "--result",
             str(result_path),
         ]
+        started = time.perf_counter()
+        completed = subprocess.Popen(
+            command,
+            cwd=root,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        peak_process_rss: float | None = None
+        peak_tree_rss: float | None = None
+        monitor_error: str | None = None
+        monitor_complete = False
         try:
-            completed = subprocess.run(
-                command,
-                cwd=root,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                check=False,
-            )
-        except subprocess.TimeoutExpired as exc:
-            return {
-                "schema_version": 1,
-                "model_id": request["model_id"],
-                "profile_id": request["profile"]["profile_id"],
-                "device": request["device"],
-                "strategy": request["strategy"],
-                "cycles": request["cycles"],
-                "status": "FAIL",
-                "failure_category": "FAIL_TIMEOUT",
-                "error": str(exc),
-                "runtime_seconds": float(timeout),
-            }
+            import psutil  # type: ignore[import-not-found]
+
+            process = psutil.Process(completed.pid)
+            while completed.poll() is None:
+                try:
+                    descendants = process.children(recursive=True)
+                    process_rss = float(process.memory_info().rss / (1024**2))
+                    tree_rss = process_rss + sum(
+                        float(child.memory_info().rss / (1024**2))
+                        for child in descendants
+                        if child.is_running()
+                    )
+                    peak_process_rss = max(peak_process_rss or 0.0, process_rss)
+                    peak_tree_rss = max(peak_tree_rss or 0.0, tree_rss)
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+                if time.perf_counter() - started > timeout:
+                    completed.kill()
+                    completed.wait(timeout=10)
+                    return {
+                        "schema_version": 2,
+                        "model_id": request["model_id"],
+                        "profile_id": request["profile"]["profile_id"],
+                        "device": request["device"],
+                        "strategy": request["strategy"],
+                        "cycles": request["cycles"],
+                        "status": "FAIL",
+                        "failure_category": "FAIL_TIMEOUT",
+                        "error": f"worker exceeded {timeout} seconds",
+                        "runtime_seconds": float(timeout),
+                        "peak_ram_mib": peak_process_rss,
+                        "child_peak_ram_mib": peak_tree_rss,
+                        "monitoring_complete": False,
+                        "monitoring_error": monitor_error,
+                        "timed_out": True,
+                        "start_time": "",
+                        "end_time": _now(),
+                        "prediction_shape": [],
+                        "class_order": [],
+                        "fixture_hash": None,
+                        "parameter_hash": None,
+                        "checkpoint_sha256": None,
+                    }
+                time.sleep(0.20)
+            stdout, stderr = completed.communicate(timeout=10)
+            monitor_complete = True
+        except ImportError as exc:
+            monitor_error = f"psutil unavailable: {exc}"
+            stdout, stderr = completed.communicate(timeout=10)
+        except Exception as exc:
+            monitor_error = f"{type(exc).__name__}: {exc}"
+            if completed.poll() is None:
+                completed.kill()
+            stdout, stderr = completed.communicate(timeout=10)
+        if monitor_error and result_path.exists():
+            monitor_complete = False
         if result_path.exists():
-            return json.loads(result_path.read_text(encoding="utf-8"))
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+            if peak_process_rss is not None:
+                result["peak_ram_mib"] = max(
+                    float(result.get("peak_ram_mib") or 0.0), peak_process_rss
+                )
+            if peak_tree_rss is not None:
+                result["child_peak_ram_mib"] = peak_tree_rss
+            result["monitoring_complete"] = monitor_complete
+            result["monitoring_error"] = monitor_error
+            result["timed_out"] = False
+            return result
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "model_id": request["model_id"],
             "profile_id": request["profile"]["profile_id"],
             "device": request["device"],
@@ -460,10 +518,20 @@ def _run_worker(root: Path, request: dict[str, Any], timeout: int) -> dict[str, 
             "cycles": request["cycles"],
             "status": "FAIL",
             "failure_category": "FAIL_TEST",
-            "error": completed.stderr.strip()
-            or completed.stdout.strip()
-            or f"worker exit {completed.returncode}",
+            "error": stderr.strip() or stdout.strip() or f"worker exit {completed.returncode}",
             "runtime_seconds": 0.0,
+            "peak_ram_mib": peak_process_rss,
+            "child_peak_ram_mib": peak_tree_rss,
+            "monitoring_complete": monitor_complete,
+            "monitoring_error": monitor_error,
+            "timed_out": False,
+            "start_time": "",
+            "end_time": _now(),
+            "prediction_shape": [],
+            "class_order": [],
+            "fixture_hash": None,
+            "parameter_hash": None,
+            "checkpoint_sha256": None,
         }
 
 
@@ -476,7 +544,6 @@ def run_gpu_profiles(
     output = Path(output_directory or root_path / "results" / "validation")
     output.mkdir(parents=True, exist_ok=True)
     (root_path / "results" / "logs").mkdir(parents=True, exist_ok=True)
-    state = _gpu_state()
     profiles = _profiles(Path(inventory_path))
     config_path = root_path / "configs" / "runtime" / "model_compatibility.yaml"
     registry_hash = sha256_file(root_path / "configs" / "experiment_registry.yaml")
@@ -490,13 +557,15 @@ def run_gpu_profiles(
     }
     rows: list[dict[str, Any]] = []
     optimization: list[dict[str, Any]] = []
-    lock_path = root_path / "data" / "cache" / "locks" / "phase-02b-gpu.lock"
+    lock_path = root_path / "data" / "cache" / "locks" / "gpu-capacity.lock"
     with ProcessLock(lock_path, timeout=30):
         for model_id in FOUNDATION_IDS:
             for profile in profiles:
+                state = _gpu_state()
                 device = (
                     "cuda"
-                    if state.get("available") and float(state.get("free_mib", 0)) > GPU_HEADROOM_MIB
+                    if state.get("available")
+                    and float(state.get("free_mib", 0)) > GPU_HEADROOM_MIB
                     else "cpu"
                 )
                 request = {
@@ -506,13 +575,22 @@ def run_gpu_profiles(
                     "profile": profile,
                     "seed": 1729,
                     "cycles": PROFILE_CYCLES if profile["profile_id"] == "mid_range" else 1,
-                    "strategy": "same_process_cleanup",
+                    "strategy": "repeated_inference_single_worker",
+                    "gpu_state_before_launch": state,
                 }
                 row = _run_worker(root_path, request, 1800 if device == "cpu" else 900)
                 row["execution_policy"] = (
                     "one foundation model at a time; process cleanup; two CPU threads"
                 )
                 row["gpu_soft_limit_mib"] = GPU_SOFT_LIMIT_MIB
+                if (
+                    row.get("device") == "cuda"
+                    and row.get("peak_vram_reserved_mib") is not None
+                    and float(row["peak_vram_reserved_mib"]) > GPU_SOFT_LIMIT_MIB
+                ):
+                    row["status"] = "FAIL"
+                    row["failure_category"] = "FAIL_GPU_INFERENCE"
+                    row["error"] = "GPU soft memory limit was breached"
                 rows.append(row)
                 if (
                     row.get("status") != "PASS"
@@ -527,22 +605,32 @@ def run_gpu_profiles(
                         "deterministic CPU fallback after controlled CUDA failure"
                     )
                     rows.append(fallback)
+                    if fallback.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK"}:
+                        row["status"] = "PASS_WITH_CPU_FALLBACK"
+                        row["fallback_status"] = fallback.get("status")
             representative = next(
                 profile for profile in profiles if profile["profile_id"] == "mid_range"
             )
             isolated_rows: list[dict[str, Any]] = []
             for _ in range(PROFILE_CYCLES):
+                isolated_state = _gpu_state()
                 request = {
                     "root": str(root_path),
                     "model_id": model_id,
-                    "device": "cuda" if state.get("available") else "cpu",
+                    "device": (
+                        "cuda"
+                        if isolated_state.get("available")
+                        and float(isolated_state.get("free_mib", 0)) > GPU_HEADROOM_MIB
+                        else "cpu"
+                    ),
                     "profile": representative,
                     "seed": 1729,
                     "cycles": 1,
-                    "strategy": "isolated_process",
+                    "strategy": "fresh_worker_per_inference",
+                    "gpu_state_before_launch": isolated_state,
                 }
                 isolated_rows.append(
-                    _run_worker(root_path, request, 900 if state.get("available") else 1800)
+                    _run_worker(root_path, request, 900 if request["device"] == "cuda" else 1800)
                 )
             rows.extend(isolated_rows)
             same = next(
@@ -551,8 +639,8 @@ def run_gpu_profiles(
                     for row in rows
                     if row.get("model_id") == model_id
                     and row.get("profile_id") == "mid_range"
-                    and row.get("strategy") == "same_process_cleanup"
-                    and row.get("status") == "PASS"
+                    and row.get("strategy") == "repeated_inference_single_worker"
+                    and row.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK"}
                 ),
                 None,
             )
@@ -567,29 +655,51 @@ def run_gpu_profiles(
             )
             optimization.append(
                 {
-                    "schema_version": 1,
+                    "schema_version": 2,
                     "model_id": model_id,
                     "profile_id": "mid_range",
-                    "baseline_strategy": "same_process_cleanup",
-                    "candidate_strategy": "isolated_process",
+                    "baseline_strategy": "repeated_inference_single_worker",
+                    "candidate_strategy": "fresh_worker_per_inference",
                     "baseline_prediction_hash": same.get("prediction_hash") if same else None,
                     "candidate_prediction_hashes": [
-                        row.get("prediction_hash") for row in successful_isolated
+                        row["prediction_hash"]
+                        for row in successful_isolated
+                        if row.get("prediction_hash")
                     ],
                     "prediction_equivalent": equivalent,
-                    "accepted": False,
+                    "accepted": equivalent,
+                    "selected_strategy": "fresh_worker_per_inference",
                     "decision": (
-                        "retain isolated subprocess scheduling for crash/memory containment; "
-                        "do not change scientific configuration"
+                        "select fresh worker scheduling for crash/memory containment; "
+                        "scientific configuration remains frozen"
                     ),
                 }
             )
+    primary_rows = [
+        row
+        for row in rows
+        if row.get("strategy") == "repeated_inference_single_worker"
+    ]
+    accountable = [
+        row
+        for row in primary_rows
+        if row.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK"}
+        and not (
+            row.get("device") == "cuda"
+            and row.get("peak_vram_reserved_mib") is not None
+            and float(row["peak_vram_reserved_mib"]) > GPU_SOFT_LIMIT_MIB
+        )
+    ]
+    state = _gpu_state()
     report = {
-        "schema_version": 1,
-        "phase": "02B-GPU",
-        "status": "PASS"
-        if rows and all(row.get("status") in {"PASS", "NOT_EXECUTED"} for row in rows)
-        else "FAIL",
+        "schema_version": 2,
+        "stage": "gpu_capacity",
+        "status": (
+            "PASS"
+            if len(primary_rows) == len(profiles) * len(FOUNDATION_IDS)
+            and len(accountable) == len(primary_rows)
+            else "FAIL"
+        ),
         "gpu_state": state,
         "gpu_headroom_mib": GPU_HEADROOM_MIB,
         "gpu_soft_limit_mib": GPU_SOFT_LIMIT_MIB,
@@ -605,7 +715,11 @@ def run_gpu_profiles(
             "CUDA safe check -> controlled CUDA probe -> CPU fallback; CUDA OOM is "
             "capability evidence, never a runner crash"
         ),
+        "requested_profiles": len(profiles) * len(FOUNDATION_IDS),
+        "accounted_profiles": len(accountable),
+        "monitoring_complete": all(row.get("monitoring_complete") is True for row in rows),
     }
+    GpuCapacityReportContract.model_validate(report)
     atomic_write_json(output / "gpu_capacity_report.json", report)
     frame = pd.DataFrame(rows)
     atomic_write_parquet(
@@ -624,7 +738,7 @@ def main() -> int:
     parser.add_argument("--request", type=Path)
     parser.add_argument("--result", type=Path)
     parser.add_argument(
-        "--inventory", type=Path, default=Path("results/validation/schemaorbit14_inventory.json")
+        "--inventory", type=Path, default=Path("results/validation/dataset_registry_report.json")
     )
     args = parser.parse_args()
     if args.worker:

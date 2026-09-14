@@ -11,6 +11,7 @@ import importlib.metadata
 import json
 import os
 import shutil
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -18,15 +19,16 @@ from typing import Any
 import httpx
 import pandas as pd
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from ..utils.hashing import hash_dataframe_logically, sha256_canonical_json, sha256_file
 from ..utils.io import atomic_write_json, atomic_write_parquet
 from ..utils.process_lock import ProcessLock
 from .arff_parser import ParsedArff, parse_arff
+from .splits import predictor_group_ids
 
 SCHEMA_VERSION = 1
-PHASE01_ID = 1464
+SMOKE_DATASET_ID = 1464
 
 
 class DatasetSpec(BaseModel):
@@ -60,6 +62,20 @@ class AcquisitionRules(BaseModel):
     min_classes: int = Field(gt=1)
     max_classes: int = Field(gt=1)
     parquet_compression: str
+    download_attempts: int = Field(ge=1, le=3)
+    request_timeout_seconds: float = Field(gt=0)
+    retry_backoff_seconds: list[float]
+
+    @staticmethod
+    def _validate_backoff(values: list[float], attempts: int) -> list[float]:
+        if len(values) != attempts or any(value < 0 for value in values):
+            raise ValueError("retry_backoff_seconds must contain one nonnegative value per attempt")
+        return values
+
+    @model_validator(mode="after")
+    def validate_backoff(self) -> AcquisitionRules:
+        self._validate_backoff(self.retry_backoff_seconds, self.download_attempts)
+        return self
 
 
 class SchemaOrbitConfig(BaseModel):
@@ -191,11 +207,11 @@ def fetch_metadata(
     client: httpx.Client, config: SchemaOrbitConfig, spec: DatasetSpec
 ) -> tuple[DatasetMetadata, list[FeatureInfo]]:
     metadata_url = f"{config.openml_api_base}/data/{spec.id}"
-    response = client.get(metadata_url)
+    response = _request_with_retry(client, "GET", metadata_url, config)
     response.raise_for_status()
     metadata = _metadata_from_payload(response.json(), spec, metadata_url)
     features_url = f"{config.openml_api_base}/data/features/{spec.id}"
-    features_response = client.get(features_url)
+    features_response = _request_with_retry(client, "GET", features_url, config)
     features_response.raise_for_status()
     feature_payload = features_response.json()
     raw_features = feature_payload.get("data_features", {}).get("feature", [])
@@ -213,6 +229,38 @@ def fetch_metadata(
     ]
     _validate_metadata(config, spec, metadata, features)
     return metadata, features
+
+
+_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+
+
+def _request_with_retry(
+    client: httpx.Client, method: str, url: str, config: SchemaOrbitConfig
+) -> httpx.Response:
+    """Retry only transient transport and server failures with bounded backoff."""
+
+    rules = config.acquisition
+    last_error: BaseException | None = None
+    for attempt in range(rules.download_attempts):
+        try:
+            try:
+                response = client.request(method, url, timeout=rules.request_timeout_seconds)
+            except AttributeError:
+                response = client.get(url)
+            if (
+                response.status_code in _RETRYABLE_STATUS_CODES
+                and attempt + 1 < rules.download_attempts
+            ):
+                time.sleep(rules.retry_backoff_seconds[attempt])
+                continue
+            response.raise_for_status()
+            return response
+        except (httpx.ConnectError, httpx.ReadError, httpx.TimeoutException) as exc:
+            last_error = exc
+            if attempt + 1 >= rules.download_attempts:
+                raise
+            time.sleep(rules.retry_backoff_seconds[attempt])
+    raise SchemaOrbitError(f"Request failed after bounded retries: {url}") from last_error
 
 
 def _validate_metadata(
@@ -300,16 +348,17 @@ def acquire_raw(
     raw_path, metadata_path, manifest_path = _raw_paths(project_root, spec)
     lock_path = project_root / "data" / "cache" / "locks" / f"openml-{spec.id}.lock"
     with ProcessLock(lock_path, timeout=300):
-        if spec.id == PHASE01_ID:
-            metadata = _read_phase01_metadata(metadata_path, spec)
+        if spec.id == SMOKE_DATASET_ID:
+            metadata = _read_smoke_dataset_metadata(metadata_path, spec)
             features = _read_features_if_present(project_root / "data" / "cache" / "unused.json")
             if not features:
                 features = []
-            # Phase 01 is validated independently below and is never rewritten here.
+            # The smoke dataset is validated independently and is never rewritten here.
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            _validate_source_manifest(manifest_path, manifest)
             expected_sha = manifest["computed_sha256"]
             if not raw_path.is_file() or sha256_file(raw_path) != expected_sha:
-                raise SchemaOrbitError("Phase 01 raw artifact hash changed")
+                raise SchemaOrbitError("Smoke data foundation raw artifact hash changed")
             return raw_path, metadata, features, manifest
         if offline:
             if not raw_path.is_file() or not metadata_path.is_file() or not manifest_path.is_file():
@@ -327,6 +376,7 @@ def acquire_raw(
             _validate_metadata(config, spec, metadata, features)
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             _validate_raw_manifest(raw_path, manifest, spec)
+            _validate_source_manifest(manifest_path, manifest)
             return raw_path, metadata, features, manifest
         if client is None or not allow_network:
             raise OfflineCacheMiss(f"Network is disabled for dataset {spec.id}")
@@ -336,18 +386,40 @@ def acquire_raw(
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             try:
                 _validate_raw_manifest(raw_path, manifest, spec)
+                _validate_source_manifest(manifest_path, manifest)
                 return raw_path, metadata, features, manifest
             except SchemaOrbitError:
                 _quarantine(raw_path, project_root / "data" / "cache", "stale")
         partial = raw_path.with_suffix(raw_path.suffix + ".part")
         _quarantine(partial, project_root / "data" / "cache", "partial")
         headers: dict[str, str] = {}
-        with client.stream("GET", metadata.download_url) as response:
-            response.raise_for_status()
-            headers = dict(response.headers)
-            with partial.open("wb") as handle:
-                for chunk in response.iter_bytes(1024 * 1024):
-                    handle.write(chunk)
+        response_status: int | None = None
+        download_attempts = 0
+        for attempt in range(config.acquisition.download_attempts):
+            download_attempts = attempt + 1
+            try:
+                with client.stream(
+                    "GET", metadata.download_url, timeout=config.acquisition.request_timeout_seconds
+                ) as response:
+                    response_status = response.status_code
+                    if (
+                        response.status_code in _RETRYABLE_STATUS_CODES
+                        and attempt + 1 < config.acquisition.download_attempts
+                    ):
+                        time.sleep(config.acquisition.retry_backoff_seconds[attempt])
+                        continue
+                    response.raise_for_status()
+                    headers = dict(response.headers)
+                    with partial.open("wb") as handle:
+                        for chunk in response.iter_bytes(1024 * 1024):
+                            handle.write(chunk)
+                    break
+            except (httpx.ConnectError, httpx.ReadError, httpx.TimeoutException):
+                if attempt + 1 >= config.acquisition.download_attempts:
+                    raise
+                time.sleep(config.acquisition.retry_backoff_seconds[attempt])
+        else:
+            raise SchemaOrbitError(f"Download failed after bounded retries for dataset {spec.id}")
         observed_sha, observed_md5, size = _stream_digest(partial)
         if observed_md5 != spec.provider_md5 or observed_md5 != (metadata.md5_checksum or ""):
             _quarantine(partial, project_root / "data" / "cache", "checksum")
@@ -365,16 +437,21 @@ def acquire_raw(
             "default_target_attribute": metadata.default_target_attribute,
             "metadata_url": metadata.metadata_url,
             "requested_download_url": metadata.download_url,
-            "resolved_download_url": metadata.download_url,
+            "resolved_download_url": str(getattr(response, "url", metadata.download_url)),
             "provider_md5": spec.provider_md5,
             "computed_md5": observed_md5,
             "computed_sha256": observed_sha,
             "file_size_bytes": size,
+            "http_status": response_status,
+            "content_length_bytes": int(headers["content-length"])
+            if headers.get("content-length", "").isdigit()
+            else size,
             "http_etag": headers.get("etag"),
             "http_last_modified": headers.get("last-modified"),
             "retrieved_at_utc": _utc_now(),
             "raw_relative_path": str(raw_path.relative_to(project_root / "data")),
             "package_versions": _package_versions(),
+            "attempts": download_attempts,
         }
         atomic_write_json(metadata_path, metadata.raw)
         atomic_write_json(
@@ -384,7 +461,7 @@ def acquire_raw(
         return raw_path, metadata, features, manifest
 
 
-def _read_phase01_metadata(path: Path, spec: DatasetSpec) -> DatasetMetadata:
+def _read_smoke_dataset_metadata(path: Path, spec: DatasetSpec) -> DatasetMetadata:
     raw = json.loads(path.read_text(encoding="utf-8"))["data_set_description"]
     return DatasetMetadata(
         data_id=int(raw["id"]),
@@ -409,7 +486,10 @@ def _read_features_if_present(path: Path) -> list[FeatureInfo]:
 
 
 def _validate_raw_manifest(path: Path, manifest: dict[str, Any], spec: DatasetSpec) -> None:
-    if manifest.get("openml_data_id") != spec.id or manifest.get("openml_file_id") != spec.file_id:
+    if (
+        manifest.get("openml_data_id") != spec.id
+        or manifest.get("openml_file_id") != spec.file_id
+    ):
         raise SchemaOrbitError(f"Raw manifest identity mismatch for {spec.id}")
     if (
         manifest.get("dataset_version") != spec.version
@@ -417,8 +497,23 @@ def _validate_raw_manifest(path: Path, manifest: dict[str, Any], spec: DatasetSp
     ):
         raise SchemaOrbitError(f"Raw manifest version/checksum mismatch for {spec.id}")
     expected_sha = manifest.get("computed_sha256")
-    if not isinstance(expected_sha, str) or not path.is_file() or sha256_file(path) != expected_sha:
+    if (
+        not isinstance(expected_sha, str)
+        or not path.is_file()
+        or sha256_file(path) != expected_sha
+        or _stream_digest(path)[1] != manifest.get("computed_md5")
+        or _stream_digest(path)[2] != manifest.get("file_size_bytes")
+    ):
         raise SchemaOrbitError(f"Raw artifact checksum mismatch for {spec.id}")
+
+
+def _validate_source_manifest(path: Path, manifest: dict[str, Any]) -> None:
+    from .contracts import RawSourceManifestContract
+
+    try:
+        RawSourceManifestContract.model_validate(manifest)
+    except ValidationError as exc:
+        raise SchemaOrbitError(f"Raw source manifest contract failed: {path}: {exc}") from exc
 
 
 def _row_id(dataset_id: int, raw_sha: str, position: int) -> str:
@@ -504,9 +599,9 @@ def _normalise_frame(
 
 def _quality(features: pd.DataFrame, targets: pd.DataFrame) -> dict[str, Any]:
     predictors = features.drop(columns=["__sg_row_id"])
-    row_hashes = pd.util.hash_pandas_object(predictors, index=False).astype("uint64")
-    grouped = pd.DataFrame({"row_hash": row_hashes, "target": targets["target_code"]})
-    counts = grouped.groupby("row_hash", dropna=False)["target"].agg(["size", "nunique"])
+    group_ids = predictor_group_ids(features)
+    grouped = pd.DataFrame({"group_id": group_ids, "target": targets["target_code"]})
+    counts = grouped.groupby("group_id", dropna=False)["target"].agg(["size", "nunique"])
     return {
         "row_count": int(len(features)),
         "predictor_count": int(predictors.shape[1]),
@@ -520,6 +615,7 @@ def _quality(features: pd.DataFrame, targets: pd.DataFrame) -> dict[str, Any]:
         "conflicting_target_groups": int(((counts["size"] > 1) & (counts["nunique"] > 1)).sum()),
         "exact_duplicate_rows": int(predictors.duplicated(keep=False).sum()),
         "predictor_hash": hash_dataframe_logically(predictors),
+        "grouping_algorithm": "typed_predictor_sha256_v1",
     }
 
 
@@ -534,7 +630,19 @@ def validate_processed(
 ) -> dict[str, Any]:
     """Validate an existing processed artifact without changing it."""
 
-    directory = Path(root) / "data" / "processed" / "openml" / str(spec.id)
+    project_root = Path(root)
+    directory = project_root / "data" / "processed" / "openml" / str(spec.id)
+    if spec.id == SMOKE_DATASET_ID:
+        # The smoke dataset is frozen evidence from the completed data
+        # foundation.  Validate its existing content without rewriting it.
+        return _validate_legacy_smoke_processed(directory, config, spec, raw_sha)
+    return _validate_processed_directory(project_root, directory, config, spec, raw_sha)
+
+
+def _validate_legacy_smoke_processed(
+    directory: Path, config: SchemaOrbitConfig, spec: DatasetSpec, raw_sha: str
+) -> dict[str, Any]:
+    """Validate the original smoke artifact using the same grouping algorithm."""
     try:
         features, targets = _read_processed(directory)
     except Exception as exc:
@@ -567,7 +675,131 @@ def validate_processed(
     return _quality(features, targets)
 
 
-def process_dataset(
+def _validate_processed_directory(
+    root: Path,
+    directory: Path,
+    config: SchemaOrbitConfig,
+    spec: DatasetSpec,
+    raw_sha: str,
+) -> dict[str, Any]:
+    required = (
+        "features.parquet",
+        "targets.parquet",
+        "schema.json",
+        "label_mapping.json",
+        "quality_report.json",
+        "data_manifest.json",
+    )
+    if not directory.is_dir() or any(not (directory / name).is_file() for name in required):
+        raise SchemaOrbitError(f"Processed artifact set is incomplete for {spec.id}")
+    manifest = json.loads((directory / "data_manifest.json").read_text(encoding="utf-8"))
+    from .contracts import (
+        DatasetQualityReportContract,
+        DatasetSchemaContract,
+        LabelMappingContract,
+        ProcessedManifestContract,
+    )
+
+    try:
+        manifest_contract = ProcessedManifestContract.model_validate(manifest)
+        schema_contract = DatasetSchemaContract.model_validate(
+            json.loads((directory / "schema.json").read_text(encoding="utf-8"))
+        )
+        mapping_contract = LabelMappingContract.model_validate(
+            json.loads((directory / "label_mapping.json").read_text(encoding="utf-8"))
+        )
+        quality_contract = DatasetQualityReportContract.model_validate(
+            json.loads((directory / "quality_report.json").read_text(encoding="utf-8"))
+        )
+    except (json.JSONDecodeError, ValidationError) as exc:
+        raise SchemaOrbitError(
+            f"Processed contract validation failed for {spec.id}: {exc}"
+        ) from exc
+    if (
+        manifest_contract.openml_data_id != spec.id
+        or manifest_contract.internal_dataset_id != spec.name
+    ):
+        raise SchemaOrbitError(f"Processed dataset identity mismatch for {spec.id}")
+    if manifest_contract.raw_sha256 != raw_sha or schema_contract.raw_sha256 != raw_sha:
+        raise SchemaOrbitError(f"Processed source hash mismatch for {spec.id}")
+    source_manifest_path = root / "data" / "raw" / "openml" / str(spec.id) / "source_manifest.json"
+    expected_source_hash = sha256_file(source_manifest_path)
+    if manifest_contract.source_manifest_sha256 != expected_source_hash:
+        raise SchemaOrbitError(f"Processed source-manifest identity mismatch for {spec.id}")
+    if manifest_contract.processing_config_sha256 != sha256_canonical_json(config.model_dump()):
+        raise SchemaOrbitError(f"Processed configuration identity mismatch for {spec.id}")
+    observed_hashes = {
+        name: sha256_file(directory / name) for name in manifest_contract.artifact_hashes
+    }
+    if observed_hashes != manifest_contract.artifact_hashes:
+        raise SchemaOrbitError(f"Processed artifact hash mismatch for {spec.id}")
+    try:
+        features, targets = _read_processed(directory)
+    except Exception as exc:
+        raise SchemaOrbitError(f"Cannot read processed data for {spec.id}: {exc}") from exc
+    if len(features) != spec.rows or len(targets) != spec.rows:
+        raise SchemaOrbitError(f"Row count mismatch for {spec.id}")
+    if list(features.columns) != [
+        "__sg_row_id",
+        *spec.ignore_attributes,
+        *manifest_contract.feature_columns,
+    ]:
+        if list(features.columns[1:]) != manifest_contract.feature_columns:
+            raise SchemaOrbitError(f"Processed feature ordering mismatch for {spec.id}")
+    if list(targets.columns) != manifest_contract.target_columns:
+        raise SchemaOrbitError(f"Processed target columns mismatch for {spec.id}")
+    row_ids = features["__sg_row_id"]
+    if (
+        row_ids.isna().any()
+        or row_ids.duplicated().any()
+        or not row_ids.astype(str).str.fullmatch(r"[0-9a-f]{32}").all()
+    ):
+        raise SchemaOrbitError(
+            f"Processed row IDs are not unique, complete, and stable for {spec.id}"
+        )
+    expected_row_ids = pd.Series(
+        [_row_id(spec.id, raw_sha, position) for position in range(len(features))],
+        dtype="string",
+    )
+    if not row_ids.astype("string").reset_index(drop=True).equals(expected_row_ids):
+        raise SchemaOrbitError(f"Processed row IDs are not reproducible for {spec.id}")
+    if not features["__sg_row_id"].reset_index(drop=True).equals(
+        targets["__sg_row_id"].reset_index(drop=True)
+    ):
+        raise SchemaOrbitError(f"Feature/target row ordering is not identical for {spec.id}")
+    if set(targets["target_code"]) != set(range(targets["target_code"].nunique())):
+        raise SchemaOrbitError(f"Target codes are not contiguous for {spec.id}")
+    mapping = mapping_contract.original_to_code
+    if (
+        targets["target_label"].map(mapping).astype("Int64").tolist()
+        != targets["target_code"].tolist()
+    ):
+        raise SchemaOrbitError(f"Target mapping is not reversible for {spec.id}")
+    expected_quality = {
+        "schema_version": quality_contract.schema_version,
+        **_quality(features, targets),
+    }
+    if quality_contract.model_dump(mode="json") != expected_quality:
+        raise SchemaOrbitError(f"Quality report does not match processed data for {spec.id}")
+    try:
+        import pyarrow.parquet as pq
+
+        for name in ("features.parquet", "targets.parquet"):
+            parquet = pq.ParquetFile(directory / name)
+            compressions = {
+                parquet.metadata.row_group(0).column(index).compression
+                for index in range(parquet.metadata.num_columns)
+            }
+            if compressions != {config.acquisition.parquet_compression.upper()}:
+                raise SchemaOrbitError(
+                    f"Unexpected Parquet compression for {spec.id}: {compressions}"
+                )
+    except ImportError as exc:
+        raise SchemaOrbitError("pyarrow is required for Parquet validation") from exc
+    return _quality(features, targets)
+
+
+def _process_dataset_unlocked(
     root: str | Path,
     config: SchemaOrbitConfig,
     spec: DatasetSpec,
@@ -580,16 +812,37 @@ def process_dataset(
     project_root = Path(root)
     raw_sha = str(raw_manifest["computed_sha256"])
     directory = project_root / "data" / "processed" / "openml" / str(spec.id)
-    if spec.id == PHASE01_ID:
+    if spec.id == SMOKE_DATASET_ID:
         quality = validate_processed(project_root, config, spec, raw_sha)
-        quality["reuse_status"] = "preserved_phase01"
+        quality["reuse_status"] = "preserved_data_foundation"
         return quality
     try:
         existing = validate_processed(project_root, config, spec, raw_sha)
         existing["reuse_status"] = "validated_existing"
         return existing
-    except SchemaOrbitError:
-        pass
+    except SchemaOrbitError as exc:
+        if directory.exists():
+            observed_artifact_hashes = {
+                str(path.relative_to(directory)).replace("\\", "/"): sha256_file(path)
+                for path in directory.rglob("*")
+                if path.is_file()
+            }
+            quarantine_root = project_root / "data" / "cache" / "quarantine"
+            quarantine_root.mkdir(parents=True, exist_ok=True)
+            destination = quarantine_root / (
+                f"processed-{spec.id}-"
+                f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
+            )
+            shutil.move(str(directory), str(destination))
+            atomic_write_json(
+                destination / "quarantine_reason.json",
+                {
+                    "reason": str(exc),
+                    "expected_raw_sha256": raw_sha,
+                    "observed_path": str(directory),
+                    "observed_artifact_hashes": observed_artifact_hashes,
+                },
+            )
     parsed = parse_arff(raw_path)
     if len(parsed.frame) != spec.rows:
         raise SchemaOrbitError(f"ARFF row count mismatch for {spec.id}")
@@ -597,7 +850,11 @@ def process_dataset(
     quality = _quality(features, targets)
     if quality["row_count"] != spec.rows:
         raise SchemaOrbitError(f"Processed row count mismatch for {spec.id}")
-    directory.mkdir(parents=True, exist_ok=True)
+    parent = directory.parent
+    parent.mkdir(parents=True, exist_ok=True)
+    temporary = parent / f".processed-{spec.id}-{os.getpid()}-{time.time_ns()}"
+    temporary.mkdir(parents=True, exist_ok=False)
+    directory = temporary
     atomic_write_parquet(
         directory / "features.parquet", features, config.acquisition.parquet_compression
     )
@@ -612,11 +869,25 @@ def process_dataset(
         "code_to_original": {str(i): label for i, label in enumerate(details["classes"])},
     }
     atomic_write_json(directory / "label_mapping.json", mapping)
-    atomic_write_json(directory / "quality_report.json", quality)
+    atomic_write_json(directory / "quality_report.json", {"schema_version": 2, **quality})
     artifact_hashes = {
         name: sha256_file(directory / name)
-        for name in ("features.parquet", "targets.parquet", "schema.json", "label_mapping.json")
+        for name in (
+            "features.parquet",
+            "targets.parquet",
+            "schema.json",
+            "label_mapping.json",
+            "quality_report.json",
+        )
     }
+    source_manifest_path = (
+        project_root
+        / "data"
+        / "raw"
+        / "openml"
+        / str(spec.id)
+        / "source_manifest.json"
+    )
     manifest = {
         "schema_version": 1,
         "openml_data_id": spec.id,
@@ -625,14 +896,51 @@ def process_dataset(
         "feature_columns": list(features.columns[1:]),
         "target_columns": list(targets.columns),
         "raw_sha256": raw_sha,
-        "source_manifest_sha256": sha256_canonical_json(raw_manifest),
+        "source_manifest_sha256": sha256_file(source_manifest_path),
         "processing_config_sha256": sha256_canonical_json(config.model_dump()),
         "compression": config.acquisition.parquet_compression,
+        "compression_level": 3,
         "artifact_hashes": artifact_hashes,
         "row_id_formula": "sha256(openml:{id}:raw_file_sha256:source_row_position)[:32]",
     }
     atomic_write_json(directory / "data_manifest.json", manifest)
+    try:
+        _validate_processed_directory(project_root, directory, config, spec, raw_sha)
+        os.replace(directory, parent / str(spec.id))
+    except Exception as exc:
+        quarantine_root = project_root / "data" / "cache" / "quarantine"
+        quarantine_root.mkdir(parents=True, exist_ok=True)
+        destination = quarantine_root / (
+            f"processed-incomplete-{spec.id}-"
+            f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
+        )
+        if directory.exists():
+            shutil.move(str(directory), str(destination))
+            atomic_write_json(
+                destination / "quarantine_reason.json",
+                {"reason": str(exc), "expected_raw_sha256": raw_sha},
+            )
+        raise
+    directory = parent / str(spec.id)
     return quality | {"reuse_status": "processed_new"}
+
+
+def process_dataset(
+    root: str | Path,
+    config: SchemaOrbitConfig,
+    spec: DatasetSpec,
+    raw_path: Path,
+    features_info: list[FeatureInfo],
+    raw_manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Create or reuse a processed set under a dataset-specific process lock."""
+
+    project_root = Path(root)
+    lock_path = project_root / "data" / "cache" / "locks" / f"openml-{spec.id}-processed.lock"
+    with ProcessLock(lock_path, timeout=300):
+        return _process_dataset_unlocked(
+            project_root, config, spec, raw_path, features_info, raw_manifest
+        )
 
 
 def dataset_inventory_record(
@@ -642,8 +950,11 @@ def dataset_inventory_record(
     raw_manifest: dict[str, Any],
     quality: dict[str, Any],
 ) -> dict[str, Any]:
+    quality_artifact = {
+        key: value for key, value in quality.items() if key not in {"reuse_status"}
+    }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "openml_data_id": spec.id,
         "dataset_name": spec.name,
         "openml_file_id": spec.file_id,
@@ -662,7 +973,7 @@ def dataset_inventory_record(
         "observed_predictors": quality["predictor_count"],
         "class_count": quality["class_count"],
         "class_counts": quality["class_counts"],
-        "quality": quality,
+        "quality": {"schema_version": 2, **quality_artifact},
         "license": metadata.licence,
         "visibility": metadata.visibility,
         "status": "PASS",

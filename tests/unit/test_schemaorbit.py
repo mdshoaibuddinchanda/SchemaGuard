@@ -68,7 +68,7 @@ def test_offline_cache_miss_never_requires_network(tmp_path: Path) -> None:
         acquire_raw(None, tmp_path, config, spec, offline=True, allow_network=False)
 
 
-def test_phase02b_gitignore_policy() -> None:
+def test_dataset_registry_gitignore_policy() -> None:
     def ignored(path: str) -> bool:
         result = subprocess.run(
             ["git", "check-ignore", "--no-index", "--quiet", "--", path],

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Literal
 
+from .artifact_contracts import ConditionManifestContract
 from .config import ExperimentConfig, atomic_write_json
 
 
@@ -33,13 +34,16 @@ def build_manifest(
 
 def manifest_payload(config: ExperimentConfig, scope: Literal["pilot", "main"]) -> dict:
     records = build_manifest(config, scope)
-    return {
+    payload = {
+        "schema_version": 2,
+        "stage": "condition_manifest",
         "scope": scope,
         "benchmark": config.benchmark,
         "config_checksum": config.checksum(),
         "scheduled_count": len(records),
         "records": [asdict(record) for record in records],
     }
+    return ConditionManifestContract.model_validate(payload).model_dump(mode="json")
 
 
 def write_manifest(config: ExperimentConfig, scope: Literal["pilot", "main"], path: str) -> bool:

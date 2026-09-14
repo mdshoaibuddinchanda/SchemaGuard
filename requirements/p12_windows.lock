@@ -1,0 +1,15 @@
+# Environment: P12
+# Python: 3.12.14
+# Platform: Windows 11 x86_64
+# Interpreter: D:\Conda\P12\python.exe
+# This lock records the CUDA wheel already installed in P12.  It is separate
+# from uv.lock's portable public-index resolution; see the runtime reconciliation.
+# PyTorch: 2.6.0+cu124
+# CUDA build/runtime: 12.4 / visible
+# GPU: NVIDIA RTX 3050 Laptop GPU, 4095 MiB, driver 616.64
+scikit-learn==1.9.1
+catboost==1.2.10
+xgboost==3.4.1
+tabpfn==8.5.0
+tabicl==2.2.0
+torch==2.6.0+cu124

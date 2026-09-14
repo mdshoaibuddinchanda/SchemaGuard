@@ -11,9 +11,9 @@ from typing import Any, Literal
 class EventLogger:
     """Append one structured event at a time to a JSONL log."""
 
-    def __init__(self, path: str | Path, phase: str, dataset_id: str) -> None:
+    def __init__(self, path: str | Path, stage: str, dataset_id: str) -> None:
         self.path = Path(path)
-        self.phase = phase
+        self.stage = stage
         self.dataset_id = dataset_id
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -29,7 +29,7 @@ class EventLogger:
     ) -> None:
         record: dict[str, Any] = {
             "timestamp": datetime.now(UTC).isoformat(),
-            "phase": self.phase,
+            "workflow": self.stage,
             "stage": stage,
             "level": level,
             "event": event,

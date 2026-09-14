@@ -14,6 +14,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from schemaguard.artifact_contracts import DatasetRegistryReportContract  # noqa: E402
 from schemaguard.data.schemaorbit import (  # noqa: E402
     SchemaOrbitError,
     acquire_raw,
@@ -38,7 +39,7 @@ def _tree_hashes(root: Path, directories: list[str]) -> dict[str, str]:
     return result
 
 
-def _phase01_summary(root: Path) -> dict[str, Any]:
+def _data_foundation_summary(root: Path) -> dict[str, Any]:
     base = root / "data" / "processed" / "openml" / "1464"
     features = pd.read_parquet(base / "features.parquet")
     targets = pd.read_parquet(base / "targets.parquet")
@@ -71,13 +72,13 @@ def _phase01_summary(root: Path) -> dict[str, Any]:
         for split in ("train", "calibration", "test")
     }
     if sizes != {"train": 449, "calibration": 150, "test": 149}:
-        raise SchemaOrbitError(f"Phase 01 split sizes changed: {sizes}")
+        raise SchemaOrbitError(f"Data-foundation split sizes changed: {sizes}")
     if crossing != 0:
-        raise SchemaOrbitError(f"Phase 01 grouped split crosses {crossing} predictor groups")
+        raise SchemaOrbitError(f"Data-foundation grouped split crosses {crossing} predictor groups")
     if len(features) != 748 or len(group_sizes) != 502 or int((group_sizes > 1).sum()) != 69:
-        raise SchemaOrbitError("Phase 01 row/group counts changed")
+        raise SchemaOrbitError("Data-foundation row/group counts changed")
     if int(conflicts.gt(1).sum()) != 31:
-        raise SchemaOrbitError("Phase 01 conflicting-target group count changed")
+        raise SchemaOrbitError("Data-foundation conflicting-target group count changed")
     return {
         "rows": len(features),
         "split_sizes": {k: int(v) for k, v in sizes.items()},
@@ -108,26 +109,30 @@ def main() -> int:
     config = load_schemaorbit_config(args.config)
     output = args.output_directory
     output.mkdir(parents=True, exist_ok=True)
-    review = ROOT / "artifacts" / "phase_02b_dataset_gpu" / "review"
+    review = ROOT / "artifacts" / "data_foundation" / "review"
     review.mkdir(parents=True, exist_ok=True)
-    phase01_dirs = [
+    data_foundation_dirs = [
         "data/raw/openml/1464",
         "data/processed/openml/1464",
         "data/splits/openml/1464/stratified_group_5fold_v1/seed_1729",
     ]
-    before_path = review / "phase01_hashes_before.json"
+    before_path = review / "data_foundation_hashes_before.json"
     if not before_path.exists():
-        atomic_write_json(before_path, _tree_hashes(ROOT, phase01_dirs))
+        atomic_write_json(before_path, _tree_hashes(ROOT, data_foundation_dirs))
     before = json.loads(before_path.read_text(encoding="utf-8"))
-    if before != _tree_hashes(ROOT, phase01_dirs):
-        raise SystemExit("FAIL_PHASE01_MUTATION: Phase 01 changed before acquisition")
-    phase01 = _phase01_summary(ROOT)
+    if before != _tree_hashes(ROOT, data_foundation_dirs):
+        raise SystemExit(
+            "FAIL_DATA_FOUNDATION_MUTATION: data foundation changed before acquisition"
+        )
+    data_foundation = _data_foundation_summary(ROOT)
     inventory: list[dict[str, Any]] = []
     validations: list[dict[str, Any]] = []
     client: httpx.Client | None = None
     if not args.offline and args.allow_network:
         client = httpx.Client(
-            timeout=60, follow_redirects=True, headers={"User-Agent": "SchemaGuard/02B"}
+            timeout=config.acquisition.request_timeout_seconds,
+            follow_redirects=True,
+            headers={"User-Agent": "SchemaGuard/SchemaOrbit"},
         )
     try:
         for spec in config.datasets:
@@ -174,8 +179,8 @@ def main() -> int:
     finally:
         if client is not None:
             client.close()
-    after = _tree_hashes(ROOT, phase01_dirs)
-    atomic_write_json(review / "phase01_hashes_after.json", after)
+    after = _tree_hashes(ROOT, data_foundation_dirs)
+    atomic_write_json(review / "data_foundation_hashes_after.json", after)
     comparison = {
         "unchanged": before == after,
         "changed_paths": sorted(
@@ -183,22 +188,27 @@ def main() -> int:
             | {path for path in set(before) & set(after) if before[path] != after[path]}
         ),
     }
-    atomic_write_json(review / "phase01_hash_comparison.json", comparison)
+    atomic_write_json(review / "data_foundation_hash_comparison.json", comparison)
     if not comparison["unchanged"]:
-        raise SystemExit("FAIL_PHASE01_MUTATION: Phase 01 changed during acquisition")
-    atomic_write_json(
-        output / "schemaorbit14_inventory.json",
-        {
-            "schema_version": 1,
+        raise SystemExit(
+            "FAIL_DATA_FOUNDATION_MUTATION: data foundation changed during acquisition"
+        )
+    report = {
+            "schema_version": 2,
+            "stage": "dataset_registry",
+            "benchmark": "SchemaOrbit-14",
+            "status": "PASS",
             "dataset_count": len(inventory),
             "datasets": inventory,
-            "phase01": phase01,
-        },
-    )
-    atomic_write_parquet(output / "dataset_validation.parquet", pd.DataFrame(validations))
+            "data_foundation": data_foundation,
+            "validation_records": validations,
+        }
+    DatasetRegistryReportContract.model_validate(report)
+    atomic_write_json(output / "dataset_registry_report.json", report)
+    atomic_write_parquet(output / "dataset_registry_validation.parquet", pd.DataFrame(validations))
     print(
         json.dumps(
-            {"status": "PASS", "datasets": len(inventory), "phase01": phase01},
+            {"status": "PASS", "datasets": len(inventory), "data_foundation": data_foundation},
             indent=2,
             sort_keys=True,
         )
