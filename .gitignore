@@ -20,23 +20,23 @@ artifacts/*
 !artifacts/handoff/
 !artifacts/handoff/**/*.md
 !artifacts/handoff/**/*.json
+!artifacts/handoff/*.md
+!artifacts/handoff/*.json
 
 # Other generated outputs and local build state
 results/
-schemas/
 tmp/
 temp/
 *.jsonl
 *.patch
 *.arff
-*.csv
-*.tsv
 *.parquet
 *.feather
 *.pkl
 *.pickle
 *.sqlite
 *.db
+*.ckpt
 *.onnx
 *.pt
 *.pth

@@ -1,0 +1,116 @@
+schema_version: 1
+
+runtime:
+  python_major_minor: "3.12"
+  conda_environment: P12
+  cpu_workers: 2
+  gpu_workers: 1
+  gpu_headroom_mib: 512
+
+execution:
+  lazy_imports: true
+  isolate_foundation_models: true
+  release_between_probes: true
+  network_default: false
+  checkpoint_cache_lock: true
+
+timeouts:
+  import_seconds: 120
+  constructor_seconds: 180
+  checkpoint_seconds: 1800
+  cpu_probe_seconds: 1800
+  gpu_probe_seconds: 900
+
+fixtures:
+  binary_train_rows: 48
+  binary_test_rows: 16
+  multiclass_train_rows: 60
+  multiclass_test_rows: 18
+  random_seed: 1729
+
+tolerances:
+  probability_sum_atol: 1.0e-6
+  cpu_repeat_max_abs_diff: 1.0e-10
+  gpu_repeat_max_abs_diff: 1.0e-5
+
+models:
+  - id: LR-1.9
+    class_path: sklearn.linear_model.LogisticRegression
+    package: scikit-learn
+    expected_version: 1.9.1
+    checkpoint: null
+    parameters:
+      penalty: l2
+      C: 1.0
+      solver: lbfgs
+      max_iter: 2000
+      tol: 1.0e-6
+      class_weight: null
+
+  - id: CAT-1.2
+    class_path: catboost.CatBoostClassifier
+    package: catboost
+    expected_version: 1.2.10
+    checkpoint: null
+    parameters:
+      iterations: 500
+      depth: 6
+      learning_rate: 0.05
+      l2_leaf_reg: 3.0
+      random_strength: 0.0
+      bootstrap_type: "No"
+      loss_function: auto
+      task_type: CPU
+      thread_count: 2
+      verbose: false
+      allow_writing_files: false
+
+  - id: XGB-3.4
+    class_path: xgboost.XGBClassifier
+    package: xgboost
+    expected_version: 3.4.1
+    checkpoint: null
+    parameters:
+      n_estimators: 500
+      max_depth: 6
+      learning_rate: 0.05
+      min_child_weight: 1
+      subsample: 1.0
+      colsample_bytree: 1.0
+      reg_lambda: 1.0
+      reg_alpha: 0.0
+      tree_method: hist
+      n_jobs: 2
+      verbosity: 0
+
+  - id: TPFN3-8.5
+    class_path: tabpfn.TabPFNClassifier
+    package: tabpfn
+    expected_version: 8.5.0
+    checkpoint: tabpfn-v3-classifier-v3_default.ckpt
+    parameters:
+      n_estimators: 8
+      auto_scale_n_estimators: false
+      fit_mode: low_memory
+      memory_saving_mode: true
+      n_preprocessing_jobs: 1
+      inference_precision: auto
+      ignore_pretraining_limits: false
+      show_progress_bar: false
+
+  - id: TICL2-2.2
+    class_path: tabicl.TabICLClassifier
+    package: tabicl
+    expected_version: 2.2.0
+    checkpoint: tabicl-classifier-v2-20260212.ckpt
+    parameters:
+      checkpoint_version: tabicl-classifier-v2-20260212.ckpt
+      n_estimators: 8
+      batch_size: 1
+      kv_cache: false
+      offload_mode: auto
+      use_amp: auto
+      feat_shuffle_method: latin
+      class_shuffle_method: shift
+      average_logits: true
+      n_jobs: 2

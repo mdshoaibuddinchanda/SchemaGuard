@@ -24,6 +24,18 @@ dev = [
   "ruff>=0.8,<1",
   "mypy>=1.10,<2",
 ]
+models-cpu = [
+  "scikit-learn==1.9.1",
+  "catboost==1.2.10",
+  "xgboost==3.4.1",
+]
+models-foundation = [
+  "tabpfn==8.5.0",
+  "tabicl==2.2.0",
+]
+monitoring = [
+  "psutil>=7,<8",
+]
 
 [dependency-groups]
 dev = [
@@ -40,6 +52,10 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
   "network: tests that access the OpenML network",
+  "gpu: tests that require CUDA or GPU telemetry",
+  "foundation_model: tests that import or execute TabPFN or TabICL",
+  "slow: tests that may exceed normal unit-test duration",
+  "integration: end-to-end integration tests",
 ]
 
 [tool.ruff]
