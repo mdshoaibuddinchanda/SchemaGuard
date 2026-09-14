@@ -1,0 +1,63 @@
+schema_version: 1
+
+dataset:
+  internal_id: blood-transfusion-service-center
+  provider: openml
+  openml_data_id: 1464
+  openml_file_id: 1586225
+  expected_name: blood-transfusion-service-center
+  source_page: https://www.openml.org/d/1464
+  metadata_url: https://www.openml.org/api/v1/json/data/1464
+  download_url: https://www.openml.org/data/download/1586225/php0iVrYT
+  raw_filename: blood-transfusion-service-center.arff
+
+task:
+  type: binary_classification
+  target_source: openml_default_target
+  expected_target_name: Class
+
+expected:
+  rows: 748
+  predictor_columns: 4
+  total_columns: 5
+  classes: 2
+  numeric_predictors: 4
+  categorical_predictors: 0
+  missing_values: 0
+
+processing:
+  preserve_feature_names: true
+  preserve_row_order: true
+  preserve_duplicate_rows: true
+  impute_missing: false
+  scale_numeric: false
+  normalize_rows: false
+  encode_categorical: false
+  remove_outliers: false
+  balance_classes: false
+  drop_constant_columns: false
+  parquet_compression: zstd
+  parquet_compression_level: 3
+
+split:
+  master_seed: 1729
+  train_fraction: 0.60
+  calibration_fraction: 0.20
+  test_fraction: 0.20
+  stratified: true
+
+resources:
+  download_chunk_bytes: 1048576
+  download_attempts: 3
+  request_timeout_seconds: 120
+  lock_timeout_seconds: 300
+
+validation:
+  reject_missing_target: true
+  reject_infinite_numeric_values: true
+  reject_duplicate_column_names: true
+  reject_unexpected_shape: true
+  reject_unexpected_target: true
+  reject_unexpected_class_count: true
+  report_duplicate_rows: true
+  probability_data_not_applicable: true

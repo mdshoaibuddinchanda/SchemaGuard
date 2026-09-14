@@ -1,0 +1,8 @@
+@RELATION tiny_infinite_value
+
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE Class {no,yes}
+
+@DATA
+1e309,no
+20,yes

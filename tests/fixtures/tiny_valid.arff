@@ -1,0 +1,10 @@
+@RELATION tiny_valid
+
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE city {A,B}
+@ATTRIBUTE Class {no,yes}
+
+@DATA
+10,A,no
+20,B,yes
+10,A,no

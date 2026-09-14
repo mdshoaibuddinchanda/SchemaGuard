@@ -1,0 +1,9 @@
+@RELATION tiny_duplicate_columns
+
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE Class {no,yes}
+
+@DATA
+10,10,no
+20,20,yes

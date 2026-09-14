@@ -1,0 +1,8 @@
+@RELATION tiny_missing_target
+
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE Class {no,yes}
+
+@DATA
+10,?
+20,yes

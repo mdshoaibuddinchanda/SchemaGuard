@@ -1,0 +1,8 @@
+@RELATION tiny_bad_width
+
+@ATTRIBUTE age NUMERIC
+@ATTRIBUTE Class {no,yes}
+
+@DATA
+10,no,extra
+20,yes
