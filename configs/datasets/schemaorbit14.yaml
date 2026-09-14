@@ -1,0 +1,34 @@
+schema_version: 1
+benchmark: SchemaOrbit-14
+openml_api_base: https://www.openml.org/api/v1/json
+download_base: https://www.openml.org/data/v1/download
+acquisition:
+  seed: 1729
+  offline_default: true
+  require_version: "1"
+  require_public: true
+  require_active: true
+  require_default_target: true
+  require_stable_checksum: true
+  min_rows: 500
+  max_rows: 6000
+  min_predictors: 4
+  max_predictors: 100
+  min_classes: 2
+  max_classes: 10
+  parquet_compression: zstd
+datasets:
+  - {id: 3, name: kr-vs-kp, file_id: 3, version: "1", rows: 3196, predictors: 36, target: class, provider_md5: ad6eb32b7492524d4382a40e23cdbb8e, ignore_attributes: []}
+  - {id: 23, name: cmc, file_id: 23, version: "1", rows: 1473, predictors: 9, target: Contraceptive_method_used, provider_md5: 3149646ecff276abac3e892d1556655f, ignore_attributes: []}
+  - {id: 29, name: credit-approval, file_id: 29, version: "1", rows: 690, predictors: 15, target: class, provider_md5: a948be968270a823fce432227c1aa36e, ignore_attributes: []}
+  - {id: 31, name: credit-g, file_id: 31, version: "1", rows: 1000, predictors: 20, target: class, provider_md5: 9a475053fed0c26ee95cd4525e50074c, ignore_attributes: []}
+  - {id: 36, name: segment, file_id: 36, version: "1", rows: 2310, predictors: 19, target: class, provider_md5: 037621812203bfd85c8dab1d7f16ebc6, ignore_attributes: []}
+  - {id: 37, name: diabetes, file_id: 37, version: "1", rows: 768, predictors: 8, target: class, provider_md5: 3cbaa3e54586aa88cf6aacb4033e4470, ignore_attributes: []}
+  - {id: 38, name: sick, file_id: 38, version: "1", rows: 3772, predictors: 29, target: Class, provider_md5: ee5cb4b7f41a5f44b0cd234f675ab492, ignore_attributes: []}
+  - {id: 44, name: spambase, file_id: 44, version: "1", rows: 4601, predictors: 57, target: class, provider_md5: d9ace01aeac3461e326a8e1b2d53fd84, ignore_attributes: []}
+  - {id: 46, name: splice, file_id: 46, version: "1", rows: 3190, predictors: 60, target: Class, provider_md5: 21a60c8d1b14bbf0f146b4afeda39287, ignore_attributes: [Instance_name]}
+  - {id: 50, name: tic-tac-toe, file_id: 50, version: "1", rows: 958, predictors: 9, target: Class, provider_md5: 34b2992c41e5e23c42769817e96305ac, ignore_attributes: []}
+  - {id: 54, name: vehicle, file_id: 54, version: "1", rows: 846, predictors: 18, target: Class, provider_md5: fbba18157b188f309d772f9ca4e578f5, ignore_attributes: []}
+  - {id: 1067, name: kc1, file_id: 53950, version: "1", rows: 2109, predictors: 21, target: defects, provider_md5: bcc004464934075ecaf54d84e45c427a, ignore_attributes: []}
+  - {id: 1464, name: blood-transfusion-service-center, file_id: 1586225, version: "1", rows: 748, predictors: 4, target: Class, provider_md5: c3242468edab8c2e7a907674122dc851, ignore_attributes: []}
+  - {id: 1489, name: phoneme, file_id: 1592281, version: "1", rows: 5404, predictors: 5, target: Class, provider_md5: 902ff27649dbfb512f3fb01fc05c6b24, ignore_attributes: []}
