@@ -127,7 +127,9 @@ split:
   train: 0.60
   calibration: 0.20
   test: 0.20
-  method: stratified
+  method: stratified_group
+  group_by: predictors
+  group_folds: 5
   minimum_class_count_per_partition: 5
 
 constraints:

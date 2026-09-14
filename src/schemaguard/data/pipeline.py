@@ -74,6 +74,7 @@ def build_paths(root: str | Path, config: SmokeDatasetConfig) -> PipelinePaths:
         / "splits"
         / "openml"
         / str(config.dataset.openml_data_id)
+        / config.split.strategy
         / (f"seed_{config.split.master_seed}")
     )
     foundation_dir = base / "artifacts" / "phase_01_data_foundation"
@@ -323,7 +324,7 @@ def _write_handoff(
         "- OpenML metadata verification and streaming ARFF acquisition.",
         "- Conservative processing with stable row IDs and deterministic labels.",
         "- Atomic Parquet/JSON writes and content-addressed cache validation.",
-        "- Deterministic stratified train/calibration/test split generation.",
+        "- Deterministic predictor-group-aware stratified train/calibration/test split generation.",
         "",
         "## Dataset Identity",
         "",
@@ -378,7 +379,14 @@ def _write_handoff(
             "",
             f"- Source validation: `{summary.status}`",
             f"- Processed row count: `{len(processed.features)}`",
+            f"- Split strategy: `{splits.manifest.strategy}` grouped by "
+            f"`{splits.manifest.group_by}`",
             f"- Split sizes: `{splits.manifest.row_counts}`",
+            f"- Predictor groups: `{splits.manifest.total_predictor_groups}` total, "
+            f"`{splits.manifest.duplicate_predictor_groups}` duplicated, "
+            f"largest group `{splits.manifest.largest_group_size}`",
+            "- Predictor duplicate groups crossing splits: "
+            f"`{splits.manifest.predictor_duplicate_groups_crossing_splits}`",
             "",
             "## Cache and Offline Test",
             "",

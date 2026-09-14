@@ -109,6 +109,9 @@ class SplitConfig(StrictContract):
     calibration_fraction: float = Field(gt=0, lt=1)
     test_fraction: float = Field(gt=0, lt=1)
     stratified: Literal[True]
+    strategy: Literal["stratified_group_5fold_v1"]
+    group_by: Literal["predictors"]
+    group_folds: Literal[5]
 
     @model_validator(mode="after")
     def validate_fractions(self) -> SplitConfig:
@@ -231,6 +234,18 @@ class SplitManifest(StrictContract):
     sklearn_version: str
     row_counts: dict[str, int]
     class_counts_by_split: dict[str, dict[str, int]]
+    strategy: Literal["stratified_group_5fold_v1"]
+    group_by: Literal["predictors"]
+    group_folds: Literal[5]
+    total_predictor_groups: int = Field(ge=1)
+    duplicate_predictor_groups: int = Field(ge=0)
+    largest_group_size: int = Field(ge=1)
+    conflicting_target_groups: int = Field(ge=0)
+    predictor_duplicate_groups_crossing_splits: int = Field(ge=0)
+    size_deviations: dict[str, float]
+    class_proportion_deviations: dict[str, dict[str, float]]
+    fold_assignment: dict[str, list[int]]
+    selection_score: dict[str, float]
     assignment_file_sha256: str
     created_at_utc: datetime
     validation_status: Literal["PASS", "FAILED"]

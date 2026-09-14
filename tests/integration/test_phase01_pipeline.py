@@ -99,7 +99,9 @@ def test_mocked_http_pipeline_and_cache_hit(tmp_path: Path) -> None:
     first = run_pipeline(CONFIG, root=tmp_path, client=client)
     assert first.summary.status == "PASS"
     assert first.parsed.frame.shape == (748, 6)
-    assert first.splits.manifest.row_counts == {"train": 448, "calibration": 150, "test": 150}
+    assert first.splits.manifest.row_counts == {"train": 449, "calibration": 150, "test": 149}
+    assert first.splits.manifest.strategy == "stratified_group_5fold_v1"
+    assert first.splits.manifest.predictor_duplicate_groups_crossing_splits == 0
     assert client.get_calls == 1
     assert client.stream_calls == 1
 
@@ -138,4 +140,5 @@ def test_real_openml_smoke_dataset(tmp_path: Path) -> None:
     assert outcome.download.source_manifest.default_target_attribute == "Class"
     assert outcome.parsed.frame.shape == (748, 6)
     assert outcome.processed.features.shape == (748, 5)
-    assert outcome.splits.manifest.row_counts == {"train": 448, "calibration": 150, "test": 150}
+    assert outcome.splits.manifest.row_counts == {"train": 449, "calibration": 150, "test": 149}
+    assert outcome.splits.manifest.predictor_duplicate_groups_crossing_splits == 0

@@ -45,6 +45,9 @@ split:
   calibration_fraction: 0.20
   test_fraction: 0.20
   stratified: true
+  strategy: stratified_group_5fold_v1
+  group_by: predictors
+  group_folds: 5
 
 resources:
   download_chunk_bytes: 1048576

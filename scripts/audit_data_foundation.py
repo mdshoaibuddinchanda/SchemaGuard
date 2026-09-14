@@ -1,4 +1,4 @@
-"""Independently audit the persisted SchemaGuard smoke-data evidence."""
+"""Independently audit the persisted SchemaGuard Phase 01 evidence."""
 
 from __future__ import annotations
 
@@ -12,11 +12,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from schemaguard.constants import ROW_ID_COLUMN, TARGET_CODE_COLUMN
+from schemaguard.constants import GROUP_ID_COLUMN, ROW_ID_COLUMN, TARGET_CODE_COLUMN
 from schemaguard.data.arff_parser import parse_arff
 from schemaguard.data.contracts import (
     PhaseResult,
@@ -26,70 +25,63 @@ from schemaguard.data.contracts import (
     ValidationSummary,
 )
 from schemaguard.data.pipeline import load_smoke_config
-from schemaguard.data.splits import generate_splits
-from schemaguard.utils.hashing import hash_dataframe_logically, sha256_file
+from schemaguard.data.splits import generate_splits, predictor_group_ids, validate_split_assignments
+from schemaguard.utils.hashing import sha256_file
 from schemaguard.utils.io import atomic_write_json, atomic_write_text, read_json_validated
 
 
+ACTIVE_SPLIT_RELATIVE = Path("data/splits/openml/1464/stratified_group_5fold_v1/seed_1729")
+LEGACY_SPLIT_RELATIVE = Path("data/splits/openml/1464/seed_1729")
+
 REQUIRED_FILES = [
     "configs/datasets/smoke_blood_transfusion.yaml",
-    "src/schemaguard/__init__.py",
-    "src/schemaguard/constants.py",
-    "src/schemaguard/utils/__init__.py",
-    "src/schemaguard/utils/hashing.py",
-    "src/schemaguard/utils/io.py",
-    "src/schemaguard/utils/seeds.py",
-    "src/schemaguard/utils/logging.py",
-    "src/schemaguard/data/__init__.py",
-    "src/schemaguard/data/contracts.py",
-    "src/schemaguard/data/download.py",
-    "src/schemaguard/data/arff_parser.py",
-    "src/schemaguard/data/validate.py",
-    "src/schemaguard/data/process.py",
+    "configs/experiment_registry.yaml",
+    "SCHEMAGUARD_MASTER_PLAN.md",
     "src/schemaguard/data/splits.py",
-    "src/schemaguard/data/pipeline.py",
     "scripts/01_prepare_smoke_data.py",
-    "tests/fixtures/tiny_valid.arff",
-    "tests/fixtures/tiny_missing_target.arff",
-    "tests/fixtures/tiny_infinite_value.arff",
-    "tests/unit/test_hashing.py",
-    "tests/unit/test_io.py",
-    "tests/unit/test_arff_parser.py",
-    "tests/unit/test_data_validation.py",
-    "tests/unit/test_processing.py",
+    "scripts/audit_data_foundation.py",
     "tests/unit/test_splits.py",
     "tests/integration/test_phase01_pipeline.py",
     "data/raw/openml/1464/blood-transfusion-service-center.arff",
-    "data/raw/openml/1464/source_manifest.json",
     "data/raw/openml/1464/openml_metadata.json",
+    "data/raw/openml/1464/source_manifest.json",
     "data/processed/openml/1464/features.parquet",
     "data/processed/openml/1464/targets.parquet",
     "data/processed/openml/1464/schema.json",
     "data/processed/openml/1464/label_mapping.json",
     "data/processed/openml/1464/quality_report.json",
     "data/processed/openml/1464/data_manifest.json",
-    "data/splits/openml/1464/seed_1729/assignments.parquet",
-    "data/splits/openml/1464/seed_1729/split_manifest.json",
+    str(ACTIVE_SPLIT_RELATIVE / "assignments.parquet"),
+    str(ACTIVE_SPLIT_RELATIVE / "split_manifest.json"),
     "artifacts/phase_01_data_foundation/validation_summary.json",
     "artifacts/phase_01_data_foundation/phase_result.json",
     "artifacts/phase_01_data_foundation/handoff.md",
-    "logs/phase_01_data_foundation/events.jsonl",
 ]
+
+
+def active_split_dir(root: Path) -> Path:
+    return root / ACTIVE_SPLIT_RELATIVE
+
+
+def legacy_split_dir(root: Path) -> Path:
+    return root / LEGACY_SPLIT_RELATIVE
 
 
 def artifact_paths(root: Path) -> list[Path]:
     return [
         root / "data/raw/openml/1464/blood-transfusion-service-center.arff",
-        root / "data/raw/openml/1464/source_manifest.json",
         root / "data/raw/openml/1464/openml_metadata.json",
+        root / "data/raw/openml/1464/source_manifest.json",
         root / "data/processed/openml/1464/features.parquet",
         root / "data/processed/openml/1464/targets.parquet",
         root / "data/processed/openml/1464/schema.json",
         root / "data/processed/openml/1464/label_mapping.json",
         root / "data/processed/openml/1464/quality_report.json",
         root / "data/processed/openml/1464/data_manifest.json",
-        root / "data/splits/openml/1464/seed_1729/assignments.parquet",
-        root / "data/splits/openml/1464/seed_1729/split_manifest.json",
+        active_split_dir(root) / "assignments.parquet",
+        active_split_dir(root) / "split_manifest.json",
+        legacy_split_dir(root) / "assignments.parquet",
+        legacy_split_dir(root) / "split_manifest.json",
     ]
 
 
@@ -107,115 +99,145 @@ def snapshot(root: Path) -> dict[str, Any]:
     }
 
 
-def duplicate_audit(
-    parsed: Any, features: pd.DataFrame, targets: pd.DataFrame, assignments: pd.DataFrame
-) -> dict[str, Any]:
-    source_columns = [item.name for item in parsed.attributes]
-    feature_columns = [item.name for item in parsed.attributes if not item.is_target]
-    source = parsed.frame[source_columns].copy()
-    target_name = source_columns[-1]
-    split_by_id = assignments.set_index(ROW_ID_COLUMN)["split"]
-    source_with_ids = source.copy()
-    source_with_ids[ROW_ID_COLUMN] = features[ROW_ID_COLUMN].tolist()
-
-    complete_mask = source.duplicated(keep=False)
-    complete_extras = int(source.duplicated(keep="first").sum())
-    complete_groups = source.loc[complete_mask].drop_duplicates()
-    complete_group_count = len(complete_groups)
-    complete_crossing = 0
-    for _, group in source_with_ids.loc[complete_mask].groupby(source_columns, dropna=False):
-        if group[ROW_ID_COLUMN].map(split_by_id).nunique() > 1:
-            complete_crossing += 1
-
-    predictors = source[feature_columns]
-    predictor_mask = predictors.duplicated(keep=False)
-    predictor_extras = int(predictors.duplicated(keep="first").sum())
-    predictor_groups = predictors.loc[predictor_mask].drop_duplicates()
-    predictor_group_count = len(predictor_groups)
-    predictor_conflicting = 0
-    predictor_crossing = 0
-    affected_rows_by_split = {"train": 0, "calibration": 0, "test": 0}
-    joined = source_with_ids.loc[predictor_mask].copy()
-    joined["_target"] = source.loc[predictor_mask, target_name].tolist()
-    for _, group in joined.groupby(feature_columns, dropna=False):
-        if group["_target"].nunique(dropna=False) > 1:
-            predictor_conflicting += 1
-        splits = group[ROW_ID_COLUMN].map(split_by_id)
-        if splits.nunique() > 1:
-            predictor_crossing += 1
-            for split, count in splits.value_counts().items():
-                affected_rows_by_split[str(split)] += int(count)
-
+def legacy_split_record(root: Path) -> dict[str, Any]:
+    directory = legacy_split_dir(root)
+    files = {
+        "assignments.parquet": directory / "assignments.parquet",
+        "split_manifest.json": directory / "split_manifest.json",
+    }
+    hashes = {
+        name: {"size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        for name, path in files.items()
+        if path.is_file()
+    }
+    manifest = {}
+    if files["split_manifest.json"].is_file():
+        manifest = json.loads(files["split_manifest.json"].read_text(encoding="utf-8"))
     return {
-        "complete_duplicate_rows": complete_extras,
-        "complete_duplicate_rows_belonging_to_groups": int(complete_mask.sum()),
-        "unique_complete_duplicate_groups": complete_group_count,
-        "duplicated_predictor_rows": predictor_extras,
-        "predictor_duplicate_rows_belonging_to_groups": int(predictor_mask.sum()),
-        "unique_predictor_duplicate_groups": predictor_group_count,
-        "predictor_duplicate_groups_with_conflicting_targets": predictor_conflicting,
-        "complete_duplicate_groups_crossing_splits": complete_crossing,
-        "predictor_duplicate_groups_crossing_splits": predictor_crossing,
-        "affected_train_rows": affected_rows_by_split["train"],
-        "affected_calibration_rows": affected_rows_by_split["calibration"],
-        "affected_test_rows": affected_rows_by_split["test"],
-        "protocol_flags": (
-            ["DUPLICATE_SPLIT_LEAKAGE_REVIEW_REQUIRED"] if predictor_crossing else []
-        ),
+        "status": "DEPRECATED",
+        "relative_path": str(LEGACY_SPLIT_RELATIVE).replace("\\", "/"),
+        "replacement": str(ACTIVE_SPLIT_RELATIVE).replace("\\", "/"),
+        "preserved": len(hashes) == len(files),
+        "hashes": hashes,
+        "manifest": manifest,
+    }
+
+
+def group_audit(
+    features: pd.DataFrame, targets: pd.DataFrame, assignments: pd.DataFrame
+) -> dict[str, Any]:
+    ordered_features = features.set_index(ROW_ID_COLUMN).loc[targets[ROW_ID_COLUMN].tolist()]
+    groups = predictor_group_ids(ordered_features.reset_index(drop=True))
+    rows = pd.DataFrame(
+        {
+            ROW_ID_COLUMN: targets[ROW_ID_COLUMN].tolist(),
+            GROUP_ID_COLUMN: groups.tolist(),
+            TARGET_CODE_COLUMN: targets[TARGET_CODE_COLUMN].tolist(),
+        }
+    ).merge(assignments, on=ROW_ID_COLUMN, how="left", validate="one_to_one")
+    sizes = rows.groupby(GROUP_ID_COLUMN, sort=True).size()
+    target_cardinality = rows.groupby(GROUP_ID_COLUMN, sort=True)[TARGET_CODE_COLUMN].nunique()
+    crossing = rows.groupby(GROUP_ID_COLUMN, sort=True)["split"].nunique()
+    duplicate_rows = int(rows[GROUP_ID_COLUMN].duplicated(keep=False).sum())
+    duplicate_groups = int((sizes > 1).sum())
+    predictor_columns = [
+        column
+        for column in features.columns
+        if column not in {ROW_ID_COLUMN, GROUP_ID_COLUMN, "target_label", TARGET_CODE_COLUMN}
+    ]
+    complete_rows = features[predictor_columns].copy()
+    target_by_row = targets.set_index(ROW_ID_COLUMN)[TARGET_CODE_COLUMN]
+    complete_rows[TARGET_CODE_COLUMN] = features[ROW_ID_COLUMN].map(target_by_row).tolist()
+    complete_duplicate_rows = int(complete_rows.duplicated(keep=False).sum())
+    return {
+        "total_predictor_groups": int(sizes.size),
+        "duplicate_predictor_groups": duplicate_groups,
+        "duplicated_predictor_rows": int((sizes[sizes > 1] - 1).sum()),
+        "predictor_duplicate_rows_belonging_to_groups": duplicate_rows,
+        "largest_group_size": int(sizes.max()),
+        "conflicting_target_groups": int((target_cardinality > 1).sum()),
+        "predictor_duplicate_groups_crossing_splits": int((crossing > 1).sum()),
+        "complete_duplicate_rows": complete_duplicate_rows,
+        "actual_split_sizes": {
+            split: int((rows["split"] == split).sum()) for split in ("train", "calibration", "test")
+        },
+        "class_counts_by_split": {
+            split: {
+                str(code): int(count)
+                for code, count in rows.loc[rows["split"] == split, TARGET_CODE_COLUMN]
+                .value_counts()
+                .sort_index()
+                .items()
+            }
+            for split in ("train", "calibration", "test")
+        },
     }
 
 
 def check_split_evidence(
-    root: Path, config: SmokeDatasetConfig, features: pd.DataFrame, targets: pd.DataFrame
+    root: Path,
+    config: SmokeDatasetConfig,
+    features: pd.DataFrame,
+    targets: pd.DataFrame,
 ) -> dict[str, Any]:
-    split_dir = root / "data/splits/openml/1464/seed_1729"
+    split_dir = active_split_dir(root)
     assignments_path = split_dir / "assignments.parquet"
     manifest_path = split_dir / "split_manifest.json"
     assignments = pd.read_parquet(assignments_path)
+    targets_sorted = targets.sort_values(ROW_ID_COLUMN).reset_index(drop=True)
+    features_sorted = features.set_index(ROW_ID_COLUMN).loc[targets_sorted[ROW_ID_COLUMN]]
+    group_values = predictor_group_ids(features_sorted.reset_index(drop=True))
+    group_ids = pd.Series(group_values.tolist(), index=targets_sorted[ROW_ID_COLUMN])
+    details = validate_split_assignments(assignments, targets_sorted, config, group_ids)
     manifest = read_json_validated(manifest_path, SplitManifest)
-    actual = assignments.merge(targets, on=ROW_ID_COLUMN, validate="one_to_one")
-    actual_counts = {
-        split: int((actual["split"] == split).sum()) for split in ("train", "calibration", "test")
-    }
-    class_counts = {
-        split: {
-            str(code): int(count)
-            for code, count in actual.loc[actual["split"] == split, TARGET_CODE_COLUMN]
-            .value_counts()
-            .items()
-        }
-        for split in ("train", "calibration", "test")
-    }
-    repeat_dir = root / "data/tmp/audit_repeat_split"
-    repeat = generate_splits(features, targets, config, repeat_dir, manifest.data_manifest_hash)
-    shuffled = generate_splits(
-        features.sample(frac=1, random_state=7),
-        targets.sample(frac=1, random_state=11),
+    repeat = generate_splits(
+        features,
+        targets,
         config,
-        root / "data/tmp/audit_shuffled_split",
+        root / "data/tmp/audit_repeat_group_split",
         manifest.data_manifest_hash,
     )
+    shuffled = generate_splits(
+        features.sample(frac=1, random_state=7).reset_index(drop=True),
+        targets.sample(frac=1, random_state=11).reset_index(drop=True),
+        config,
+        root / "data/tmp/audit_shuffled_group_split",
+        manifest.data_manifest_hash,
+    )
+    group_audit_result = group_audit(features, targets_sorted, assignments)
     return {
         "assignments": assignments,
         "manifest": manifest,
-        "actual_counts": actual_counts,
-        "actual_class_counts": class_counts,
-        "expected_counts": {"train": 448, "calibration": 150, "test": 150},
+        "actual_counts": details["split_sizes"],
+        "actual_class_counts": details["class_counts_by_split"],
+        "size_deviations": details["size_deviations"],
+        "class_proportion_deviations": details["class_proportion_deviations"],
         "row_count": len(assignments),
         "unique_row_ids": int(assignments[ROW_ID_COLUMN].nunique()),
         "assignment_sha256_matches": sha256_file(assignments_path)
         == manifest.assignment_file_sha256,
-        "class_counts_match_manifest": class_counts == manifest.class_counts_by_split,
-        "data_manifest_hash_matches": (
-            manifest.data_manifest_hash
-            == sha256_file(root / "data/processed/openml/1464/data_manifest.json")
+        "class_counts_match_manifest": details["class_counts_by_split"]
+        == manifest.class_counts_by_split,
+        "row_counts_match_manifest": details["split_sizes"] == manifest.row_counts,
+        "strategy_matches_manifest": manifest.strategy == config.split.strategy,
+        "group_statistics_match_manifest": all(
+            group_audit_result[key] == getattr(manifest, manifest_key)
+            for key, manifest_key in (
+                ("total_predictor_groups", "total_predictor_groups"),
+                ("duplicate_predictor_groups", "duplicate_predictor_groups"),
+                ("largest_group_size", "largest_group_size"),
+                ("conflicting_target_groups", "conflicting_target_groups"),
+                (
+                    "predictor_duplicate_groups_crossing_splits",
+                    "predictor_duplicate_groups_crossing_splits",
+                ),
+            )
         ),
-        "master_seed": manifest.master_seed,
-        "component_seeds_recorded": len(manifest.derived_seeds) == 2,
-        "repeated_logical_hash": hash_dataframe_logically(assignments)
-        == hash_dataframe_logically(repeat.assignments),
-        "shuffled_logical_hash": hash_dataframe_logically(assignments)
-        == hash_dataframe_logically(shuffled.assignments),
+        "data_manifest_hash_matches": manifest.data_manifest_hash
+        == sha256_file(root / "data/processed/openml/1464/data_manifest.json"),
+        "repeated_logical_hash_matches": repeat.assignments.equals(assignments),
+        "shuffled_logical_hash_matches": shuffled.assignments.equals(assignments),
+        "group_audit": group_audit_result,
     }
 
 
@@ -235,27 +257,37 @@ def make_gates(
     parsed: Any,
     features: pd.DataFrame,
     targets: pd.DataFrame,
-    duplicates: dict[str, Any],
     split: dict[str, Any],
     summary: ValidationSummary,
     phase_result: PhaseResult,
+    missing_required_files: list[str],
 ) -> list[dict[str, Any]]:
-    py312 = sys.version_info[:2] == (3, 12)
+    manifest = split["manifest"]
+    audit = split["group_audit"]
     raw_sha_ok = source.computed_sha256 == (
         "ee1304cac4a650ac31afe7395a100536a165f935bbe718a4643757c1a842316a"
     )
-    no_parts = not any(root.rglob("*.part"))
-    no_parts = no_parts and not any(root.rglob("*.part.parquet"))
+    no_parts = not any(root.rglob("*.part")) and not any(root.rglob("*.part.parquet"))
     online_ok = command_passed(review_dir, "pipeline_online.txt")
     offline_ok = command_passed(review_dir, "pipeline_offline.txt")
-    tests_ok = command_passed(review_dir, "pytest_non_network.txt")
-    network_ok = command_passed(review_dir, "pytest_network.txt")
-    uv_ok = command_passed(review_dir, "uv_sync.txt")
-    ruff_ok = command_passed(review_dir, "ruff.txt")
-    mypy_ok = command_passed(review_dir, "mypy.txt")
+    hash_ok = (review_dir / "hash_comparison.json").is_file() and json.loads(
+        (review_dir / "hash_comparison.json").read_text(encoding="utf-8")
+    ).get("all_unchanged", False)
     gate_values = [
-        ("A01", "Python runtime is 3.12.x", "environment.txt", py312, str(sys.version)),
-        ("A02", "uv sync completes", "uv_sync.txt", uv_ok, "formal uv sync exit code"),
+        (
+            "A01",
+            "Python runtime is 3.12.x",
+            "environment.txt",
+            sys.version_info[:2] == (3, 12),
+            sys.version,
+        ),
+        (
+            "A02",
+            "uv sync completes",
+            "uv_sync.txt",
+            command_passed(review_dir, "uv_sync.txt"),
+            "exit code",
+        ),
         (
             "A03",
             "uv.lock exists",
@@ -263,21 +295,33 @@ def make_gates(
             (root / "uv.lock").is_file(),
             sha256_file(root / "uv.lock"),
         ),
-        ("A04", "Ruff reports no errors", "ruff.txt", ruff_ok, "ruff exit code"),
-        ("A05", "Mypy reports no errors", "mypy.txt", mypy_ok, "mypy exit code"),
+        (
+            "A04",
+            "Ruff reports no errors",
+            "ruff.txt",
+            command_passed(review_dir, "ruff.txt"),
+            "exit code",
+        ),
+        (
+            "A05",
+            "Mypy reports no errors",
+            "mypy.txt",
+            command_passed(review_dir, "mypy.txt"),
+            "exit code",
+        ),
         (
             "A06",
             "All non-network tests pass",
             "pytest_non_network.txt",
-            tests_ok,
-            "27 passed, 1 deselected",
+            command_passed(review_dir, "pytest_non_network.txt"),
+            "exit code",
         ),
         (
             "A07",
             "The real OpenML network test passes",
             "pytest_network.txt",
-            network_ok,
-            "1 passed, 27 deselected",
+            command_passed(review_dir, "pytest_network.txt"),
+            "exit code",
         ),
         (
             "A08",
@@ -366,7 +410,7 @@ def make_gates(
         (
             "A20",
             "No numerical values are infinite",
-            "raw ARFF + parser",
+            "features.parquet",
             not np.isinf(features[["V1", "V2", "V3", "V4"]].to_numpy(dtype=float)).any(),
             "finite",
         ),
@@ -381,9 +425,8 @@ def make_gates(
             "A22",
             "Duplicate observations were retained",
             "duplicate_audit.json",
-            duplicates["complete_duplicate_rows_belonging_to_groups"] > 0
-            and duplicates["complete_duplicate_rows_belonging_to_groups"] <= len(features),
-            duplicates["complete_duplicate_rows_belonging_to_groups"],
+            audit["complete_duplicate_rows"] > 0,
+            audit["complete_duplicate_rows"],
         ),
         (
             "A23",
@@ -402,29 +445,29 @@ def make_gates(
         (
             "A25",
             "Parquet round-trip equality passes",
-            "processing test + Parquet artifacts",
+            "processing tests",
             True,
             "validated in pipeline and tests",
         ),
         (
             "A26",
-            "Train contains 448 rows",
+            "Train size matches the grouped split manifest",
             "split_manifest.json",
-            split["actual_counts"]["train"] == 448,
+            split["actual_counts"]["train"] == manifest.row_counts["train"],
             split["actual_counts"]["train"],
         ),
         (
             "A27",
-            "Calibration contains 150 rows",
+            "Calibration size matches the grouped split manifest",
             "split_manifest.json",
-            split["actual_counts"]["calibration"] == 150,
+            split["actual_counts"]["calibration"] == manifest.row_counts["calibration"],
             split["actual_counts"]["calibration"],
         ),
         (
             "A28",
-            "Test contains 150 rows",
+            "Test size matches the grouped split manifest",
             "split_manifest.json",
-            split["actual_counts"]["test"] == 150,
+            split["actual_counts"]["test"] == manifest.row_counts["test"],
             split["actual_counts"]["test"],
         ),
         (
@@ -450,14 +493,14 @@ def make_gates(
         ),
         (
             "A32",
-            "Repeating split generation is identical",
-            "split audit",
-            split["repeated_logical_hash"],
-            split["repeated_logical_hash"],
+            "Repeating and shuffled split generation is identical",
+            "group split audit",
+            split["repeated_logical_hash_matches"] and split["shuffled_logical_hash_matches"],
+            "logical equality",
         ),
         (
             "A33",
-            "Offline rerun succeeds without HTTP access",
+            "Online and offline reruns succeed",
             "pipeline_online.txt + pipeline_offline.txt",
             online_ok and offline_ok,
             f"online={'PASS' if online_ok else 'FAIL'}, offline={'PASS' if offline_ok else 'FAIL'}",
@@ -466,12 +509,8 @@ def make_gates(
             "A34",
             "Offline rerun preserves artifact hashes",
             "hash_comparison.json",
-            no_parts
-            and (review_dir / "hash_comparison.json").is_file()
-            and json.loads((review_dir / "hash_comparison.json").read_text()).get(
-                "all_unchanged", False
-            ),
-            "hash comparison",
+            no_parts and hash_ok,
+            "all_unchanged",
         ),
         (
             "A35",
@@ -506,21 +545,112 @@ def make_gates(
             "required sections",
         ),
     ]
-    gates = []
-    for gate_id, requirement, evidence, passed, observed in gate_values:
-        gates.append(
-            {
-                "gate_id": gate_id,
-                "requirement": requirement,
-                "evidence_file": evidence,
-                "observed_result": observed,
-                "result": "PASS" if passed else "FAIL",
-                "explanation": "Observed evidence satisfies the gate."
-                if passed
-                else "Observed evidence does not satisfy the gate.",
-            }
-        )
-    return gates
+    return [
+        {
+            "gate_id": gate_id,
+            "requirement": requirement,
+            "evidence_file": evidence,
+            "observed_result": observed,
+            "result": "PASS" if passed else "FAIL",
+            "explanation": "Observed evidence satisfies the gate."
+            if passed
+            else "Observed evidence does not satisfy the gate.",
+        }
+        for gate_id, requirement, evidence, passed, observed in gate_values
+    ]
+
+
+def write_handoff(
+    root: Path,
+    source: SourceManifest,
+    split: dict[str, Any],
+    legacy: dict[str, Any],
+    gates: list[dict[str, Any]],
+    missing_required_files: list[str],
+    review_status: str,
+) -> None:
+    lines = [
+        "# Phase 01 Handoff",
+        "",
+        "## Status",
+        "",
+        f"Pipeline: `PASS`; independent evidence review: `{review_status}`.",
+        "",
+        "## Dataset Identity",
+        "",
+        f"- OpenML data ID: `{source.openml_data_id}`; file ID: `{source.openml_file_id}`.",
+        f"- Dataset: `{source.dataset_name}`; target: `{source.default_target_attribute}`.",
+        "- Shape: `748 rows × 5 columns`; four numeric predictors; two classes.",
+        "",
+        "## Active Split",
+        "",
+        f"- Strategy: `{split['manifest'].strategy}`; "
+        f"group-by: `{split['manifest'].group_by}`; folds: `5`.",
+        f"- Location: `{ACTIVE_SPLIT_RELATIVE.as_posix()}/`.",
+        f"- Actual sizes: `{split['actual_counts']}`.",
+        f"- Class counts: `{split['actual_class_counts']}`.",
+        f"- Size deviations: `{split['size_deviations']}`.",
+        f"- Class-proportion deviations: `{split['class_proportion_deviations']}`.",
+        f"- Predictor groups: `{split['group_audit']['total_predictor_groups']}` total; "
+        f"`{split['group_audit']['duplicate_predictor_groups']}` duplicated; "
+        f"largest size `{split['group_audit']['largest_group_size']}`.",
+        f"- Conflicting-target groups: `{split['group_audit']['conflicting_target_groups']}`.",
+        "- Predictor duplicate groups crossing splits: "
+        f"`{split['group_audit']['predictor_duplicate_groups_crossing_splits']}`.",
+        "",
+        "## Deprecated Legacy Split",
+        "",
+        f"- Status: `{legacy['status']}`; location: `{legacy['relative_path']}/`.",
+        f"- Replacement: `{legacy['replacement']}/`.",
+        f"- Preserved hashes: `{legacy['hashes']}`.",
+        "",
+        "## Commands Executed",
+        "",
+        "See the exact command outputs in `artifacts/phase_01_data_foundation/review/`.",
+        "",
+        "## Acceptance Gates",
+        "",
+        f"- {sum(item['result'] == 'PASS' for item in gates)}/37 gates pass.",
+        "- A26–A28 are formally superseded from exact row-count requirements to "
+        "manifest-recorded grouped sizes.",
+        "- Full A01–A37 table: `artifacts/phase_01_data_foundation/review/acceptance_gates.md`.",
+        "",
+        "## Data Artifacts",
+        "",
+    ]
+    for path in artifact_paths(root):
+        if path.is_file():
+            lines.append(
+                f"- `{path.relative_to(root).as_posix()}` — {path.stat().st_size} bytes — "
+                f"`{sha256_file(path)}`"
+            )
+    lines.extend(
+        [
+            "",
+            "## Warnings",
+            "",
+            "- Predictor duplicate groups are isolated from one another across train, "
+            "calibration, and test.",
+            "- Conflicting-target predictor groups detected and reported: "
+            f"`{split['group_audit']['conflicting_target_groups']}`.",
+            "",
+            "## Deviations",
+            "",
+            "- The legacy row-stratified split remains preserved but deprecated; it is not active.",
+            "- All data and generated evidence remains local and ignored by Git; only "
+            "`artifacts/handoff/` is allowlisted for commit.",
+            "",
+            "## Required Files",
+            "",
+            f"- Missing required files: `{missing_required_files or 'none'}`.",
+            "",
+            "## Next Permitted Phase",
+            "",
+            "Phase 02 remains not started. Do not begin it until this handoff is accepted.",
+            "",
+        ]
+    )
+    atomic_write_text(root / "artifacts/phase_01_data_foundation/handoff.md", "\n".join(lines))
 
 
 def run_audit(root: Path) -> int:
@@ -531,13 +661,9 @@ def run_audit(root: Path) -> int:
     parsed = parse_arff(root / "data/raw/openml/1464/blood-transfusion-service-center.arff")
     features = pd.read_parquet(root / "data/processed/openml/1464/features.parquet")
     targets = pd.read_parquet(root / "data/processed/openml/1464/targets.parquet")
-    assignments = pd.read_parquet(root / "data/splits/openml/1464/seed_1729/assignments.parquet")
-    duplicates = duplicate_audit(parsed, features, targets, assignments)
     split = check_split_evidence(root, config, features, targets)
-    split_for_json = {
-        key: value for key, value in split.items() if key not in {"assignments", "manifest"}
-    }
-    atomic_write_json(review_dir / "duplicate_audit.json", duplicates)
+    legacy = legacy_split_record(root)
+    missing_required_files = [path for path in REQUIRED_FILES if not (root / path).is_file()]
 
     before_path = review_dir / "hashes_before.json"
     after_path = review_dir / "hashes_after.json"
@@ -577,19 +703,39 @@ def run_audit(root: Path) -> int:
         parsed,
         features,
         targets,
-        duplicates,
         split,
         summary,
         phase_result,
+        missing_required_files,
+    )
+    gate_counts = {
+        "passed": sum(item["result"] == "PASS" for item in gates),
+        "failed": sum(item["result"] == "FAIL" for item in gates),
+        "not_verified": 0,
+    }
+    atomic_write_json(
+        review_dir / "duplicate_audit.json",
+        {
+            **split["group_audit"],
+            "size_deviations": split["size_deviations"],
+            "class_proportion_deviations": split["class_proportion_deviations"],
+            "protocol_flags": [],
+        },
     )
     atomic_write_json(
         review_dir / "acceptance_gates.json",
         {
             "gates": gates,
-            "counts": {
-                "passed": sum(item["result"] == "PASS" for item in gates),
-                "failed": sum(item["result"] == "FAIL" for item in gates),
-                "not_verified": 0,
+            "counts": gate_counts,
+            "superseded_gate_policy": {
+                "A26-A28": (
+                    "Exact 448/150/150 requirements replaced by measured grouped split sizes."
+                ),
+                "active_group_requirements": [
+                    "predictor_duplicate_groups_crossing_splits == 0",
+                    "all rows assigned exactly once",
+                    "both classes present in every partition",
+                ],
             },
         },
     )
@@ -608,41 +754,28 @@ def run_audit(root: Path) -> int:
     )
     atomic_write_text(review_dir / "acceptance_gates.md", "\n".join(table) + "\n")
 
-    raw_sha = source.computed_sha256
-    processed_manifest = json.loads(
-        (root / "data/processed/openml/1464/data_manifest.json").read_text()
-    )
-    parquet_values_equal = features[ROW_ID_COLUMN].tolist() == targets[ROW_ID_COLUMN].tolist()
-    manifest_hashes_match = all(
-        sha256_file(root / "data/processed/openml/1464" / name) == value
-        for name, value in processed_manifest["artifact_hashes"].items()
-    )
     failed_gates = [item["gate_id"] for item in gates if item["result"] == "FAIL"]
-    report_status = (
-        "FAILED"
-        if failed_gates
-        else "CONDITIONAL_PASS"
-        if duplicates["protocol_flags"]
-        else "VERIFIED_PASS"
-    )
+    crossing = split["group_audit"]["predictor_duplicate_groups_crossing_splits"]
+    status = "FAILED" if failed_gates or missing_required_files or crossing else "VERIFIED_PASS"
     report = {
-        "status": report_status,
+        "status": status,
         "reason": (
             [f"Failed gates: {', '.join(failed_gates)}."]
             if failed_gates
-            else duplicates["protocol_flags"] or ["All audited evidence gates passed."]
+            else ["All acceptance gates pass and active predictor groups are isolated."]
         ),
-        "raw_hash_matches_frozen": raw_sha
-        == "ee1304cac4a650ac31afe7395a100536a165f935bbe718a4643757c1a842316a",
-        "processed_row_id_alignment": parquet_values_equal,
-        "processed_manifest_hashes_match": manifest_hashes_match,
-        "gates": {
-            "passed": sum(item["result"] == "PASS" for item in gates),
-            "failed": sum(item["result"] == "FAIL" for item in gates),
-            "not_verified": 0,
+        "required_files_missing": missing_required_files,
+        "active_split": {
+            "relative_path": str(ACTIVE_SPLIT_RELATIVE).replace("\\", "/"),
+            "manifest": split["manifest"].canonical_dict(),
+            "actual_split_sizes": split["actual_counts"],
+            "class_counts_by_split": split["actual_class_counts"],
+            "size_deviations": split["size_deviations"],
+            "class_proportion_deviations": split["class_proportion_deviations"],
         },
-        "duplicate_audit": duplicates,
-        "split_audit": split_for_json,
+        "legacy_row_stratified_split": legacy,
+        "duplicate_audit": split["group_audit"],
+        "gates": gate_counts,
         "formal_commands": {
             "uv_sync": command_passed(review_dir, "uv_sync.txt"),
             "ruff": command_passed(review_dir, "ruff.txt"),
@@ -652,99 +785,41 @@ def run_audit(root: Path) -> int:
         },
     }
     atomic_write_json(review_dir / "audit_result.json", report)
-    verdict = report["status"]
-    protocol_flags = ", ".join(duplicates["protocol_flags"]) or "None"
-    markdown = [
+    write_handoff(root, source, split, legacy, gates, missing_required_files, status)
+    review = [
         "# Independent Phase 01 Evidence Review",
         "",
-        f"## Status\n\n{verdict}",
+        f"## Status\n\n{status}",
         "",
         "## Evidence basis",
         "",
-        (
-            "This verdict was computed from the raw ARFF, manifests, Parquet tables, "
-            "split assignments, hashes, command outputs, and tests."
-        ),
+        f"- A01–A37: {gate_counts['passed']} passed, {gate_counts['failed']} failed.",
+        f"- Active split: `{ACTIVE_SPLIT_RELATIVE.as_posix()}/`.",
+        f"- Actual split sizes: `{split['actual_counts']}`.",
+        f"- Predictor groups crossing active splits: `{crossing}`.",
+        "- Conflicting-target groups detected: "
+        f"`{split['group_audit']['conflicting_target_groups']}`.",
+        "- The persisted legacy row-stratified split is preserved and marked deprecated.",
         "",
-        (
-            f"- A01–A37: {report['gates']['passed']} passed, "
-            f"{report['gates']['failed']} failed, "
-            f"{report['gates']['not_verified']} not verified."
-        ),
-        f"- Raw SHA-256: `{raw_sha}`.",
-        f"- Duplicate protocol flags: `{protocol_flags}`.",
+        "## Conclusion",
         "",
-        "## Blocking issues",
-        "",
-        *(f"- {flag}" for flag in duplicates["protocol_flags"]),
-        "- None" if not duplicates["protocol_flags"] else "",
-        "",
-        "## Required next decision",
-        "",
-        (
-            "Do not begin Phase 02 until the cross-split duplicate protocol is "
-            "independently reviewed and resolved."
-        ),
+        "The active predictor-group split satisfies complete assignment, class coverage, "
+        "deterministic rerun, shuffled-input invariance, and group isolation requirements.",
         "",
     ]
-    atomic_write_text(review_dir / "independent_review.md", "\n".join(markdown))
-
-    updated_handoff = (root / "artifacts/phase_01_data_foundation/handoff.md").read_text(
-        encoding="utf-8"
-    )
-    test_results = (
-        "## Test Results\n\n"
-        "- Non-network tests: 27 passed, 0 failed, 0 skipped, 1 deselected.\n"
-        "- Network test: 1 passed, 0 failed, 0 skipped, 27 deselected.\n"
-        "- Ruff: passed with 0 issues.\n"
-        "- Mypy: passed with 0 issues across 17 source files.\n"
-        "- Formal command outputs are stored in "
-        "`artifacts/phase_01_data_foundation/review/`."
-    )
-    updated_handoff = updated_handoff.replace(
-        "## Test Results\n\nThe pipeline records only commands actually executed by the caller. "
-        "Unit, network, Ruff, and mypy results are not inferred by this data command.",
-        test_results,
-    )
-    warning_text = (
-        "## Warnings\n\n- Complete duplicate rows: "
-        f"{duplicates['complete_duplicate_rows']} extra rows; "
-        f"{duplicates['complete_duplicate_rows_belonging_to_groups']} rows in "
-        f"{duplicates['unique_complete_duplicate_groups']} groups.\n"
-        "- Predictor duplicate rows: "
-        f"{duplicates['duplicated_predictor_rows']} extra rows; "
-        f"{duplicates['predictor_duplicate_rows_belonging_to_groups']} rows in "
-        f"{duplicates['unique_predictor_duplicate_groups']} groups.\n"
-        "- Predictor groups with conflicting targets: "
-        f"{duplicates['predictor_duplicate_groups_with_conflicting_targets']}.\n"
-        "- Predictor duplicate groups crossing splits: "
-        f"{duplicates['predictor_duplicate_groups_crossing_splits']}."
-    )
-    updated_handoff = updated_handoff.replace(
-        "## Warnings\n\n- duplicate_complete_rows\n- duplicate_predictor_rows",
-        warning_text,
-    )
-    deviations = (
-        "## Deviations\n\n- The initial run used Conda P12 directly; the independent audit "
-        "also ran the formal uv-locked checks.\n"
-        f"- Independent audit verdict: `{verdict}`.\n"
-        "- Review package: `artifacts/phase_01_data_foundation/review/`."
-    )
-    updated_handoff = updated_handoff.replace(
-        "## Deviations\n\nNone",
-        deviations,
-    )
-    atomic_write_text(root / "artifacts/phase_01_data_foundation/handoff.md", updated_handoff)
+    atomic_write_text(review_dir / "independent_review.md", "\n".join(review))
     phase_message = (
-        "Independent evidence audit: CONDITIONAL_PASS; duplicate groups cross split boundaries. "
-        "Protocol review required before Phase 02."
-        if duplicates["protocol_flags"]
-        else "Independent evidence audit: VERIFIED_PASS."
+        "Independent evidence audit: VERIFIED_PASS; active predictor groups do not "
+        "cross partitions."
+        if status == "VERIFIED_PASS"
+        else f"Independent evidence audit: {status}."
     )
-    phase_payload = phase_result.model_copy(update={"message": phase_message}).canonical_dict()
-    atomic_write_json(root / "artifacts/phase_01_data_foundation/phase_result.json", phase_payload)
+    atomic_write_json(
+        root / "artifacts/phase_01_data_foundation/phase_result.json",
+        phase_result.model_copy(update={"message": phase_message}).canonical_dict(),
+    )
     print(json.dumps(report, indent=2, sort_keys=True))
-    return 0 if not any(item["result"] == "FAIL" for item in gates) else 1
+    return 0 if status == "VERIFIED_PASS" else 1
 
 
 def main() -> int:

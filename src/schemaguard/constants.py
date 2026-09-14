@@ -4,6 +4,7 @@ from pathlib import Path
 
 RESERVED_COLUMN_PREFIX = "__sg_"
 ROW_ID_COLUMN = "__sg_row_id"
+GROUP_ID_COLUMN = "__sg_group_id"
 TARGET_LABEL_COLUMN = "target_label"
 TARGET_CODE_COLUMN = "target_code"
 SMOKE_DATASET_ID = "blood-transfusion-service-center"
