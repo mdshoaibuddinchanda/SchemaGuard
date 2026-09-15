@@ -219,7 +219,10 @@ def build_acceptance(
     gates["C31"] = _status(
         not cuda_records
         or environment.get("cuda_visible") is False
-        or all(record.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK", "NOT_EXECUTED"} for record in cuda_records)
+        or all(
+            record.get("status") in {"PASS", "PASS_WITH_CPU_FALLBACK", "NOT_EXECUTED"}
+            for record in cuda_records
+        )
     )
     gates["C32"] = "PASS"
     config_models = load_model_registry(ROOT / "configs/runtime/model_compatibility.yaml")
@@ -245,9 +248,7 @@ def build_acceptance(
     gates["C41"] = _status(result.get("data_foundation_hashes_unchanged") is True)
     gates["C42"] = _status(result.get("data_foundation_hashes_unchanged") is True)
     gates["C47"] = _status((quality or {}).get("C47"))
-    gates["C48"] = _status(
-        (ROOT / "artifacts/handoff/model_compatibility_review.md").exists()
-    )
+    gates["C48"] = _status((ROOT / "artifacts/handoff/model_compatibility_review.md").exists())
     return gates
 
 
@@ -267,8 +268,12 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
         else "FAIL"
     )
     model_ids = ("LR-1.9", "CAT-1.2", "XGB-3.4", "TPFN3-8.5", "TICL2-2.2")
-    comparison_path = ROOT / "artifacts/model_compatibility/review/data_foundation_hash_comparison.json"
-    comparison = json.loads(comparison_path.read_text(encoding="utf-8")) if comparison_path.exists() else {}
+    comparison_path = (
+        ROOT / "artifacts/model_compatibility/review/data_foundation_hash_comparison.json"
+    )
+    comparison = (
+        json.loads(comparison_path.read_text(encoding="utf-8")) if comparison_path.exists() else {}
+    )
     before_hashes = comparison.get("files_before", {})
     after_hashes = comparison.get("files_after", {})
     generated_paths = [
@@ -456,8 +461,7 @@ def _markdown_handoff(result: dict[str, Any], gates: dict[str, str], *, commands
     failures = result.get("failures", [])
     if failures:
         lines.extend(
-            f"* `{failure.get('category')}`: {failure.get('message')}"
-            for failure in failures
+            f"* `{failure.get('category')}`: {failure.get('message')}" for failure in failures
         )
     else:
         lines.append("* None.")

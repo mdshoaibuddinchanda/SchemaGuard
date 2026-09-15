@@ -300,8 +300,12 @@ def run_phase(
     if not (review_dir / "preconditions.txt").exists():
         atomic_write_text(
             review_dir / "preconditions.txt",
-            "starting_commit=" + _git("rev-parse", "HEAD") + "\n"
-            + "branch=" + _git("branch", "--show-current") + "\n"
+            "starting_commit="
+            + _git("rev-parse", "HEAD")
+            + "\n"
+            + "branch="
+            + _git("branch", "--show-current")
+            + "\n"
             + "unexpected_tracked_changes=none\n",
         )
     environment = detect_environment(models)

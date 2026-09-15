@@ -50,8 +50,12 @@ def test_stale_lock_is_recovered_and_active_lock_times_out(tmp_path) -> None:
 
 def test_unsupported_constructor_parameter_is_blocked() -> None:
     model = ModelSpec(
-        id="LR-1.9", class_path="sklearn.linear_model.LogisticRegression", package="scikit-learn",
-        expected_version="1.9.1", checkpoint=None, parameters={}
+        id="LR-1.9",
+        class_path="sklearn.linear_model.LogisticRegression",
+        package="scikit-learn",
+        expected_version="1.9.1",
+        checkpoint=None,
+        parameters={},
     )
     with pytest.raises(RegistryError):
         validate_constructor_parameters(model, {"unsupported_parameter": True})

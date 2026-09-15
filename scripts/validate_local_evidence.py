@@ -9,6 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from validate_repository_repair import _check_local_baseline, _load_contract_module  # noqa: E402
 
 from schemaguard.artifact_contracts import (  # noqa: E402
     DatasetRegistryReportContract,
@@ -46,6 +49,10 @@ def _load(path: Path, contract: type) -> None:
 
 
 def main() -> int:
+    contracts = _load_contract_module(ROOT)
+    baseline_status, baseline_message = _check_local_baseline(ROOT, contracts)
+    if baseline_status != "PASS":
+        raise SystemExit(f"LOCAL_EVIDENCE_BASELINE_{baseline_status}: {baseline_message}")
     _load(ROOT / "results/validation/dataset_registry_report.json", DatasetRegistryReportContract)
     _load(ROOT / "results/validation/gpu_capacity_report.json", GpuCapacityReportContract)
     _load(

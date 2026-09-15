@@ -486,10 +486,7 @@ def _read_features_if_present(path: Path) -> list[FeatureInfo]:
 
 
 def _validate_raw_manifest(path: Path, manifest: dict[str, Any], spec: DatasetSpec) -> None:
-    if (
-        manifest.get("openml_data_id") != spec.id
-        or manifest.get("openml_file_id") != spec.file_id
-    ):
+    if manifest.get("openml_data_id") != spec.id or manifest.get("openml_file_id") != spec.file_id:
         raise SchemaOrbitError(f"Raw manifest identity mismatch for {spec.id}")
     if (
         manifest.get("dataset_version") != spec.version
@@ -649,29 +646,56 @@ def _validate_legacy_smoke_processed(
         raise SchemaOrbitError(f"Cannot read processed data for {spec.id}: {exc}") from exc
     if len(features) != spec.rows or len(targets) != spec.rows:
         raise SchemaOrbitError(f"Row count mismatch for {spec.id}")
-    if features.columns[0] != "__sg_row_id" or targets.columns.tolist() != [
-        "__sg_row_id",
-        "target_label",
-        "target_code",
-    ]:
-        raise SchemaOrbitError(f"Processed column contract mismatch for {spec.id}")
-    predictor_columns = list(features.columns[1:])
-    if len(predictor_columns) != spec.predictors or spec.target in predictor_columns:
-        raise SchemaOrbitError(f"Processed predictor contract mismatch for {spec.id}")
-    if features["__sg_row_id"].duplicated().any() or targets["__sg_row_id"].duplicated().any():
-        raise SchemaOrbitError(f"Duplicate internal row IDs for {spec.id}")
-    if set(features["__sg_row_id"]) != set(targets["__sg_row_id"]):
-        raise SchemaOrbitError(f"Feature/target row IDs are not a complete join for {spec.id}")
-    if not targets["target_code"].isin(range(int(targets["target_code"].nunique()))).all():
-        raise SchemaOrbitError(f"Target codes are not contiguous for {spec.id}")
-    if targets["target_code"].nunique() < config.acquisition.min_classes:
-        raise SchemaOrbitError(f"Class minimum failed for {spec.id}")
     manifest_path = directory / "data_manifest.json"
     if not manifest_path.is_file():
         raise SchemaOrbitError(f"Missing processed manifest for {spec.id}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("raw_sha256") != raw_sha:
         raise SchemaOrbitError(f"Processed source hash mismatch for {spec.id}")
+    expected_features = ["__sg_row_id", *manifest.get("feature_columns", [])]
+    expected_targets = manifest.get(
+        "target_columns", ["__sg_row_id", "target_label", "target_code"]
+    )
+    if features.columns.tolist() != expected_features:
+        raise SchemaOrbitError(f"Processed feature columns mismatch for {spec.id}")
+    if targets.columns.tolist() != expected_targets:
+        raise SchemaOrbitError(f"Processed target columns mismatch for {spec.id}")
+    predictor_columns = list(features.columns[1:])
+    if (
+        len(predictor_columns) != spec.predictors
+        or spec.target in predictor_columns
+        or "target_label" in predictor_columns
+        or "target_code" in predictor_columns
+    ):
+        raise SchemaOrbitError(f"Processed predictor contract mismatch for {spec.id}")
+    feature_row_ids = features["__sg_row_id"]
+    target_row_ids = targets["__sg_row_id"]
+    if (
+        feature_row_ids.isna().any()
+        or target_row_ids.isna().any()
+        or feature_row_ids.duplicated().any()
+        or target_row_ids.duplicated().any()
+        or feature_row_ids.tolist() != target_row_ids.tolist()
+    ):
+        raise SchemaOrbitError(f"Feature/target row IDs are not identical in order for {spec.id}")
+    if not targets["target_code"].isin(range(int(targets["target_code"].nunique()))).all():
+        raise SchemaOrbitError(f"Target codes are not contiguous for {spec.id}")
+    if targets["target_code"].nunique() < config.acquisition.min_classes:
+        raise SchemaOrbitError(f"Class minimum failed for {spec.id}")
+    mapping_path = directory / "label_mapping.json"
+    if not mapping_path.is_file():
+        raise SchemaOrbitError(f"Missing label mapping for {spec.id}")
+    mapping = json.loads(mapping_path.read_text(encoding="utf-8"))
+    if targets["target_label"].map(mapping.get("original_to_code", {})).tolist() != targets[
+        "target_code"
+    ].tolist() or {
+        str(code): label for label, code in mapping.get("original_to_code", {}).items()
+    } != mapping.get("code_to_original", {}):
+        raise SchemaOrbitError(f"Target mapping is not reversible for {spec.id}")
+    for name, digest in manifest.get("artifact_hashes", {}).items():
+        artifact = directory / name
+        if not artifact.is_file() or sha256_file(artifact) != digest:
+            raise SchemaOrbitError(f"Processed artifact hash mismatch for {spec.id}: {name}")
     return _quality(features, targets)
 
 
@@ -763,8 +787,10 @@ def _validate_processed_directory(
     )
     if not row_ids.astype("string").reset_index(drop=True).equals(expected_row_ids):
         raise SchemaOrbitError(f"Processed row IDs are not reproducible for {spec.id}")
-    if not features["__sg_row_id"].reset_index(drop=True).equals(
-        targets["__sg_row_id"].reset_index(drop=True)
+    if (
+        not features["__sg_row_id"]
+        .reset_index(drop=True)
+        .equals(targets["__sg_row_id"].reset_index(drop=True))
     ):
         raise SchemaOrbitError(f"Feature/target row ordering is not identical for {spec.id}")
     if set(targets["target_code"]) != set(range(targets["target_code"].nunique())):
@@ -816,12 +842,12 @@ def _process_dataset_unlocked(
         quality = validate_processed(project_root, config, spec, raw_sha)
         quality["reuse_status"] = "preserved_data_foundation"
         return quality
-    try:
-        existing = validate_processed(project_root, config, spec, raw_sha)
-        existing["reuse_status"] = "validated_existing"
-        return existing
-    except SchemaOrbitError as exc:
-        if directory.exists():
+    if directory.exists():
+        try:
+            existing = validate_processed(project_root, config, spec, raw_sha)
+            existing["reuse_status"] = "validated_existing"
+            return existing
+        except SchemaOrbitError as exc:
             observed_artifact_hashes = {
                 str(path.relative_to(directory)).replace("\\", "/"): sha256_file(path)
                 for path in directory.rglob("*")
@@ -830,8 +856,7 @@ def _process_dataset_unlocked(
             quarantine_root = project_root / "data" / "cache" / "quarantine"
             quarantine_root.mkdir(parents=True, exist_ok=True)
             destination = quarantine_root / (
-                f"processed-{spec.id}-"
-                f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
+                f"processed-{spec.id}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
             )
             shutil.move(str(directory), str(destination))
             atomic_write_json(
@@ -854,65 +879,59 @@ def _process_dataset_unlocked(
     parent.mkdir(parents=True, exist_ok=True)
     temporary = parent / f".processed-{spec.id}-{os.getpid()}-{time.time_ns()}"
     temporary.mkdir(parents=True, exist_ok=False)
-    directory = temporary
-    atomic_write_parquet(
-        directory / "features.parquet", features, config.acquisition.parquet_compression
-    )
-    atomic_write_parquet(
-        directory / "targets.parquet", targets, config.acquisition.parquet_compression
-    )
-    atomic_write_json(directory / "schema.json", details["schema"])
-    mapping = {
-        "schema_version": 1,
-        "raw_sha256": raw_sha,
-        "original_to_code": {label: i for i, label in enumerate(details["classes"])},
-        "code_to_original": {str(i): label for i, label in enumerate(details["classes"])},
-    }
-    atomic_write_json(directory / "label_mapping.json", mapping)
-    atomic_write_json(directory / "quality_report.json", {"schema_version": 2, **quality})
-    artifact_hashes = {
-        name: sha256_file(directory / name)
-        for name in (
-            "features.parquet",
-            "targets.parquet",
-            "schema.json",
-            "label_mapping.json",
-            "quality_report.json",
-        )
-    }
-    source_manifest_path = (
-        project_root
-        / "data"
-        / "raw"
-        / "openml"
-        / str(spec.id)
-        / "source_manifest.json"
-    )
-    manifest = {
-        "schema_version": 1,
-        "openml_data_id": spec.id,
-        "internal_dataset_id": spec.name,
-        "row_count": len(features),
-        "feature_columns": list(features.columns[1:]),
-        "target_columns": list(targets.columns),
-        "raw_sha256": raw_sha,
-        "source_manifest_sha256": sha256_file(source_manifest_path),
-        "processing_config_sha256": sha256_canonical_json(config.model_dump()),
-        "compression": config.acquisition.parquet_compression,
-        "compression_level": 3,
-        "artifact_hashes": artifact_hashes,
-        "row_id_formula": "sha256(openml:{id}:raw_file_sha256:source_row_position)[:32]",
-    }
-    atomic_write_json(directory / "data_manifest.json", manifest)
     try:
+        directory = temporary
+        atomic_write_parquet(
+            directory / "features.parquet", features, config.acquisition.parquet_compression
+        )
+        atomic_write_parquet(
+            directory / "targets.parquet", targets, config.acquisition.parquet_compression
+        )
+        atomic_write_json(directory / "schema.json", details["schema"])
+        mapping = {
+            "schema_version": 1,
+            "raw_sha256": raw_sha,
+            "original_to_code": {label: i for i, label in enumerate(details["classes"])},
+            "code_to_original": {str(i): label for i, label in enumerate(details["classes"])},
+        }
+        atomic_write_json(directory / "label_mapping.json", mapping)
+        atomic_write_json(directory / "quality_report.json", {"schema_version": 2, **quality})
+        artifact_hashes = {
+            name: sha256_file(directory / name)
+            for name in (
+                "features.parquet",
+                "targets.parquet",
+                "schema.json",
+                "label_mapping.json",
+                "quality_report.json",
+            )
+        }
+        source_manifest_path = (
+            project_root / "data" / "raw" / "openml" / str(spec.id) / "source_manifest.json"
+        )
+        manifest = {
+            "schema_version": 1,
+            "openml_data_id": spec.id,
+            "internal_dataset_id": spec.name,
+            "row_count": len(features),
+            "feature_columns": list(features.columns[1:]),
+            "target_columns": list(targets.columns),
+            "raw_sha256": raw_sha,
+            "source_manifest_sha256": sha256_file(source_manifest_path),
+            "processing_config_sha256": sha256_canonical_json(config.model_dump()),
+            "compression": config.acquisition.parquet_compression,
+            "compression_level": 3,
+            "artifact_hashes": artifact_hashes,
+            "row_id_formula": "sha256(openml:{id}:raw_file_sha256:source_row_position)[:32]",
+        }
+        atomic_write_json(directory / "data_manifest.json", manifest)
         _validate_processed_directory(project_root, directory, config, spec, raw_sha)
         os.replace(directory, parent / str(spec.id))
     except Exception as exc:
         quarantine_root = project_root / "data" / "cache" / "quarantine"
         quarantine_root.mkdir(parents=True, exist_ok=True)
         destination = quarantine_root / (
-            f"processed-incomplete-{spec.id}-"
-            f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
+            f"processed-incomplete-{spec.id}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
         )
         if directory.exists():
             shutil.move(str(directory), str(destination))
@@ -921,6 +940,9 @@ def _process_dataset_unlocked(
                 {"reason": str(exc), "expected_raw_sha256": raw_sha},
             )
         raise
+    finally:
+        if temporary.exists():
+            shutil.rmtree(temporary, ignore_errors=True)
     directory = parent / str(spec.id)
     return quality | {"reuse_status": "processed_new"}
 
@@ -950,9 +972,7 @@ def dataset_inventory_record(
     raw_manifest: dict[str, Any],
     quality: dict[str, Any],
 ) -> dict[str, Any]:
-    quality_artifact = {
-        key: value for key, value in quality.items() if key not in {"reuse_status"}
-    }
+    quality_artifact = {key: value for key, value in quality.items() if key not in {"reuse_status"}}
     return {
         "schema_version": 2,
         "openml_data_id": spec.id,

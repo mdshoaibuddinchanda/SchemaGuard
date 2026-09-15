@@ -164,6 +164,7 @@ def execute_profile(request: dict[str, Any]) -> dict[str, Any]:
         "checkpoint_sha256": None,
         "cycles": cycles,
         "status": "FAIL",
+        "process_exit": "success",
         "failure_category": None,
         "start_time": started_at,
         "end_time": None,
@@ -199,6 +200,7 @@ def execute_profile(request: dict[str, Any]) -> dict[str, Any]:
 
                 if not torch.cuda.is_available():
                     base["status"] = "NOT_EXECUTED"
+                    base["process_exit"] = "not_executed"
                     base["failure_category"] = "NOT_EXECUTED_NO_CUDA"
                     return base
                 # On this CUDA/PyTorch build the explicit integer argument is
@@ -209,11 +211,13 @@ def execute_profile(request: dict[str, Any]) -> dict[str, Any]:
                 base["gpu_free_before_mib"] = before["gpu_free_mib"]
             except Exception as exc:
                 base["status"] = "NOT_EXECUTED"
+                base["process_exit"] = "not_executed"
                 base["failure_category"] = "NOT_EXECUTED_NO_CUDA"
                 base["error"] = str(exc)
                 return base
         observed = importlib.metadata.version(spec.package)
         if observed != spec.expected_version:
+            base["process_exit"] = "exception"
             base["failure_category"] = "FAIL_VERSION_MISMATCH"
             base["error"] = f"Expected {spec.expected_version}, observed {observed}"
             return base
@@ -273,6 +277,7 @@ def execute_profile(request: dict[str, Any]) -> dict[str, Any]:
         base["status"] = "PASS"
         base["failure_category"] = "PASS"
     except Exception as exc:
+        base["process_exit"] = "oom" if device == "cuda" and _is_oom(exc) else "exception"
         base["failure_category"] = (
             "FAIL_GPU_OOM"
             if device == "cuda" and _is_oom(exc)
@@ -468,6 +473,7 @@ def _run_worker(root: Path, request: dict[str, Any], timeout: int) -> dict[str, 
                         "strategy": request["strategy"],
                         "cycles": request["cycles"],
                         "status": "FAIL",
+                        "process_exit": "timeout",
                         "failure_category": "FAIL_TIMEOUT",
                         "error": f"worker exceeded {timeout} seconds",
                         "runtime_seconds": float(timeout),
@@ -517,6 +523,7 @@ def _run_worker(root: Path, request: dict[str, Any], timeout: int) -> dict[str, 
             "strategy": request["strategy"],
             "cycles": request["cycles"],
             "status": "FAIL",
+            "process_exit": "exception",
             "failure_category": "FAIL_TEST",
             "error": stderr.strip() or stdout.strip() or f"worker exit {completed.returncode}",
             "runtime_seconds": 0.0,
@@ -564,8 +571,7 @@ def run_gpu_profiles(
                 state = _gpu_state()
                 device = (
                     "cuda"
-                    if state.get("available")
-                    and float(state.get("free_mib", 0)) > GPU_HEADROOM_MIB
+                    if state.get("available") and float(state.get("free_mib", 0)) > GPU_HEADROOM_MIB
                     else "cpu"
                 )
                 request = {
@@ -589,7 +595,7 @@ def run_gpu_profiles(
                     and float(row["peak_vram_reserved_mib"]) > GPU_SOFT_LIMIT_MIB
                 ):
                     row["status"] = "FAIL"
-                    row["failure_category"] = "FAIL_GPU_INFERENCE"
+                    row["failure_category"] = "FAIL_GPU_SOFT_LIMIT"
                     row["error"] = "GPU soft memory limit was breached"
                 rows.append(row)
                 if (
@@ -676,9 +682,7 @@ def run_gpu_profiles(
                 }
             )
     primary_rows = [
-        row
-        for row in rows
-        if row.get("strategy") == "repeated_inference_single_worker"
+        row for row in rows if row.get("strategy") == "repeated_inference_single_worker"
     ]
     accountable = [
         row

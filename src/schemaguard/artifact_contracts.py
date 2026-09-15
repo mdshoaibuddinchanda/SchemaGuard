@@ -52,6 +52,41 @@ class ConditionManifestContract(ArtifactContract):
         return self
 
 
+class DataFoundationBaselineDatasetContract(ArtifactContract):
+    openml_data_id: int = Field(gt=0)
+    openml_file_id: int = Field(gt=0)
+    raw_source_sha256: Sha256
+    processed_artifact_sha256: dict[str, Sha256]
+    row_count: int = Field(gt=0)
+    predictor_count: int = Field(gt=0)
+    target_name: str
+    accepted_class_values: list[str] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def validate_artifact_set(self) -> DataFoundationBaselineDatasetContract:
+        expected = {"features.parquet", "targets.parquet", "schema.json", "label_mapping.json"}
+        if set(self.processed_artifact_sha256) != expected:
+            raise ValueError("baseline must identify the four frozen processed artifacts")
+        return self
+
+
+class DataFoundationBaselineSplitContract(ArtifactContract):
+    name: Literal["stratified_group_5fold_v1"]
+    group_by: Literal["predictors"]
+    no_cross_split_duplicate_invariant: Literal[True] = True
+    cross_split_duplicate_group_count: int = Field(ge=0)
+    duplicate_predictor_group_count: int = Field(ge=0)
+    conflicting_target_group_count: int = Field(ge=0)
+    split_sizes: dict[str, int]
+
+
+class DataFoundationBaselineContract(ArtifactContract):
+    schema_version: Literal[1] = 1
+    baseline_name: Literal["data_foundation"] = "data_foundation"
+    dataset: DataFoundationBaselineDatasetContract
+    split_protocol: DataFoundationBaselineSplitContract
+
+
 class ModelCompatibilityReportContract(ArtifactContract):
     schema_version: Literal[2] = 2
     stage: Literal["model_compatibility"] = "model_compatibility"
@@ -113,6 +148,7 @@ class GpuProfileRecordContract(ArtifactContract):
     checkpoint_sha256: Sha256 | None = None
     cycles: int = Field(gt=0)
     status: Literal["PASS", "PASS_WITH_CPU_FALLBACK", "FAIL", "BLOCKED", "NOT_EXECUTED"]
+    process_exit: Literal["success", "exception", "timeout", "oom", "not_executed"] = "success"
     failure_category: str | None = None
     start_time: str = ""
     end_time: str | None = None
@@ -179,11 +215,46 @@ class GpuCapacityReportContract(ArtifactContract):
     accounted_profiles: int = Field(ge=0)
     monitoring_complete: bool
 
+    @model_validator(mode="after")
+    def validate_report_consistency(self) -> GpuCapacityReportContract:
+        if self.status != "PASS":
+            return self
+        if self.requested_profiles <= 0:
+            raise ValueError("a passing GPU report requires requested profiles")
+        if self.accounted_profiles != self.requested_profiles:
+            raise ValueError("GPU profile accounting is incomplete")
+        required_models = {"TPFN3-8.5", "TICL2-2.2"}
+        covered_models = {row.model_id for row in self.rows}
+        if not required_models.issubset(covered_models):
+            raise ValueError("every foundation model requires GPU evidence")
+        if any(row.status in {"FAIL", "BLOCKED", "NOT_EXECUTED"} for row in self.rows):
+            raise ValueError("a passing GPU report cannot contain an unsuccessful profile")
+        launched = [row for row in self.rows if row.status != "NOT_EXECUTED"]
+        if not launched or any(row.monitoring_complete is not True for row in launched):
+            raise ValueError("every launched GPU profile requires completed monitoring")
+        for row in self.rows:
+            if row.process_exit == "success" and row.status in {"FAIL", "BLOCKED"}:
+                raise ValueError("failed profiles must classify their process exit")
+            if row.status == "NOT_EXECUTED" and row.process_exit != "not_executed":
+                raise ValueError("unexecuted profiles must classify their process exit")
+            if row.timed_out and row.process_exit != "timeout":
+                raise ValueError("timed-out profiles must classify their process exit")
+            if row.strategy == "cpu_fallback" and not row.fallback_status:
+                raise ValueError("CPU fallback profiles require an explicit fallback status")
+            if row.device == "cuda" and row.status == "PASS":
+                if row.peak_vram_reserved_mib is None:
+                    raise ValueError("successful GPU profiles require peak reserved VRAM")
+                if row.peak_vram_reserved_mib > self.gpu_soft_limit_mib:
+                    raise ValueError("FAIL_GPU_SOFT_LIMIT: GPU soft limit exceeded")
+            if row.failure_category == "FAIL_GPU_SOFT_LIMIT" and row.status == "PASS":
+                raise ValueError("a soft-limit failure cannot be marked PASS")
+        return self
+
 
 class GateCheckContract(ArtifactContract):
     gate_id: str = Field(pattern=r"^R[0-9]{2}$")
     requirement: str
-    result: Literal["PASS", "FAIL", "NOT_VERIFIED"]
+    result: Literal["PASS", "FAIL", "NOT_VERIFIED", "NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT"]
     evidence: str
 
 
@@ -196,6 +267,7 @@ class RepositoryValidationReportContract(ArtifactContract):
 
 SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "condition_manifest.schema.json": ConditionManifestContract,
+    "data_foundation_baseline.schema.json": DataFoundationBaselineContract,
     "model_compatibility.schema.json": ModelCompatibilityReportContract,
     "dataset_inventory.schema.json": DatasetRegistryReportContract,
     "gpu_capacity_report.schema.json": GpuCapacityReportContract,
@@ -214,6 +286,7 @@ def schema_documents() -> dict[str, dict[str, Any]]:
 
 __all__ = [
     "ConditionManifestContract",
+    "DataFoundationBaselineContract",
     "DatasetRegistryReportContract",
     "GpuCapacityReportContract",
     "ModelCompatibilityReportContract",

@@ -532,9 +532,7 @@ def make_gates(
             "handoff.md",
             all(
                 section
-                in (root / "artifacts/data_foundation/handoff.md").read_text(
-                    encoding="utf-8"
-                )
+                in (root / "artifacts/data_foundation/handoff.md").read_text(encoding="utf-8")
                 for section in (
                     "## Commands Executed",
                     "## Data Artifacts",

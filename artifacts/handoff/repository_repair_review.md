@@ -2,11 +2,17 @@
 
 ## Status
 
-`PASS`
+`SUPERSEDED`
 
-All R01–R40 repair gates pass (40/40). No split generation, transformation,
-model training, prediction generation, SCNF, COSA, smoke, pilot, or main
-experiment was started by this repair.
+This earlier repair review is superseded. The first clean GitHub Actions run
+for this repair failed during pytest collection because `jsonschema` was not
+included in the development dependency contract. The verification-integrity
+review records the corrected workflow and must be used for approval.
+
+The earlier local evidence package recorded 40/40 local checks, but that
+claim is superseded because clean GitHub Actions failed before test collection.
+No split generation, transformation, model training, prediction generation,
+SCNF, COSA, smoke, pilot, or main experiment was started by this repair.
 
 ## Starting state
 
@@ -136,16 +142,9 @@ foundation CPU and GPU probes were executed and are recorded in the reports.
 
 ## Acceptance gates
 
-`R01 PASS` · `R02 PASS` · `R03 PASS` · `R04 PASS` · `R05 PASS` · `R06 PASS` ·
-`R07 PASS` · `R08 PASS` · `R09 PASS` · `R10 PASS` · `R11 PASS` · `R12 PASS` ·
-`R13 PASS` · `R14 PASS` · `R15 PASS` · `R16 PASS` · `R17 PASS` · `R18 PASS` ·
-`R19 PASS` · `R20 PASS` · `R21 PASS` · `R22 PASS` · `R23 PASS` · `R24 PASS` ·
-`R25 PASS` · `R26 PASS` · `R27 PASS` · `R28 PASS` · `R29 PASS` · `R30 PASS` ·
-`R31 PASS` · `R32 PASS` · `R33 PASS` · `R34 PASS` · `R35 PASS` · `R36 PASS` ·
-`R37 PASS` · `R38 PASS` · `R39 PASS` · `R40 PASS`.
-
-Machine-readable evidence: `artifacts/repository_repair/acceptance_gates.json`
-(`status: PASS`, 40 passed, 0 failed).
+The former R01–R40 local result is retained as historical evidence only and
+is not an approval. The corrected structural validator and the final GitHub
+Actions run are authoritative.
 
 ## Files renamed
 
@@ -154,7 +153,7 @@ The 11 history-preserving renames are listed in the naming migration table.
 ## Files created
 
 * `.github/workflows/quality.yml`
-* `requirements/p12_windows.lock`
+* `requirements/p12_windows_constraints.txt`
 * `schemas/condition_manifest.schema.json`
 * `schemas/dataset_inventory.schema.json`
 * `schemas/gpu_capacity_report.schema.json`
@@ -231,8 +230,8 @@ git diff --check — exit 0 (line-ending warnings only)
 
 ## Failures
 
-None in R01–R40. The `pip check` deviation is recorded above and is not a
-repair-gate failure.
+The former local pass claim is invalidated by the clean CI collection failure.
+The `pip check` deviation is recorded above.
 
 ## Next permitted stage
 

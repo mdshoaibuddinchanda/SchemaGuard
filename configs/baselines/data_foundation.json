@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "baseline_name": "data_foundation",
+  "dataset": {
+    "openml_data_id": 1464,
+    "openml_file_id": 1586225,
+    "raw_source_sha256": "ee1304cac4a650ac31afe7395a100536a165f935bbe718a4643757c1a842316a",
+    "processed_artifact_sha256": {
+      "features.parquet": "9d3168b0bafc5af610caea42c96f95033f32bf5ae4dc011797f45d1809af458f",
+      "targets.parquet": "9d4e0f665127dd2c41e990d4b129e08d8a0c55f83d42d2e57b758959a9fc23d0",
+      "schema.json": "cba51d40f1ecd2f34b4b83e4d55a6a134708d4d1a4a11d6ed263b161792d4e9c",
+      "label_mapping.json": "251d6c099788f9fb5850c3c80ddc1390021b5c480e4175a5f09d80813fbd94af"
+    },
+    "row_count": 748,
+    "predictor_count": 4,
+    "target_name": "Class",
+    "accepted_class_values": ["1", "2"]
+  },
+  "split_protocol": {
+    "name": "stratified_group_5fold_v1",
+    "group_by": "predictors",
+    "no_cross_split_duplicate_invariant": true,
+    "cross_split_duplicate_group_count": 0,
+    "duplicate_predictor_group_count": 69,
+    "conflicting_target_group_count": 31,
+    "split_sizes": {
+      "train": 449,
+      "calibration": 150,
+      "test": 149
+    }
+  }
+}

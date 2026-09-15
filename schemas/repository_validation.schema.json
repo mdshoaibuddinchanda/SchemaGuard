@@ -20,7 +20,8 @@
           "enum": [
             "PASS",
             "FAIL",
-            "NOT_VERIFIED"
+            "NOT_VERIFIED",
+            "NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT"
           ],
           "title": "Result",
           "type": "string"

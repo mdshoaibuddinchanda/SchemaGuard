@@ -597,13 +597,20 @@ def execute_probe(request: ProbeRequest) -> ProbeResult:
         except (CheckpointAuthorizationRequired, OfflineCacheMiss) as exc:
             resource = monitor.finish()
             path = _traceback_path(request, spec, traceback.format_exc())
-            authorization = "required" if isinstance(exc, CheckpointAuthorizationRequired) else "not_required"
-            license_status = "not_accepted" if isinstance(exc, CheckpointAuthorizationRequired) else "unknown"
+            authorization = (
+                "required" if isinstance(exc, CheckpointAuthorizationRequired) else "not_required"
+            )
+            license_status = (
+                "not_accepted" if isinstance(exc, CheckpointAuthorizationRequired) else "unknown"
+            )
             checkpoint = CheckpointRecord(
                 model_id=spec.id,
                 identifier=spec.checkpoint,
-                cache_status=("authorization_required" if isinstance(exc, CheckpointAuthorizationRequired)
-                              else "offline_cache_miss"),
+                cache_status=(
+                    "authorization_required"
+                    if isinstance(exc, CheckpointAuthorizationRequired)
+                    else "offline_cache_miss"
+                ),
                 identity_valid=False,
                 authorization_status=authorization,
                 license_status=license_status,

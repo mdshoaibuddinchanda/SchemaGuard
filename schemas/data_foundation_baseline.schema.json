@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "DataFoundationBaselineDatasetContract": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_class_values": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Accepted Class Values",
+          "type": "array"
+        },
+        "openml_data_id": {
+          "exclusiveMinimum": 0,
+          "title": "Openml Data Id",
+          "type": "integer"
+        },
+        "openml_file_id": {
+          "exclusiveMinimum": 0,
+          "title": "Openml File Id",
+          "type": "integer"
+        },
+        "predictor_count": {
+          "exclusiveMinimum": 0,
+          "title": "Predictor Count",
+          "type": "integer"
+        },
+        "processed_artifact_sha256": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "title": "Processed Artifact Sha256",
+          "type": "object"
+        },
+        "raw_source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Source Sha256",
+          "type": "string"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "target_name": {
+          "title": "Target Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "openml_data_id",
+        "openml_file_id",
+        "raw_source_sha256",
+        "processed_artifact_sha256",
+        "row_count",
+        "predictor_count",
+        "target_name",
+        "accepted_class_values"
+      ],
+      "title": "DataFoundationBaselineDatasetContract",
+      "type": "object"
+    },
+    "DataFoundationBaselineSplitContract": {
+      "additionalProperties": false,
+      "properties": {
+        "conflicting_target_group_count": {
+          "minimum": 0,
+          "title": "Conflicting Target Group Count",
+          "type": "integer"
+        },
+        "cross_split_duplicate_group_count": {
+          "minimum": 0,
+          "title": "Cross Split Duplicate Group Count",
+          "type": "integer"
+        },
+        "duplicate_predictor_group_count": {
+          "minimum": 0,
+          "title": "Duplicate Predictor Group Count",
+          "type": "integer"
+        },
+        "group_by": {
+          "const": "predictors",
+          "title": "Group By",
+          "type": "string"
+        },
+        "name": {
+          "const": "stratified_group_5fold_v1",
+          "title": "Name",
+          "type": "string"
+        },
+        "no_cross_split_duplicate_invariant": {
+          "const": true,
+          "default": true,
+          "title": "No Cross Split Duplicate Invariant",
+          "type": "boolean"
+        },
+        "split_sizes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Split Sizes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "group_by",
+        "cross_split_duplicate_group_count",
+        "duplicate_predictor_group_count",
+        "conflicting_target_group_count",
+        "split_sizes"
+      ],
+      "title": "DataFoundationBaselineSplitContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_name": {
+      "const": "data_foundation",
+      "default": "data_foundation",
+      "title": "Baseline Name",
+      "type": "string"
+    },
+    "dataset": {
+      "$ref": "#/$defs/DataFoundationBaselineDatasetContract"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "split_protocol": {
+      "$ref": "#/$defs/DataFoundationBaselineSplitContract"
+    }
+  },
+  "required": [
+    "dataset",
+    "split_protocol"
+  ],
+  "title": "DataFoundationBaselineContract",
+  "type": "object"
+}

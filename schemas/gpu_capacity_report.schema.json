@@ -358,6 +358,18 @@
           "default": null,
           "title": "Probability Sum Error"
         },
+        "process_exit": {
+          "default": "success",
+          "enum": [
+            "success",
+            "exception",
+            "timeout",
+            "oom",
+            "not_executed"
+          ],
+          "title": "Process Exit",
+          "type": "string"
+        },
         "profile_id": {
           "title": "Profile Id",
           "type": "string"

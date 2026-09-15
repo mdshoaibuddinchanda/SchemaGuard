@@ -194,15 +194,15 @@ def main() -> int:
             "FAIL_DATA_FOUNDATION_MUTATION: data foundation changed during acquisition"
         )
     report = {
-            "schema_version": 2,
-            "stage": "dataset_registry",
-            "benchmark": "SchemaOrbit-14",
-            "status": "PASS",
-            "dataset_count": len(inventory),
-            "datasets": inventory,
-            "data_foundation": data_foundation,
-            "validation_records": validations,
-        }
+        "schema_version": 2,
+        "stage": "dataset_registry",
+        "benchmark": "SchemaOrbit-14",
+        "status": "PASS",
+        "dataset_count": len(inventory),
+        "datasets": inventory,
+        "data_foundation": data_foundation,
+        "validation_records": validations,
+    }
     DatasetRegistryReportContract.model_validate(report)
     atomic_write_json(output / "dataset_registry_report.json", report)
     atomic_write_parquet(output / "dataset_registry_validation.parquet", pd.DataFrame(validations))

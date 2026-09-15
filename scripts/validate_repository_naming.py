@@ -54,6 +54,11 @@ def audit_repository(root: Path = ROOT) -> list[dict[str, Any]]:
             lines = path.read_text(encoding="utf-8").splitlines()
         except (UnicodeDecodeError, OSError):
             continue
+        if relative in {
+            "scripts/validate_repository_naming.py",
+            "scripts/validate_repository_repair.py",
+        }:
+            continue  # These files contain the intentional audit expressions.
         in_migration_table = False
         for number, line in enumerate(lines, 1):
             if relative == "artifacts/handoff/repository_repair_review.md":
