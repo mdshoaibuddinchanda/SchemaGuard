@@ -1,3 +1,6 @@
+import sys
+from types import SimpleNamespace
+
 from schemaguard.utils.resource_monitor import ResourceMonitor
 
 
@@ -10,7 +13,8 @@ def test_resource_runtime_and_ram_are_nonnegative() -> None:
 
 
 def test_gpu_missing_telemetry_is_null_not_zero(monkeypatch) -> None:
-    monkeypatch.setattr("torch.cuda.is_available", lambda: False, raising=False)
+    fake_torch = SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False))
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
     with ResourceMonitor("TPFN3-8.5", "cuda") as monitor:
         result = monitor.finish()
     assert result.gpu_allocated_mib is None
