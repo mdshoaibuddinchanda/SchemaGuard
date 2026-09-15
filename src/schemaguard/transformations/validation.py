@@ -20,6 +20,7 @@ def validate_transformation(
     *,
     rtol: float = 1.0e-10,
     atol: float = 1.0e-12,
+    transformation=None,
 ) -> dict[str, Any]:
     if TARGET_CODE_COLUMN in transformed.columns or TARGET_LABEL_COLUMN in transformed.columns:
         raise ValueError("target columns entered the transformed predictor table")
@@ -27,7 +28,15 @@ def validate_transformation(
         raise ValueError("row count changed during transformation")
     if transformed[ROW_ID_COLUMN].duplicated().any():
         raise ValueError("transformation duplicated a row identifier")
-    result = validate_roundtrip(source, transformed, restored, certificate, rtol=rtol, atol=atol)
+    result = validate_roundtrip(
+        source,
+        transformed,
+        restored,
+        certificate,
+        rtol=rtol,
+        atol=atol,
+        transformation=transformation,
+    )
     aligned_transformed = transformed.set_index(ROW_ID_COLUMN).loc[source[ROW_ID_COLUMN].tolist()]
     for column in source.columns:
         if column == ROW_ID_COLUMN:

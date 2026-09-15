@@ -14,7 +14,7 @@ from .base import BaseTransformation, FeatureSchema
 class ColumnPermutationTransformation(BaseTransformation):
     view_id = "V08"
     view_name = "column_permutation_control"
-    certificate_type = "CONTROL"
+    certificate_type = "PERMUTATION"
 
     def _fit(
         self, X_train: pd.DataFrame, dataset_id: int | str, seed: int, feature_schema: FeatureSchema
@@ -33,7 +33,8 @@ class ColumnPermutationTransformation(BaseTransformation):
             "generated_columns": [],
             "source_columns": list(X_train.columns),
             "permuted_columns": row_id + ordered,
-            "inverse_order": list(X_train.columns),
+            "forward_order": [list(X_train.columns).index(column) for column in row_id + ordered],
+            "inverse_order": [(row_id + ordered).index(column) for column in X_train.columns],
             "operation": "column_order_permutation",
         }
 

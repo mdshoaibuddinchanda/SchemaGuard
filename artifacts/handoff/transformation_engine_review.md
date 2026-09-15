@@ -1,10 +1,18 @@
-# Transformation Engine Review
+# Transformation Engine Review (Superseded)
+
+> This historical review is superseded by
+> `artifacts/handoff/transformation_verification_repair.md`. Its original
+> `PASS_PENDING_REVIEW` conclusion must not be used as the current verification
+> result; the repair revalidated the transformation engine and regenerated the
+> inventory under the stricter certificate, determinism, dtype, codec, cache,
+> and materialization contracts.
 
 ## Status
 
-`PASS_PENDING_REVIEW`
+`SUPERSEDED`
 
-The certified lossless transformation engine is implemented and locally verified. This status intentionally remains pending independent review; it is not a claim of scientific experiment completion.
+This historical review is retained for provenance only. Its original result is
+superseded by `transformation_verification_repair.md`.
 
 ## Starting state
 

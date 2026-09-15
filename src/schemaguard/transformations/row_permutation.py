@@ -14,7 +14,7 @@ from .base import BaseTransformation, FeatureSchema
 class RowPermutationTransformation(BaseTransformation):
     view_id = "V09"
     view_name = "row_permutation_control"
-    certificate_type = "CONTROL"
+    certificate_type = "PERMUTATION"
 
     def _fit(
         self, X_train: pd.DataFrame, dataset_id: int | str, seed: int, feature_schema: FeatureSchema
@@ -24,6 +24,9 @@ class RowPermutationTransformation(BaseTransformation):
             "generated_columns": [],
             "source_columns": list(X_train.columns),
             "operation": "training_rows_only",
+            "forward_order": [],
+            "inverse_order": [],
+            "target_alignment_policy": "ROW_ID_JOIN",
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -31,6 +34,8 @@ class RowPermutationTransformation(BaseTransformation):
         if partition != "train":
             params["source_row_ids"] = [str(value) for value in X[ROW_ID_COLUMN].tolist()]
             params["output_row_ids"] = list(params["source_row_ids"])
+            params["forward_order"] = list(range(len(X)))
+            params["inverse_order"] = list(range(len(X)))
             return X.copy(deep=True), params
         ordered = sorted(
             range(len(X)),
@@ -41,6 +46,12 @@ class RowPermutationTransformation(BaseTransformation):
         out = X.iloc[ordered].reset_index(drop=True)
         params["source_row_ids"] = [str(value) for value in X[ROW_ID_COLUMN].tolist()]
         params["output_row_ids"] = [str(value) for value in out[ROW_ID_COLUMN].tolist()]
+        params["forward_order"] = [
+            params["source_row_ids"].index(row_id) for row_id in params["output_row_ids"]
+        ]
+        params["inverse_order"] = [
+            params["output_row_ids"].index(row_id) for row_id in params["source_row_ids"]
+        ]
         return out, params
 
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:

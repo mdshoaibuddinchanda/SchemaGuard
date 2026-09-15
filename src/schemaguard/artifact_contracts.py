@@ -24,6 +24,7 @@ from .transformations.contracts import (
     TransformationCertificate,
     TransformationInventory,
     TransformationManifest,
+    TransformationPropertyEvidence,
     TransformationValidationReport,
 )
 
@@ -282,6 +283,7 @@ SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "split_generation_inventory.schema.json": SplitGenerationInventoryContract,
     "transformation_certificate.schema.json": TransformationCertificate,
     "transformation_manifest.schema.json": TransformationManifest,
+    "transformation_property_evidence.schema.json": TransformationPropertyEvidence,
     "transformation_inventory.schema.json": TransformationInventory,
     "transformation_validation.schema.json": TransformationValidationReport,
 }

@@ -6,8 +6,10 @@ import hashlib
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cache
 from typing import Any, Protocol, Self
 
+import numpy as np
 import pandas as pd
 
 from ..constants import (
@@ -16,6 +18,7 @@ from ..constants import (
     TARGET_LABEL_COLUMN,
 )
 from ..utils.hashing import hash_dataframe_logically, sha256_canonical_json
+from .codec import encode_typed_value
 from .contracts import TransformationCertificate
 
 
@@ -41,7 +44,10 @@ class FeatureSchema:
                 "categorical_columns": self.categorical_columns,
                 "integer_columns": self.integer_columns,
                 "row_id_column": self.row_id_column,
-                "categorical_values": self.categorical_values,
+                "categorical_values": [
+                    [column, [encode_typed_value(value) for value in values]]
+                    for column, values in self.categorical_values
+                ],
             }
         )
 
@@ -207,8 +213,16 @@ class BaseTransformation(ABC):
         return sha256_canonical_json({"view_id": self.view_id, "config": self.config})
 
     def implementation_hash(self) -> str:
-        source = inspect.getsource(type(self))
-        return hashlib.sha256(source.encode("utf-8")).hexdigest()
+        component_hashes: list[str] = getattr(
+            self, "component_implementation_hashes", lambda: []
+        )()
+        return sha256_canonical_json(
+            {
+                "schema_version": 3,
+                "concrete_hash": _concrete_implementation_hash(type(self)),
+                "component_hashes": component_hashes,
+            }
+        )
 
     def parameters_for(self, partition: str) -> dict[str, Any]:
         values = dict(self._fit_parameters)
@@ -229,9 +243,11 @@ class BaseTransformation(ABC):
         validation_results: dict[str, Any] | None = None,
         not_applicable_reason: str | None = None,
     ) -> TransformationCertificate:
-        from .certificates import build_certificate
+        if source_target_hash is None or output_target_hash is None:
+            raise ValueError("source_target_hash and output_target_hash are required")
+        from .certificates import build_certificate, validate_roundtrip
 
-        return build_certificate(
+        provisional = build_certificate(
             transformation=self,
             source=source,
             transformed=transformed,
@@ -240,10 +256,43 @@ class BaseTransformation(ABC):
             split_strategy=split_strategy,
             source_target_hash=source_target_hash,
             output_target_hash=output_target_hash,
-            validation_status=validation_status,
-            validation_results=validation_results or {},
+            validation_status="FAIL",
+            validation_results={"provisional": True},
             not_applicable_reason=not_applicable_reason,
         )
+        restored = self.reconstruct(transformed, provisional)
+        evidence = validate_roundtrip(
+            source,
+            transformed,
+            restored,
+            provisional,
+            rtol=1.0e-10,
+            atol=1.0e-12,
+            transformation=self,
+        )
+        final = build_certificate(
+            transformation=self,
+            source=source,
+            transformed=transformed,
+            partition=partition,
+            dataset_version=dataset_version,
+            split_strategy=split_strategy,
+            source_target_hash=source_target_hash,
+            output_target_hash=output_target_hash,
+            validation_status="PASS",
+            validation_results=evidence,
+            not_applicable_reason=not_applicable_reason,
+        )
+        validate_roundtrip(
+            source,
+            transformed,
+            restored,
+            final,
+            rtol=1.0e-10,
+            atol=1.0e-12,
+            transformation=self,
+        )
+        return final
 
     def _ensure_fitted(self) -> None:
         if not self._fitted or self.feature_schema is None:
@@ -274,9 +323,38 @@ def collision_safe_name(base: str, existing: set[str]) -> str:
 
 
 def typed_value(value: Any) -> dict[str, Any]:
-    if pd.isna(value):
-        return {"type": "missing", "value": None}
-    return {"type": type(value).__name__, "value": str(value)}
+    return encode_typed_value(value)
+
+
+def source_dtype_map(schema: FeatureSchema) -> dict[str, str]:
+    return dict(zip(schema.columns, schema.dtypes, strict=True))
+
+
+def restore_series_dtype(values: pd.Series, dtype: str) -> pd.Series:
+    """Restore a source dtype after checking values are representable."""
+
+    missing = values.isna()
+    numeric = pd.to_numeric(values, errors="raise")
+    integer_dtype = dtype.startswith(("int", "uint", "Int", "UInt"))
+    if integer_dtype:
+        finite = numeric[~missing].astype(float)
+        rounded = np.rint(finite)
+        if (
+            not np.isfinite(finite).all()
+            or not np.isclose(finite, rounded, rtol=1.0e-12, atol=1.0e-10).all()
+        ):
+            raise ValueError(f"values cannot be safely restored to integer dtype {dtype}")
+        numeric = numeric.where(missing, rounded)
+        target = pd.api.types.pandas_dtype(dtype)
+        info = np.iinfo(target.numpy_dtype if hasattr(target, "numpy_dtype") else target)
+        if len(finite) and (finite.min() < info.min or finite.max() > info.max):
+            raise ValueError(f"values overflow integer dtype {dtype}")
+        return numeric.astype(dtype)
+    if dtype in {"float16", "float32", "float64", "Float32", "Float64"}:
+        return numeric.astype(dtype)
+    if dtype == "object":
+        return values.astype(object)
+    return values.astype(dtype)
 
 
 def _validate_input_frame(frame: pd.DataFrame) -> None:
@@ -297,3 +375,20 @@ def _validate_output_frame(frame: pd.DataFrame) -> None:
 
 def frame_hash(frame: pd.DataFrame) -> str:
     return hash_dataframe_logically(frame.reset_index(drop=True))
+
+
+@cache
+def _concrete_implementation_hash(transformation_type: type[BaseTransformation]) -> str:
+    from . import base as base_module
+    from . import certificates as certificate_module
+    from . import codec as codec_module
+    from . import validation as validation_module
+
+    modules = {
+        "base": inspect.getsource(base_module),
+        "certificate": inspect.getsource(certificate_module),
+        "codec": inspect.getsource(codec_module),
+        "validation": inspect.getsource(validation_module),
+        "concrete": inspect.getsource(transformation_type),
+    }
+    return sha256_canonical_json({"schema_version": 3, "modules": modules})

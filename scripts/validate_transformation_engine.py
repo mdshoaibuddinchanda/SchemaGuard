@@ -27,6 +27,14 @@ from schemaguard.transformations.registry import (  # noqa: E402
 from schemaguard.utils.hashing import sha256_file  # noqa: E402
 from schemaguard.utils.io import atomic_write_json  # noqa: E402
 
+ALLOWED_REPAIR_SCHEMA_CHANGES = {
+    "artifacts/handoff/transformation_engine_review.md",
+    "artifacts/handoff/transformation_inventory.json",
+    "schemas/transformation_certificate.schema.json",
+    "schemas/transformation_inventory.schema.json",
+    "schemas/transformation_manifest.schema.json",
+}
+
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -71,7 +79,12 @@ def main() -> int:
         print("network_access=disabled")
     config = load_transformation_config(args.config)
     split_hash = _validate_split_inventory()
-    before = ROOT / "artifacts/transformation_engine/review/protected_hashes_before.json"
+    repair_before = ROOT / "artifacts/transformation_engine/review/repair_hashes_before.json"
+    before = (
+        repair_before
+        if repair_before.is_file()
+        else ROOT / "artifacts/transformation_engine/review/protected_hashes_before.json"
+    )
     if not before.is_file():
         raise SystemExit("BLOCKED: protected pre-implementation snapshot is missing")
     selected_datasets = DATASET_IDS if args.all else [args.dataset_id]
@@ -105,7 +118,9 @@ def main() -> int:
         "registry_hash": registry_hash(),
         "split_inventory_hash": split_hash,
         "records": [record.canonical_dict() for record in records],
-        "protected_hash_comparison": compare_protected_snapshot(ROOT, before),
+        "protected_hash_comparison": compare_protected_snapshot(
+            ROOT, before, allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES
+        ),
     }
     if args.inventory_output and not args.validate_only:
         atomic_write_json(args.inventory_output, result)

@@ -13,9 +13,10 @@ from .base import (
     collision_safe_name,
     schema_categories,
     selected_columns,
-    typed_value,
+    source_dtype_map,
 )
-from .category_permutation import _decode_key, _restore_dtype, category_key
+from .category_permutation import _restore_dtype, category_key
+from .codec import decode_typed_key, encode_typed_value
 
 
 class CategoricalOneHotTransformation(BaseTransformation):
@@ -49,10 +50,11 @@ class CategoricalOneHotTransformation(BaseTransformation):
         return {
             "selected_columns": [column],
             "generated_columns": names,
-            "categories": [typed_value(values[key]) for key in sorted(values)],
+            "categories": [encode_typed_value(values[key]) for key in sorted(values)],
             "category_keys": sorted(values),
             "source_columns": list(X_train.columns),
             "source_dtype": str(X_train[column].dtype),
+            "source_dtypes": source_dtype_map(feature_schema),
             "missing_column": missing_name,
             "operation": "exactly_one_active_indicator_or_missing_indicator",
         }
@@ -89,7 +91,7 @@ class CategoricalOneHotTransformation(BaseTransformation):
             if index == len(names) - 1:
                 values.append(np.nan)
             else:
-                values.append(_decode_key(params["category_keys"][index]))
+                values.append(decode_typed_key(params["category_keys"][index]))
         out = X_transformed.drop(columns=names).copy(deep=True)
         source_columns = list(params["source_columns"])
         insert_at = source_columns.index(params["selected_columns"][0])

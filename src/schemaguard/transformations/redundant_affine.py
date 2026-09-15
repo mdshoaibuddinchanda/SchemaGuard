@@ -29,6 +29,8 @@ class RedundantAffineTransformation(BaseTransformation):
             "generated_columns": [generated],
             "source_columns": list(X_train.columns),
             "operation": "z=3*x+7",
+            "projection_operation": "drop_generated_columns",
+            "generated_relationship": {generated: {"parent": selected, "relationship": "3*x+7"}},
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -38,6 +40,16 @@ class RedundantAffineTransformation(BaseTransformation):
         if np.isinf(values).any():
             raise ValueError("non-finite numeric input is not transformable")
         out[params["generated_columns"][0]] = values * 3.0 + 7.0
+        expected = values * 3.0 + 7.0
+        valid = values.notna()
+        if not np.allclose(
+            out.loc[valid, params["generated_columns"][0]].astype(float),
+            expected[valid],
+            rtol=0.0,
+            atol=0.0,
+        ):
+            raise ValueError("redundant affine projection relationship is invalid")
+        params["projection_validated"] = True
         return out, params
 
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:

@@ -86,6 +86,7 @@ def test_every_named_contract_rejects_unknown_top_level_keys() -> None:
         "split_generation_inventory.schema.json",
         "transformation_certificate.schema.json",
         "transformation_manifest.schema.json",
+        "transformation_property_evidence.schema.json",
         "transformation_inventory.schema.json",
         "transformation_validation.schema.json",
     }

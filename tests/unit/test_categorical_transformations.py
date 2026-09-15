@@ -6,7 +6,7 @@ from schemaguard.transformations.categorical_onehot import CategoricalOneHotTran
 from schemaguard.transformations.category_permutation import CategoryPermutationTransformation
 from schemaguard.transformations.certificates import validate_roundtrip
 
-from .transformation_helpers import sample_frame, sample_schema, transformation_config
+from .transformation_helpers import sample_frame, sample_schema, target_hash, transformation_config
 
 
 @pytest.mark.parametrize(
@@ -18,7 +18,13 @@ def test_categorical_views_roundtrip_and_preserve_missingness(factory) -> None:
         frame.iloc[:8], 1464, 1729, sample_schema(frame.iloc[:8])
     )
     output = transformation.transform(frame, "test")
-    certificate = transformation.certificate_for(frame, output, "test")
+    certificate = transformation.certificate_for(
+        frame,
+        output,
+        "test",
+        source_target_hash=target_hash(frame),
+        output_target_hash=target_hash(frame),
+    )
     restored = transformation.reconstruct(output, certificate)
     assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
 

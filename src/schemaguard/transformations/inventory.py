@@ -16,7 +16,12 @@ from ..utils.io import atomic_write_json
 from .applicability import assess_applicability
 from .base import feature_schema_from_frame, frame_hash
 from .certificates import certificate_hash
-from .contracts import TransformationConfig, TransformationInventory, TransformationInventoryRecord
+from .contracts import (
+    TransformationConfig,
+    TransformationInventory,
+    TransformationInventoryRecord,
+    TransformationPropertyEvidence,
+)
 from .registry import get_transformation, registry_hash
 from .validation import validate_deterministic_outputs, validate_transformation
 
@@ -52,17 +57,28 @@ def _protected_snapshot(root: Path) -> dict[str, Any]:
     return {"schema_version": 1, "file_count": len(records), "files": records}
 
 
-def compare_protected_snapshot(root: str | Path, before_path: str | Path) -> dict[str, Any]:
+def compare_protected_snapshot(
+    root: str | Path,
+    before_path: str | Path,
+    *,
+    allowed_changed_paths: set[str] | None = None,
+) -> dict[str, Any]:
     project_root = Path(root)
     before = json.loads(Path(before_path).read_text(encoding="utf-8"))
     after = _protected_snapshot(project_root)
-    old = {item["path"]: item["sha256"] for item in before["files"]}
+    old = {
+        str(item["path"]).replace("\\", "/"): item["sha256"] for item in before["files"]
+    }
     new = {item["path"]: item["sha256"] for item in after["files"]}
     changed = sorted(path for path in old if old.get(path) != new.get(path))
     added = sorted(path for path in new if path not in old)
+    allowed = allowed_changed_paths or set()
+    unexpected_changed = sorted(path for path in changed if path not in allowed)
     return {
-        "status": "PASS" if not changed else "FAIL",
+        "status": "PASS" if not unexpected_changed else "FAIL",
         "changed_files": changed,
+        "allowed_changed_files": sorted(path for path in changed if path in allowed),
+        "unexpected_changed_files": unexpected_changed,
         "added_files": added,
         "before_file_count": len(old),
         "after_file_count": len(new),
@@ -171,12 +187,27 @@ def validate_dataset_seed(
                     certificate,
                     rtol=config.numerical_rtol,
                     atol=config.numerical_atol,
+                    transformation=transformation,
                 )
                 repeat = transformation.transform(source, partition)
+                repeat_certificate = transformation.certificate_for(
+                    source,
+                    repeat,
+                    partition,
+                    dataset_version="local",
+                    split_strategy=config.split_strategy,
+                    source_target_hash=hash_dataframe_logically(target),
+                    output_target_hash=hash_dataframe_logically(target),
+                )
                 deterministic = deterministic and validate_deterministic_outputs(output, repeat)
-                max_error = max(max_error, float(validation["reconstruction_max_abs_error"]))
+                deterministic = deterministic and certificate_hash(certificate) == certificate_hash(
+                    repeat_certificate
+                )
+                max_error = max(max_error, float(validation["maximum_absolute_error"]))
                 certificates.append(certificate)
                 outputs.append(output)
+            if not deterministic:
+                raise RuntimeError("NONDETERMINISTIC_TRANSFORMATION")
             results.append(
                 TransformationInventoryRecord(
                     schema_version=1,
@@ -197,6 +228,11 @@ def validate_dataset_seed(
                 )
             )
         except Exception as exc:
+            reason_code = (
+                "NONDETERMINISTIC_TRANSFORMATION"
+                if "NONDETERMINISTIC_TRANSFORMATION" in str(exc)
+                else "TRANSFORMATION_VALIDATION_ERROR"
+            )
             results.append(
                 TransformationInventoryRecord(
                     schema_version=1,
@@ -206,7 +242,7 @@ def validate_dataset_seed(
                     view_name=str(view["name"]),
                     status="FAIL",
                     applicability="APPLICABLE",
-                    reason_code="TRANSFORMATION_VALIDATION_ERROR",
+                    reason_code=reason_code,
                     reason=f"{type(exc).__name__}: {exc}",
                     source_hash=frame_hash(features),
                     reconstruction_max_abs_error=None,
@@ -216,6 +252,22 @@ def validate_dataset_seed(
                 )
             )
     return results
+
+
+def _load_property_evidence(root: Path) -> list[TransformationPropertyEvidence]:
+    path = root / "artifacts/handoff/transformation_property_evidence.json"
+    if not path.is_file():
+        raise ValueError(
+            "property evidence is missing; run scripts/run_transformation_properties.py"
+        )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        raise ValueError("property evidence must be a list")
+    evidence = [TransformationPropertyEvidence.model_validate(item) for item in payload]
+    implementation_hash = sha256_file(root / "scripts/run_transformation_properties.py")
+    if any(item.test_implementation_hash != implementation_hash for item in evidence):
+        raise ValueError("property evidence test implementation hash is stale")
+    return evidence
 
 
 def build_inventory(
@@ -231,7 +283,19 @@ def build_inventory(
     passed = [record for record in records if record.status == "PASS"]
     failed = [record for record in records if record.status == "FAIL"]
     split_inventory = project_root / "artifacts/handoff/split_generation_inventory.json"
-    protected = compare_protected_snapshot(project_root, before_snapshot)
+    protected = compare_protected_snapshot(
+        project_root,
+        before_snapshot,
+        allowed_changed_paths={
+            "artifacts/handoff/transformation_engine_review.md",
+            "artifacts/handoff/transformation_inventory.json",
+            "schemas/transformation_certificate.schema.json",
+            "schemas/transformation_inventory.schema.json",
+            "schemas/transformation_manifest.schema.json",
+        },
+    )
+    property_evidence = _load_property_evidence(project_root)
+    property_count = sum(item.executed_example_count for item in property_evidence)
     return TransformationInventory(
         schema_version=1,
         engine_name="certified_lossless_transformations",
@@ -248,7 +312,8 @@ def build_inventory(
         pass_count=len(passed),
         fail_count=len(failed),
         missing_count=770 - len(records),
-        property_example_count=1000,
+        property_example_count=property_count,
+        property_evidence=property_evidence,
         registry_hash=registry_hash(),
         split_inventory_hash=sha256_file(split_inventory),
         protected_hash_comparison=protected,

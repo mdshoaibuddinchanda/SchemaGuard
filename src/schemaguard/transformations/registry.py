@@ -28,21 +28,68 @@ class ViewSpec:
     view_id: str
     name: str
     certificate_type: str
+    scientific_role: str
     factory: Callable[[dict[str, Any]], Any]
 
 
 VIEW_REGISTRY: tuple[ViewSpec, ...] = (
-    ViewSpec("V00", "identity", "CONTROL", IdentityTransformation),
-    ViewSpec("V01", "numeric_affine_units", "BIJECTION", NumericAffineTransformation),
-    ViewSpec("V02", "numeric_asinh", "BIJECTION", NumericAsinhTransformation),
-    ViewSpec("V03", "category_permutation", "BIJECTION", CategoryPermutationTransformation),
-    ViewSpec("V04", "categorical_onehot", "BIJECTION", CategoricalOneHotTransformation),
-    ViewSpec("V05", "duplicate_feature", "PROJECTION", DuplicateFeatureTransformation),
-    ViewSpec("V06", "redundant_affine_feature", "PROJECTION", RedundantAffineTransformation),
-    ViewSpec("V07", "integer_quotient_remainder", "BIJECTION", QuotientRemainderTransformation),
-    ViewSpec("V08", "column_permutation_control", "CONTROL", ColumnPermutationTransformation),
-    ViewSpec("V09", "row_permutation_control", "CONTROL", RowPermutationTransformation),
-    ViewSpec("V10", "composite_migration", "COMPOSITION", CompositeMigrationTransformation),
+    ViewSpec("V00", "identity", "BIJECTION", "CONTROL", IdentityTransformation),
+    ViewSpec(
+        "V01", "numeric_affine_units", "BIJECTION", "PRIMARY_MIGRATION", NumericAffineTransformation
+    ),
+    ViewSpec("V02", "numeric_asinh", "BIJECTION", "PRIMARY_MIGRATION", NumericAsinhTransformation),
+    ViewSpec(
+        "V03",
+        "category_permutation",
+        "BIJECTION",
+        "PRIMARY_MIGRATION",
+        CategoryPermutationTransformation,
+    ),
+    ViewSpec(
+        "V04",
+        "categorical_onehot",
+        "BIJECTION",
+        "PRIMARY_MIGRATION",
+        CategoricalOneHotTransformation,
+    ),
+    ViewSpec(
+        "V05",
+        "duplicate_feature",
+        "PROJECTION",
+        "PRIMARY_MIGRATION",
+        DuplicateFeatureTransformation,
+    ),
+    ViewSpec(
+        "V06",
+        "redundant_affine_feature",
+        "PROJECTION",
+        "PRIMARY_MIGRATION",
+        RedundantAffineTransformation,
+    ),
+    ViewSpec(
+        "V07",
+        "integer_quotient_remainder",
+        "BIJECTION",
+        "PRIMARY_MIGRATION",
+        QuotientRemainderTransformation,
+    ),
+    ViewSpec(
+        "V08",
+        "column_permutation_control",
+        "PERMUTATION",
+        "CONTROL",
+        ColumnPermutationTransformation,
+    ),
+    ViewSpec(
+        "V09", "row_permutation_control", "PERMUTATION", "CONTROL", RowPermutationTransformation
+    ),
+    ViewSpec(
+        "V10",
+        "composite_migration",
+        "COMPOSITION",
+        "PRIMARY_MIGRATION",
+        CompositeMigrationTransformation,
+    ),
 )
 
 
@@ -67,7 +114,12 @@ def get_transformation(view_id: str, config: dict[str, Any] | None = None):
 
 def registry_payload() -> list[dict[str, str]]:
     return [
-        {"id": view.view_id, "name": view.name, "certificate_type": view.certificate_type}
+        {
+            "id": view.view_id,
+            "name": view.name,
+            "certificate_type": view.certificate_type,
+            "scientific_role": view.scientific_role,
+        }
         for view in VIEW_REGISTRY
     ]
 
@@ -107,8 +159,8 @@ def load_transformation_config(path: str | Path) -> TransformationConfig:
     if actual != observed:
         raise ValueError("configuration views must match the frozen transformation registry")
     for item in config.views:
-        if set(item) != {"id", "name", "certificate_type"}:
-            raise ValueError("each transformation view configuration has exactly three keys")
+        if set(item) != {"id", "name", "certificate_type", "scientific_role"}:
+            raise ValueError("each transformation view configuration has exactly four keys")
     if config.schema_registry_hash != registry_hash():
         raise ValueError("schema_registry_hash does not match the frozen view registry")
     return config

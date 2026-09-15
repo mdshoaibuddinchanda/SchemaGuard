@@ -6,7 +6,14 @@ from typing import Any
 
 import pandas as pd
 
-from .base import BaseTransformation, FeatureSchema, collision_safe_name, selected_columns
+from .base import (
+    BaseTransformation,
+    FeatureSchema,
+    collision_safe_name,
+    restore_series_dtype,
+    selected_columns,
+    source_dtype_map,
+)
 
 
 class QuotientRemainderTransformation(BaseTransformation):
@@ -29,7 +36,9 @@ class QuotientRemainderTransformation(BaseTransformation):
             "modulus": int(self.config.get("quotient_modulus", 10)),
             "source_columns": list(X_train.columns),
             "source_dtype": str(X_train[selected].dtype),
+            "source_dtypes": source_dtype_map(feature_schema),
             "operation": "x=q*modulus+r; 0<=r<modulus",
+            "inverse_operation": "reconstruct_original_dtype",
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -50,8 +59,9 @@ class QuotientRemainderTransformation(BaseTransformation):
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:
         params = certificate.parameters
         quotient, remainder = params["generated_columns"]
-        restored = (X_transformed[quotient] * params["modulus"] + X_transformed[remainder]).astype(
-            "Int64"
+        restored = X_transformed[quotient] * params["modulus"] + X_transformed[remainder]
+        restored = restore_series_dtype(
+            restored, params["source_dtypes"][params["selected_columns"][0]]
         )
         out = X_transformed.drop(columns=[quotient, remainder]).copy(deep=True)
         position = list(params["source_columns"]).index(params["selected_columns"][0])

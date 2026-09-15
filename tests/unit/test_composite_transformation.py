@@ -3,7 +3,7 @@ from __future__ import annotations
 from schemaguard.transformations.certificates import validate_roundtrip
 from schemaguard.transformations.composite_migration import CompositeMigrationTransformation
 
-from .transformation_helpers import sample_frame, sample_schema, transformation_config
+from .transformation_helpers import sample_frame, sample_schema, target_hash, transformation_config
 
 
 def test_composite_has_ordered_component_certificates_and_roundtrips() -> None:
@@ -12,7 +12,13 @@ def test_composite_has_ordered_component_certificates_and_roundtrips() -> None:
         frame, 1464, 1729, sample_schema(frame)
     )
     output = transformation.transform(frame, "train")
-    certificate = transformation.certificate_for(frame, output, "train")
+    certificate = transformation.certificate_for(
+        frame,
+        output,
+        "train",
+        source_target_hash=target_hash(frame),
+        output_target_hash=target_hash(frame),
+    )
     restored = transformation.reconstruct(output, certificate)
     assert certificate.parameters["components"] == ["V01", "V03", "V08"]
     assert len(certificate.parameters["component_certificates"]) == 3

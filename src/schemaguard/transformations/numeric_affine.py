@@ -7,7 +7,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .base import BaseTransformation, FeatureSchema, selected_columns
+from .base import (
+    BaseTransformation,
+    FeatureSchema,
+    restore_series_dtype,
+    selected_columns,
+    source_dtype_map,
+)
 
 
 class NumericAffineTransformation(BaseTransformation):
@@ -35,6 +41,8 @@ class NumericAffineTransformation(BaseTransformation):
             },
             "operation": "x_prime = scale * x + offset",
             "source_columns": list(X_train.columns),
+            "source_dtypes": source_dtype_map(feature_schema),
+            "inverse_operation": "reconstruct_original_dtype",
         }
         return parameters
 
@@ -53,8 +61,12 @@ class NumericAffineTransformation(BaseTransformation):
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:
         out = X_transformed.copy(deep=True)
         for column in certificate.parameters["selected_columns"]:
-            out[column] = (
+            restored = (
                 pd.to_numeric(out[column], errors="raise")
                 - certificate.parameters["offsets"][column]
             ) / certificate.parameters["scales"][column]
+            out[column] = restore_series_dtype(
+                pd.Series(restored, index=out.index),
+                certificate.parameters["source_dtypes"][column],
+            )
         return out[list(certificate.inverse_parameters["source_columns"])]

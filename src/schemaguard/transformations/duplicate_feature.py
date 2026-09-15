@@ -27,12 +27,19 @@ class DuplicateFeatureTransformation(BaseTransformation):
             "generated_columns": [generated],
             "source_columns": list(X_train.columns),
             "operation": "exact_duplicate",
+            "projection_operation": "drop_generated_columns",
+            "generated_relationship": {generated: {"parent": selected, "relationship": "equal"}},
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
         params = dict(self._fit_parameters)
         out = X.copy(deep=True)
-        out[params["generated_columns"][0]] = out[params["selected_columns"][0]].copy()
+        parent = params["selected_columns"][0]
+        generated = params["generated_columns"][0]
+        out[generated] = out[parent].copy()
+        if not out[parent].equals(out[generated]):
+            raise ValueError("duplicate projection relationship is invalid")
+        params["projection_validated"] = True
         return out, params
 
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:

@@ -5,7 +5,13 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .base import BaseTransformation, FeatureSchema, selected_columns
+from .base import (
+    BaseTransformation,
+    FeatureSchema,
+    restore_series_dtype,
+    selected_columns,
+    source_dtype_map,
+)
 
 
 class NumericAsinhTransformation(BaseTransformation):
@@ -35,6 +41,8 @@ class NumericAsinhTransformation(BaseTransformation):
             "scales": scales,
             "operation": "asinh(x / training_median_absolute_deviation)",
             "source_columns": list(X_train.columns),
+            "source_dtypes": source_dtype_map(feature_schema),
+            "inverse_operation": "reconstruct_original_dtype",
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, object]]:
@@ -50,8 +58,15 @@ class NumericAsinhTransformation(BaseTransformation):
     def _reconstruct(self, X_transformed: pd.DataFrame, certificate) -> pd.DataFrame:
         out = X_transformed.copy(deep=True)
         for column in certificate.parameters["selected_columns"]:
-            out[column] = (
+            restored = (
                 np.sinh(pd.to_numeric(out[column], errors="raise"))
                 * certificate.parameters["scales"][column]
+            )
+            finite_mask = restored.notna()
+            if not np.isfinite(restored[finite_mask].astype(float)).all():
+                raise ValueError("asinh reconstruction overflowed")
+            out[column] = restore_series_dtype(
+                pd.Series(restored, index=out.index),
+                certificate.parameters["source_dtypes"][column],
             )
         return out[list(certificate.inverse_parameters["source_columns"])]

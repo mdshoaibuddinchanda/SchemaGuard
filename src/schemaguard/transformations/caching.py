@@ -71,11 +71,40 @@ class TransformationCache:
                 return None
             if payload.get("certificate_sha256") != _file_sha256(certificate):
                 return None
+            from .certificates import certificate_hash
             from .contracts import TransformationCertificate
 
-            TransformationCertificate.model_validate(
+            parsed = TransformationCertificate.model_validate(
                 json.loads(certificate.read_text(encoding="utf-8"))
             )
+            import pandas as pd
+
+            frame = pd.read_parquet(features)
+            if parsed.validation_status != "PASS":
+                return None
+            if parsed.output_artifact_hash != sha256_dataframe(frame):
+                return None
+            if payload.get("certificate_identity") != certificate_hash(parsed):
+                return None
+            if payload.get("output_artifact_hash") != parsed.output_artifact_hash:
+                return None
+            if payload.get("source_artifact_hash") != parsed.source_artifact_hash:
+                return None
+            expected = {
+                "dataset_id": parsed.dataset_id,
+                "dataset_version": parsed.dataset_version,
+                "seed": parsed.seed,
+                "partition": parsed.partition,
+                "view_id": parsed.view_id,
+                "target_hash": parsed.source_target_hash,
+                "feature_hash": parsed.source_artifact_hash,
+                "configuration_hash": parsed.configuration_hash,
+                "implementation_hash": parsed.implementation_hash,
+                "certificate_schema_version": parsed.schema_version,
+                "fit_parameter_hash": _certificate_parameter_hash(parsed),
+            }
+            if any(payload.get(name) != value for name, value in expected.items()):
+                return None
             return payload
         except (OSError, ValueError, json.JSONDecodeError):
             return None
@@ -86,13 +115,37 @@ class TransformationCache:
         destination = self.paths(key)[0].parent
         destination.mkdir(parents=True, exist_ok=True)
         with ProcessLock(self.lock_path(key), timeout=120):
+            from .certificates import certificate_hash
+            from .contracts import TransformationCertificate
+
+            parsed = TransformationCertificate.model_validate(
+                json.loads(certificate_path.read_text(encoding="utf-8"))
+            )
+            import pandas as pd
+
+            if parsed.output_artifact_hash != sha256_dataframe(pd.read_parquet(feature_path)):
+                raise ValueError("cache publication feature hash does not match certificate")
             manifest = {
                 **metadata,
                 "schema_version": 1,
                 "cache_key": key,
                 "feature_sha256": _file_sha256(feature_path),
                 "certificate_sha256": _file_sha256(certificate_path),
+                "dataset_id": parsed.dataset_id,
+                "dataset_version": parsed.dataset_version,
+                "seed": parsed.seed,
+                "partition": parsed.partition,
+                "view_id": parsed.view_id,
+                "target_hash": parsed.source_target_hash,
+                "feature_hash": parsed.source_artifact_hash,
+                "configuration_hash": parsed.configuration_hash,
+                "implementation_hash": parsed.implementation_hash,
+                "certificate_schema_version": parsed.schema_version,
+                "fit_parameter_hash": _certificate_parameter_hash(parsed),
             }
+            manifest["certificate_identity"] = certificate_hash(parsed)
+            manifest["source_artifact_hash"] = parsed.source_artifact_hash
+            manifest["output_artifact_hash"] = parsed.output_artifact_hash
             feature_destination, certificate_destination, manifest_destination = self.paths(key)
             if feature_path.resolve() != feature_destination.resolve():
                 atomic_write_bytes(feature_destination, feature_path.read_bytes())
@@ -109,3 +162,18 @@ def _file_sha256(path: Path) -> str:
         while chunk := handle.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_dataframe(frame: Any) -> str:
+    from ..utils.hashing import hash_dataframe_logically
+
+    return hash_dataframe_logically(frame.reset_index(drop=True))
+
+
+def _certificate_parameter_hash(certificate: Any) -> str:
+    parameters = {
+        key: value
+        for key, value in certificate.parameters.items()
+        if not key.startswith("_")
+    }
+    return sha256_canonical_json(parameters)

@@ -9,7 +9,7 @@ from schemaguard.transformations.quotient_remainder import QuotientRemainderTran
 from schemaguard.transformations.redundant_affine import RedundantAffineTransformation
 from schemaguard.transformations.row_permutation import RowPermutationTransformation
 
-from .transformation_helpers import sample_frame, sample_schema, transformation_config
+from .transformation_helpers import sample_frame, sample_schema, target_hash, transformation_config
 
 
 @pytest.mark.parametrize(
@@ -26,7 +26,13 @@ def test_structural_views_roundtrip(factory) -> None:
     frame = sample_frame()
     transformation = factory(transformation_config()).fit(frame, 1464, 1729, sample_schema(frame))
     output = transformation.transform(frame, "train")
-    certificate = transformation.certificate_for(frame, output, "train")
+    certificate = transformation.certificate_for(
+        frame,
+        output,
+        "train",
+        source_target_hash=target_hash(frame),
+        output_target_hash=target_hash(frame),
+    )
     restored = transformation.reconstruct(output, certificate)
     assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
 

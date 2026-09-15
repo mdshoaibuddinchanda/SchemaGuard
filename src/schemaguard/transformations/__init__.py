@@ -8,6 +8,7 @@ from .contracts import (
     TransformationInventory,
     TransformationInventoryRecord,
     TransformationManifest,
+    TransformationPropertyEvidence,
     TransformationValidationRecord,
     TransformationValidationReport,
 )
@@ -23,6 +24,7 @@ __all__ = [
     "TransformationInventory",
     "TransformationInventoryRecord",
     "TransformationManifest",
+    "TransformationPropertyEvidence",
     "TransformationValidationRecord",
     "TransformationValidationReport",
     "VIEW_REGISTRY",

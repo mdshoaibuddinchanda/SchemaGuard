@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from schemaguard.transformations.base import FeatureSchema, feature_schema_from_frame
+from schemaguard.utils.hashing import hash_dataframe_logically
 
 
 def sample_frame() -> pd.DataFrame:
@@ -22,3 +23,13 @@ def sample_schema(frame: pd.DataFrame | None = None) -> FeatureSchema:
 
 def transformation_config() -> dict[str, object]:
     return {"max_numeric_columns": 3, "category_minimum": 2, "quotient_modulus": 10}
+
+
+def target_hash(frame: pd.DataFrame) -> str:
+    target = pd.DataFrame(
+        {
+            "__sg_row_id": frame["__sg_row_id"],
+            "__sg_target_code": [index % 2 for index in range(len(frame))],
+        }
+    )
+    return hash_dataframe_logically(target)

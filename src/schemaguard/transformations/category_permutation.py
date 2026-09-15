@@ -13,28 +13,13 @@ from .base import (
     FeatureSchema,
     schema_categories,
     selected_columns,
-    typed_value,
+    source_dtype_map,
 )
+from .codec import decode_typed_key, encode_typed_value, typed_value_key
 
 
 def category_key(value: Any) -> str:
-    if pd.isna(value):
-        return "__missing__"
-    return f"{type(value).__module__}.{type(value).__qualname__}:{value!r}"
-
-
-def _decode_typed(item: dict[str, Any]) -> Any:
-    if item["type"] == "missing":
-        return np.nan
-    value = item["value"]
-    type_name = item["type"].split(".")[-1]
-    if type_name == "int":
-        return int(value)
-    if type_name == "float":
-        return float(value)
-    if type_name == "bool":
-        return value.lower() == "true"
-    return value
+    return typed_value_key(value)
 
 
 class CategoryPermutationTransformation(BaseTransformation):
@@ -67,7 +52,7 @@ class CategoryPermutationTransformation(BaseTransformation):
         return {
             "selected_columns": [column],
             "generated_columns": [],
-            "categories": [typed_value(unique[key]) for key in ordered_keys],
+            "categories": [encode_typed_value(unique[key]) for key in ordered_keys],
             "forward_order": [ordered_keys.index(forward[key]) for key in ordered_keys],
             "inverse_order": [ordered_keys.index(inverse[key]) for key in ordered_keys],
             "forward_keys": forward,
@@ -75,6 +60,8 @@ class CategoryPermutationTransformation(BaseTransformation):
             "shift": shift,
             "source_columns": list(X_train.columns),
             "source_dtype": str(X_train[column].dtype),
+            "source_dtypes": source_dtype_map(feature_schema),
+            "inverse_operation": "reconstruct_original_dtype",
         }
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -85,12 +72,12 @@ class CategoryPermutationTransformation(BaseTransformation):
         transformed = []
         for value in out[column].tolist():
             key = category_key(value)
-            if key == "__missing__":
+            if encode_typed_value(value)["type"] == "missing":
                 transformed.append(np.nan)
             elif key not in allowed:
                 raise ValueError(f"unseen category in {column}: {value!r}")
             else:
-                transformed.append(_decode_key(allowed[key]))
+                transformed.append(decode_typed_key(allowed[key]))
         out[column] = _restore_dtype(transformed, out.index, params["source_dtype"])
         return out, params
 
@@ -102,33 +89,17 @@ class CategoryPermutationTransformation(BaseTransformation):
         restored = []
         for value in out[column].tolist():
             key = category_key(value)
-            if key == "__missing__":
+            if encode_typed_value(value)["type"] == "missing":
                 restored.append(np.nan)
             elif key not in allowed:
                 raise ValueError(f"unknown permuted category in {column}: {value!r}")
             else:
-                restored.append(_decode_key(allowed[key]))
+                restored.append(decode_typed_key(allowed[key]))
         out[column] = _restore_dtype(restored, out.index, params["source_dtype"])
         return out[list(params["source_columns"])]
 
 
-def _decode_key(key: str) -> Any:
-    value = key.rsplit(":", 1)[-1]
-    type_name = key.split(":", 1)[0].split(".")[-1]
-    if type_name == "int":
-        return int(value)
-    if type_name == "float":
-        return float(value)
-    if type_name == "bool":
-        return value.lower() == "true"
-    if value.startswith("'") and value.endswith("'"):
-        return value[1:-1]
-    if value.startswith('"') and value.endswith('"'):
-        return value[1:-1]
-    return value
-
-
 def _restore_dtype(values: list[Any], index: pd.Index, dtype: str) -> pd.Series:
     if dtype in {"str", "string"}:
-        return pd.Series(values, index=index, dtype="string")
+        return pd.Series(values, index=index, dtype=dtype)
     return pd.Series(values, index=index, dtype=dtype if dtype != "object" else "object")

@@ -156,6 +156,71 @@
       ],
       "title": "TransformationInventoryRecord",
       "type": "object"
+    },
+    "TransformationPropertyEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_profile": {
+          "title": "Deterministic Profile",
+          "type": "string"
+        },
+        "executed_example_count": {
+          "minimum": 1000,
+          "title": "Executed Example Count",
+          "type": "integer"
+        },
+        "execution_timestamp": {
+          "title": "Execution Timestamp",
+          "type": "string"
+        },
+        "failed_example_count": {
+          "minimum": 0,
+          "title": "Failed Example Count",
+          "type": "integer"
+        },
+        "failure_examples": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Examples",
+          "type": "array"
+        },
+        "passed_example_count": {
+          "minimum": 0,
+          "title": "Passed Example Count",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "test_implementation_hash": {
+          "title": "Test Implementation Hash",
+          "type": "string"
+        },
+        "view_id": {
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "view_id",
+        "executed_example_count",
+        "passed_example_count",
+        "failed_example_count",
+        "seed",
+        "deterministic_profile",
+        "test_implementation_hash",
+        "execution_timestamp"
+      ],
+      "title": "TransformationPropertyEvidence",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -205,6 +270,13 @@
       "minimum": 0,
       "title": "Pass Count",
       "type": "integer"
+    },
+    "property_evidence": {
+      "items": {
+        "$ref": "#/$defs/TransformationPropertyEvidence"
+      },
+      "title": "Property Evidence",
+      "type": "array"
     },
     "property_example_count": {
       "minimum": 0,
@@ -280,6 +352,7 @@
     "fail_count",
     "missing_count",
     "property_example_count",
+    "property_evidence",
     "registry_hash",
     "split_inventory_hash",
     "protected_hash_comparison",

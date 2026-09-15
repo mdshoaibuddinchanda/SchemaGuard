@@ -8,7 +8,6 @@ import pandas as pd
 
 from .base import BaseTransformation, FeatureSchema, feature_schema_from_frame
 from .category_permutation import CategoryPermutationTransformation
-from .certificates import build_certificate
 from .column_permutation import ColumnPermutationTransformation
 from .contracts import TransformationCertificate
 from .numeric_affine import NumericAffineTransformation
@@ -37,7 +36,17 @@ class CompositeMigrationTransformation(BaseTransformation):
             "generated_columns": [],
             "components": ["V01", "V03", "V08"],
             "operation": "V01_then_V03_then_V08",
+            "inverse_operation": "reverse_order_reconstruct",
         }
+
+    def component_implementation_hashes(self) -> list[str]:
+        if not hasattr(self, "affine"):
+            return []
+        return [
+            self.affine.implementation_hash(),
+            self.category.implementation_hash(),
+            self.columns.implementation_hash(),
+        ]
 
     def _transform(self, X: pd.DataFrame, partition: str) -> tuple[pd.DataFrame, dict[str, Any]]:
         first = self.affine.transform(X, partition)
@@ -80,18 +89,7 @@ class CompositeMigrationTransformation(BaseTransformation):
         }
         old = self._partition_parameters.get(partition, {})
         self._partition_parameters[partition] = params
-        result = build_certificate(
-            transformation=self,
-            source=source,
-            transformed=transformed,
-            partition=partition,
-            dataset_version=kwargs.get("dataset_version", "local"),
-            split_strategy=kwargs.get("split_strategy", "stratified_group_5fold_v1"),
-            source_target_hash=kwargs.get("source_target_hash"),
-            output_target_hash=kwargs.get("output_target_hash"),
-            validation_status=kwargs.get("validation_status", "PASS"),
-            validation_results=kwargs.get("validation_results", {}),
-            not_applicable_reason=kwargs.get("not_applicable_reason"),
-        )
-        self._partition_parameters[partition] = old
-        return result
+        try:
+            return super().certificate_for(source, transformed, partition, **kwargs)
+        finally:
+            self._partition_parameters[partition] = old
