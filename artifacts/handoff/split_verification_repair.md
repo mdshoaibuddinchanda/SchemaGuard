@@ -91,7 +91,11 @@ remain outside this workstream and were not started or modified.
 
 ## Clean clone and CI
 
-* Clean-clone verification: recorded after the evidence commit.
+* Clean-clone verification: `PASS` at commit
+  `fc1fe8df70778811ce4f9bd5e872e1a5c286adda`. The structural validator
+  passed, the required unit suite passed, the clone working tree was clean,
+  and the private root `.docx` was not tracked. Local-data checks were
+  explicitly `NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT`.
 * GitHub Actions verification: recorded after push.
 
 ## Commands
