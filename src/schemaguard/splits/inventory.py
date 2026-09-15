@@ -21,6 +21,10 @@ def _utc_now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
+def _relative_path(path: Path, base: Path) -> str:
+    return str(path.relative_to(base)).replace("\\", "/")
+
+
 def protected_paths(root: str | Path, config: SplitGenerationConfig) -> list[Path]:
     base = Path(root)
     paths: list[Path] = [base / "configs" / "baselines" / "data_foundation.json"]
@@ -136,8 +140,8 @@ def build_inventory(
                         seed=seed,
                         status="MISSING",
                         protected_baseline=dataset_id == 1464 and seed == 1729,
-                        assignments_path=str(assignments_path.relative_to(base)),
-                        manifest_path=str(manifest_path.relative_to(base)),
+                        assignments_path=_relative_path(assignments_path, base),
+                        manifest_path=_relative_path(manifest_path, base),
                     )
                 )
                 continue
@@ -154,8 +158,8 @@ def build_inventory(
                         seed=seed,
                         status=status,
                         protected_baseline=True,
-                        assignments_path=str(assignments_path.relative_to(base)),
-                        manifest_path=str(manifest_path.relative_to(base)),
+                        assignments_path=_relative_path(assignments_path, base),
+                        manifest_path=_relative_path(manifest_path, base),
                         assignment_artifact_hash=sha256_file(assignments_path),
                         manifest_artifact_hash=sha256_file(manifest_path),
                         logical_assignment_hash=PROTECTED_LOGICAL_ASSIGNMENT_SHA256,
@@ -181,8 +185,8 @@ def build_inventory(
                         seed=seed,
                         status=manifest.validation_status,
                         protected_baseline=False,
-                        assignments_path=str(assignments_path.relative_to(base)),
-                        manifest_path=str(manifest_path.relative_to(base)),
+                        assignments_path=_relative_path(assignments_path, base),
+                        manifest_path=_relative_path(manifest_path, base),
                         assignment_artifact_hash=sha256_file(assignments_path),
                         manifest_artifact_hash=sha256_file(manifest_path),
                         logical_assignment_hash=manifest.logical_assignment_hash,

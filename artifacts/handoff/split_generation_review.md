@@ -2,7 +2,13 @@
 
 ## Status
 
-PASS
+SUPERSEDED — REPAIR REQUIRED IN THE ORIGINAL REVIEW
+
+This historical review recorded the pre-audit result. The independent audit
+identified incorrect persisted fold provenance and verification false-pass
+paths. Those defects were repaired and revalidated in
+`artifacts/handoff/split_verification_repair.md`; use that handoff for the
+current split-generation status.
 
 This workstream implements and validates deterministic grouped split generation only. Workstreams 4 and 5, including transformation code, model adapters, model training, experiments, SCNF, COSA, statistical analysis, figures, and paper results, were not started or modified.
 

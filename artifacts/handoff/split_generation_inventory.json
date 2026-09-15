@@ -1,0 +1,2825 @@
+{
+  "configuration_hash": "f7243331ef1688739b69843fd40928c0a0f4f15c79cdbdd23b3b5a0d81fca619",
+  "expected_dataset_ids": [
+    3,
+    23,
+    29,
+    31,
+    36,
+    37,
+    38,
+    44,
+    46,
+    50,
+    54,
+    1067,
+    1464,
+    1489
+  ],
+  "expected_seeds": [
+    1729,
+    2718,
+    31415,
+    57721,
+    161803
+  ],
+  "generated_at": "2026-09-15T15:39:20.811555Z",
+  "records": [
+    {
+      "assignment_artifact_hash": "c26dff1e479ea9595811495c5329749f80c4a5f165015bdfc1a0b1da88ce17e7",
+      "assignments_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "c23b19fc23065394093d0999a422916c18f7711cd751175d148bdd04e7946cb8",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 3,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "405fbe6cdd976257abaaecbf1d8175098752b247c67932766c43ee0b9c230f47",
+      "manifest_artifact_hash": "afa5539920e6d3a98d77f4815feb68f83c5b8507ac2e68a8b1eb4728b998a914",
+      "manifest_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 305,
+          "1": 334
+        },
+        "test": {
+          "0": 305,
+          "1": 334
+        },
+        "train": {
+          "0": 917,
+          "1": 1001
+        }
+      },
+      "partition_counts": {
+        "calibration": 639,
+        "test": 639,
+        "train": 1918
+      },
+      "predictor_group_count": 3196,
+      "protected_baseline": false,
+      "row_count": 3196,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "1cb2c5505940e3526262346bc7b23deab38fbff0ff3b8af707a1e9919361ae46",
+      "assignments_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "2798607b5786a8a6c44598ddb836db4cbb9838019647576047cec36bb7e1b83d",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 3,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "623dd5d64a3492c66f6d9d1e42ce0d3d85d8b2f13e7a65c9d87ac0a9545ab76d",
+      "manifest_artifact_hash": "05777c08991547b9c9e266892f9cc435a11fa55fa078580c5be086698a701eff",
+      "manifest_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 305,
+          "1": 334
+        },
+        "test": {
+          "0": 305,
+          "1": 334
+        },
+        "train": {
+          "0": 917,
+          "1": 1001
+        }
+      },
+      "partition_counts": {
+        "calibration": 639,
+        "test": 639,
+        "train": 1918
+      },
+      "predictor_group_count": 3196,
+      "protected_baseline": false,
+      "row_count": 3196,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "d4f8f31b67eec914dfdfa68b900a09d3f05399528af2c5b7946d0e0c67e0f5b6",
+      "assignments_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "77fddbadac1d21d68687bb3320116c6a44c8ca68352983f529f936677e11b64b",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 3,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "475422ea247f910ebd79dbb1e2ec49537f2b619e4c9afe6326721c2a07bd030b",
+      "manifest_artifact_hash": "b863f982ff67736670583faa859f8934ad2b1d589a5fb97e67c7a7a2cdc7989b",
+      "manifest_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 305,
+          "1": 334
+        },
+        "test": {
+          "0": 305,
+          "1": 334
+        },
+        "train": {
+          "0": 917,
+          "1": 1001
+        }
+      },
+      "partition_counts": {
+        "calibration": 639,
+        "test": 639,
+        "train": 1918
+      },
+      "predictor_group_count": 3196,
+      "protected_baseline": false,
+      "row_count": 3196,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "ca3cdd71686c1d6261c2d160f33fc1ae465301c092196d5d4a6b49e21df3e0f8",
+      "assignments_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "61a0a9fd6328b793d94ea952e2e027f119d96047802c5dab3fddea4466e2cbc7",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 3,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "40d692f0ad03153b2888c837747b84b2a816772fb0699559bc03d2294722988a",
+      "manifest_artifact_hash": "6be67d62fd21285455df6639b3d797095a2a5e47a641e496b59ebd22bf08b4ed",
+      "manifest_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 305,
+          "1": 334
+        },
+        "test": {
+          "0": 305,
+          "1": 334
+        },
+        "train": {
+          "0": 917,
+          "1": 1001
+        }
+      },
+      "partition_counts": {
+        "calibration": 639,
+        "test": 639,
+        "train": 1918
+      },
+      "predictor_group_count": 3196,
+      "protected_baseline": false,
+      "row_count": 3196,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "057bc3c2950dd3025b79ed232b5d742a62bc7ddf3c4006ab9bfc544eea54e91e",
+      "assignments_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "174b6597311415c29b59931719581decbd6ab7107d058efdc9e65d564069cd53",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 3,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "a346bc8d6e331db3811b8062f4232f135db1acbdd634347afdf577e3e5a4f988",
+      "manifest_artifact_hash": "fb3229ede98a8f359e7e70cb3cd462c634f25a82f18030bf4e7aeb6e8fa807a6",
+      "manifest_path": "data/splits/openml/3/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 305,
+          "1": 334
+        },
+        "test": {
+          "0": 305,
+          "1": 334
+        },
+        "train": {
+          "0": 917,
+          "1": 1001
+        }
+      },
+      "partition_counts": {
+        "calibration": 639,
+        "test": 639,
+        "train": 1918
+      },
+      "predictor_group_count": 3196,
+      "protected_baseline": false,
+      "row_count": 3196,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "2220adf54a0819ec640dc2205962a3843938907797b62a23f4f170b004fd038b",
+      "assignments_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "7879698919b83b19aa111e6257f4a5001dec5444d561796125a3b4f1949e1ec4",
+      "conflicting_target_group_count": 62,
+      "cross_partition_group_count": 0,
+      "dataset_id": 23,
+      "duplicate_group_count": 96,
+      "logical_assignment_hash": "66b2974f3903974bf86c9690c743d49f9e44b9b928142a7efbab46d1b3ad2d8c",
+      "manifest_artifact_hash": "47448d7161809bbd4153f3f10eeb03d8c11e63390ce46c49e1e4cd3f71e96a95",
+      "manifest_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "test": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "train": {
+          "0": 377,
+          "1": 199,
+          "2": 307
+        }
+      },
+      "partition_counts": {
+        "calibration": 295,
+        "test": 295,
+        "train": 883
+      },
+      "predictor_group_count": 1358,
+      "protected_baseline": false,
+      "row_count": 1473,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "ab6c521080faa7b0733aba62ec50755173bef690ac77ba804a35506be225de3d",
+      "assignments_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "125369ce26db54122256d15af7c6f334f431ff9e704d044bcf62501f16c95a89",
+      "conflicting_target_group_count": 62,
+      "cross_partition_group_count": 0,
+      "dataset_id": 23,
+      "duplicate_group_count": 96,
+      "logical_assignment_hash": "1fb17155edd739cdfba1e42faccb7c738b78a7016a5ba496c9d8ed7ce71ceeea",
+      "manifest_artifact_hash": "aeef6e5c45ccd8fbcd9b03fb31c9a1e4e0869390f4f13d92b1473f7abff4a769",
+      "manifest_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "test": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "train": {
+          "0": 377,
+          "1": 199,
+          "2": 307
+        }
+      },
+      "partition_counts": {
+        "calibration": 295,
+        "test": 295,
+        "train": 883
+      },
+      "predictor_group_count": 1358,
+      "protected_baseline": false,
+      "row_count": 1473,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "39d715863fe9512e487a691d052a7db1d686f819591c97ee2b739bec29a63a4e",
+      "assignments_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "138ea1f0e30ec9f274c5ca4886cbe966c422511ef898eb254393240224d150f2",
+      "conflicting_target_group_count": 62,
+      "cross_partition_group_count": 0,
+      "dataset_id": 23,
+      "duplicate_group_count": 96,
+      "logical_assignment_hash": "737303a706048ce767b4a616e9a03dac61ded634fb11b7eaae21a400ca55cb74",
+      "manifest_artifact_hash": "ff172986e2264f86da0d53c99dc6be8c31cbd8338f2283d7ca4b1998cba586c0",
+      "manifest_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "test": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "train": {
+          "0": 377,
+          "1": 199,
+          "2": 307
+        }
+      },
+      "partition_counts": {
+        "calibration": 295,
+        "test": 295,
+        "train": 883
+      },
+      "predictor_group_count": 1358,
+      "protected_baseline": false,
+      "row_count": 1473,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "236ccaec2a09b8f84359e4e5dadf7ec05e418ec4e17f69898ae87895d08a1c9f",
+      "assignments_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "fd3f885fcc8271b845364affe44d86149c601ff40c664bd8d3c2ec9c12fae0df",
+      "conflicting_target_group_count": 62,
+      "cross_partition_group_count": 0,
+      "dataset_id": 23,
+      "duplicate_group_count": 96,
+      "logical_assignment_hash": "a0bdd4ca0f28bc4aca70409b12e50e7a4e2fdcd4ef960acbfef1ed9754098286",
+      "manifest_artifact_hash": "12623b5040ba1ecab769babfa29e688c8a95d83a64d3d35949d0294516d50013",
+      "manifest_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "test": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "train": {
+          "0": 377,
+          "1": 199,
+          "2": 307
+        }
+      },
+      "partition_counts": {
+        "calibration": 295,
+        "test": 295,
+        "train": 883
+      },
+      "predictor_group_count": 1358,
+      "protected_baseline": false,
+      "row_count": 1473,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "c140d836e61ad010326c3a314cc31ab0c28d0bee9cd067a3e7e99406b15353f7",
+      "assignments_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "6672aef7fa2b400c0899ade4b148d3835ea4c51f16004522485fcbf19e8f0f19",
+      "conflicting_target_group_count": 62,
+      "cross_partition_group_count": 0,
+      "dataset_id": 23,
+      "duplicate_group_count": 96,
+      "logical_assignment_hash": "289dd6e4b7a50d91a20bb2707faccbfff33e72831724801de9cee466dfcffce3",
+      "manifest_artifact_hash": "2c77e36615ce578a17166fc4b90342b55ca95e6141f33f0fdea66712b7791eb5",
+      "manifest_path": "data/splits/openml/23/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "test": {
+          "0": 126,
+          "1": 67,
+          "2": 102
+        },
+        "train": {
+          "0": 377,
+          "1": 199,
+          "2": 307
+        }
+      },
+      "partition_counts": {
+        "calibration": 295,
+        "test": 295,
+        "train": 883
+      },
+      "predictor_group_count": 1358,
+      "protected_baseline": false,
+      "row_count": 1473,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "a392080424f71f569008185d91ab82056bbb0dd5c1d9974baa5435f0b925aa8b",
+      "assignments_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "1b8b8544cd172e84d7b8ab1f62675c59b6e500666cdf9bdf062be201a177a263",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 29,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "97129696d11211654ab8bff4e4940cfc3778130353f7a30951083a997da18a6e",
+      "manifest_artifact_hash": "5c158079990143ff34b12ed35e0cf5f4fcbf8ed34e99a09929753c68b13daa86",
+      "manifest_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 61,
+          "1": 77
+        },
+        "test": {
+          "0": 61,
+          "1": 77
+        },
+        "train": {
+          "0": 185,
+          "1": 229
+        }
+      },
+      "partition_counts": {
+        "calibration": 138,
+        "test": 138,
+        "train": 414
+      },
+      "predictor_group_count": 690,
+      "protected_baseline": false,
+      "row_count": 690,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "7d7a97625fcd8755991264283126c049c2141316cbfa096b2a469c1707e2f12c",
+      "assignments_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "10c911a4d100973831cc4d777964bc83b10dbd019fd6ac7ab6638ba062071b87",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 29,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "7caf746bfcf5f3f07ded55462f9675e600aea19ec6e2191abb0d4a01cd7230f8",
+      "manifest_artifact_hash": "39a63d60af57331313b85957196726ae55b30b39b660fcfdeb7f663081a7b535",
+      "manifest_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 61,
+          "1": 77
+        },
+        "test": {
+          "0": 61,
+          "1": 77
+        },
+        "train": {
+          "0": 185,
+          "1": 229
+        }
+      },
+      "partition_counts": {
+        "calibration": 138,
+        "test": 138,
+        "train": 414
+      },
+      "predictor_group_count": 690,
+      "protected_baseline": false,
+      "row_count": 690,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "aa8b317161391823d97818ca69daabb44c2f17f74c2c7152310f2bbc1b5cbae5",
+      "assignments_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "c2efa418970ca598eee4f91f7e2dbe090ef83f5a0421e60199d055ec7b49a7bf",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 29,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "04b0cf42318d4e5c786f69ac5125eed6b6182a7e07c12d74cbb4e43f875ca166",
+      "manifest_artifact_hash": "d8811b68422959b8dffbe88016abc933c5466754b1a29eb351fca5a2abb5f132",
+      "manifest_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 61,
+          "1": 77
+        },
+        "test": {
+          "0": 61,
+          "1": 77
+        },
+        "train": {
+          "0": 185,
+          "1": 229
+        }
+      },
+      "partition_counts": {
+        "calibration": 138,
+        "test": 138,
+        "train": 414
+      },
+      "predictor_group_count": 690,
+      "protected_baseline": false,
+      "row_count": 690,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b8007aae1695c2f2745844ab901b0f0756a47e655d6ddeabb0f57f1e144785a3",
+      "assignments_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "6f407202b477b73a50023c330e1070c8c6760de7c2457be9115526299f5ef83c",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 29,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "502265b44df5bd95f168d019ee82e100bc120bb9f8d49c294290f1a846f6b8c5",
+      "manifest_artifact_hash": "d45d05f6172d20b6cd92aaa1995b6e62fa3d0fc52d0a0e68858b40ad4b3d9087",
+      "manifest_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 61,
+          "1": 77
+        },
+        "test": {
+          "0": 61,
+          "1": 77
+        },
+        "train": {
+          "0": 185,
+          "1": 229
+        }
+      },
+      "partition_counts": {
+        "calibration": 138,
+        "test": 138,
+        "train": 414
+      },
+      "predictor_group_count": 690,
+      "protected_baseline": false,
+      "row_count": 690,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "787cc81f17ef0fb5f23ec74d047d3fc42b4695a524e0708595d628ceed4a15e3",
+      "assignments_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "3d2f6ebacc801017217d5b8d3e7d426bd0b37ebb855ab29d3d08c495d24f928f",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 29,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "ecf409af5ce37d3d053f25e6ca9e711b168a2fdbbb9a9fd655ead5299b5465a8",
+      "manifest_artifact_hash": "5eb6921793edf5c3a6431a6f85598632589de84d52f2fb995207addb01d59ab8",
+      "manifest_path": "data/splits/openml/29/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 61,
+          "1": 77
+        },
+        "test": {
+          "0": 61,
+          "1": 77
+        },
+        "train": {
+          "0": 185,
+          "1": 229
+        }
+      },
+      "partition_counts": {
+        "calibration": 138,
+        "test": 138,
+        "train": 414
+      },
+      "predictor_group_count": 690,
+      "protected_baseline": false,
+      "row_count": 690,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "a1b4ddd1e7b0ccbeb8b3f8cc612e3c53af6cb2094453a972e9a2c526aec8db35",
+      "assignments_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "dff6da46acf5bc3b9798bc787e7747e9d452870a05ca41e559c980eb6f5e59d7",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 31,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "bd9b4c1af4ac1f800604bea9ba51754625ccad5f3d84df5099a53fe50bae5186",
+      "manifest_artifact_hash": "102d9ff15e42577ced3b753d3db73c508d8ac5a468d452f396e84738379c9423",
+      "manifest_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 60,
+          "1": 140
+        },
+        "test": {
+          "0": 60,
+          "1": 140
+        },
+        "train": {
+          "0": 180,
+          "1": 420
+        }
+      },
+      "partition_counts": {
+        "calibration": 200,
+        "test": 200,
+        "train": 600
+      },
+      "predictor_group_count": 1000,
+      "protected_baseline": false,
+      "row_count": 1000,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "7de8ac63124414b8b58bb5e9e1d5bd881ff3b0724a4eb44412bffebcf7e5d6cb",
+      "assignments_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "cb27e9bb99ca385a0570faf2d0c892e4bf36755c4793ba6f80aa66ffbd4da703",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 31,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "f179704281144f25bd19431653b791aa472082f15de0742e8cb6c14c5b8967dd",
+      "manifest_artifact_hash": "1692053758d9a5104b07c5dfa627077602e50006c2fe8ca93655b4b50888baeb",
+      "manifest_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 60,
+          "1": 140
+        },
+        "test": {
+          "0": 60,
+          "1": 140
+        },
+        "train": {
+          "0": 180,
+          "1": 420
+        }
+      },
+      "partition_counts": {
+        "calibration": 200,
+        "test": 200,
+        "train": 600
+      },
+      "predictor_group_count": 1000,
+      "protected_baseline": false,
+      "row_count": 1000,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b7899a69f31e829f0cd402b582456be4fb01b6bd8b2005e7eb73d1fca739bd37",
+      "assignments_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "351a9cf063af30a5b77792cd8d928fc51951e50dabcab98eb5fc926a5f0e8f5a",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 31,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "265178294702b4a01e6ab82005ab904e31391b83043322ef37faac274f2d4d4c",
+      "manifest_artifact_hash": "346573726e2548d8fc0b6cb4b3a52009552e491434b32add8e7b8620e7d5d9b4",
+      "manifest_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 60,
+          "1": 140
+        },
+        "test": {
+          "0": 60,
+          "1": 140
+        },
+        "train": {
+          "0": 180,
+          "1": 420
+        }
+      },
+      "partition_counts": {
+        "calibration": 200,
+        "test": 200,
+        "train": 600
+      },
+      "predictor_group_count": 1000,
+      "protected_baseline": false,
+      "row_count": 1000,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "0f4502ccbaeb27c68fecd447fd8dbac9086c5a1506e8119c254aa26fce543075",
+      "assignments_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "3f556079e4971ffc32aac5513887c1a5605a81a3296969e735bfbcdcfa8c77ee",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 31,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "88477908fd688477e1135bf3b4e79951f7c7f487102b9bab6ebe75f33ce18c14",
+      "manifest_artifact_hash": "72cc81d1860cb0fd35e94d8080f43a17c1e453f6453d197fb689bbe1fed4a8bb",
+      "manifest_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 60,
+          "1": 140
+        },
+        "test": {
+          "0": 60,
+          "1": 140
+        },
+        "train": {
+          "0": 180,
+          "1": 420
+        }
+      },
+      "partition_counts": {
+        "calibration": 200,
+        "test": 200,
+        "train": 600
+      },
+      "predictor_group_count": 1000,
+      "protected_baseline": false,
+      "row_count": 1000,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "fc63fc4e855fd8b62e157e4193aa96c09fb88f42c77dcfe8791032550a83fae3",
+      "assignments_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "59e639af0c7c8f87cda087af3532dfe485ce3824b4a9ad5472162403ccd3eecd",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 31,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "a94abe92e49d09facb35080783dffb936bb126e7313799831d113e7f1aa750f5",
+      "manifest_artifact_hash": "eeb4b6d63049f0ddac4b7af8ed3752123d2914228707fe5e16d632d8c6d88374",
+      "manifest_path": "data/splits/openml/31/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 60,
+          "1": 140
+        },
+        "test": {
+          "0": 60,
+          "1": 140
+        },
+        "train": {
+          "0": 180,
+          "1": 420
+        }
+      },
+      "partition_counts": {
+        "calibration": 200,
+        "test": 200,
+        "train": 600
+      },
+      "predictor_group_count": 1000,
+      "protected_baseline": false,
+      "row_count": 1000,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "ca529d338e9cc71b88590a310e527353d3c11f43fcaae478470d4e3d91be700a",
+      "assignments_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "8e1d21780cc28e418699e2c29f1808d3a302ab75fbe1ca389363a7bb7ed0272a",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 36,
+      "duplicate_group_count": 222,
+      "logical_assignment_hash": "dc241df0e87b226bf7732a2c4b3ddb2bdf9f4eeecd76863f3465c88c0fb43d27",
+      "manifest_artifact_hash": "c34ae2e261f30354876f012547191c4b6be2393d1f5da6c1fb8322fd2fa70064",
+      "manifest_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "test": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "train": {
+          "0": 198,
+          "1": 198,
+          "2": 198,
+          "3": 198,
+          "4": 198,
+          "5": 198,
+          "6": 198
+        }
+      },
+      "partition_counts": {
+        "calibration": 462,
+        "test": 462,
+        "train": 1386
+      },
+      "predictor_group_count": 2086,
+      "protected_baseline": false,
+      "row_count": 2310,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "81bb274ab2ddf3ab89bdc7f8677119a598dcb223a8201c9432849e9f1eec80c0",
+      "assignments_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "d9b697e45732956d75349c652d90739a7d1df7311fdf6b17cbc6d0f65620ab3c",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 36,
+      "duplicate_group_count": 222,
+      "logical_assignment_hash": "d65af1a393e3b3d8e77a18952dee8ecf34b0bded71511d9f8fedf01ca6fe4add",
+      "manifest_artifact_hash": "deef4006e77080768351836cbf209531ade11270b483795c866956b64875a80f",
+      "manifest_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "test": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "train": {
+          "0": 198,
+          "1": 198,
+          "2": 198,
+          "3": 198,
+          "4": 198,
+          "5": 198,
+          "6": 198
+        }
+      },
+      "partition_counts": {
+        "calibration": 462,
+        "test": 462,
+        "train": 1386
+      },
+      "predictor_group_count": 2086,
+      "protected_baseline": false,
+      "row_count": 2310,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b8c4a54daa64730baf2957ea45fcab26ed642ccd242f5583a993e456fcce335d",
+      "assignments_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "b270c872accc7e61d33c6cff6cc57c775b25db984ed9ae5cd71c0bd2c530de04",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 36,
+      "duplicate_group_count": 222,
+      "logical_assignment_hash": "2f23706f33aaf6e8be41918dea0077444543164ce982adaf3d934cce192d2033",
+      "manifest_artifact_hash": "e581126dd778dbb63cfcdf41c81c54044b1a7518ee58575b916d4cda94a4608d",
+      "manifest_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "test": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "train": {
+          "0": 198,
+          "1": 198,
+          "2": 198,
+          "3": 198,
+          "4": 198,
+          "5": 198,
+          "6": 198
+        }
+      },
+      "partition_counts": {
+        "calibration": 462,
+        "test": 462,
+        "train": 1386
+      },
+      "predictor_group_count": 2086,
+      "protected_baseline": false,
+      "row_count": 2310,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "8f76a9b50bd7b33252cd47bbe107aa7d13a771a784fc98c1aa6e0aa08d3f7e4b",
+      "assignments_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "b4dff52d25a3567160566a74bdd260b3f6a4126226ccb56bd67dce2cb3ca36d6",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 36,
+      "duplicate_group_count": 222,
+      "logical_assignment_hash": "5e7c81c73cd1e79d635454f5ce1bced12ffc872b3b7a4fd796ba384742495d89",
+      "manifest_artifact_hash": "06013519a53d269a718e649a8f87d7cc35164a899f9b06ed5e14967246e3a2b1",
+      "manifest_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "test": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "train": {
+          "0": 198,
+          "1": 198,
+          "2": 198,
+          "3": 198,
+          "4": 198,
+          "5": 198,
+          "6": 198
+        }
+      },
+      "partition_counts": {
+        "calibration": 462,
+        "test": 462,
+        "train": 1386
+      },
+      "predictor_group_count": 2086,
+      "protected_baseline": false,
+      "row_count": 2310,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "eb9899b84ff64582c26d90942d527288edefcbc03e5429ac4f33ac6f541ded2c",
+      "assignments_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "2ab20579e6723477bfb496598dafcd9bc27c1a830923f1cb787fff414ef1e563",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 36,
+      "duplicate_group_count": 222,
+      "logical_assignment_hash": "647624ac4df99bd1859ebe292597612959d31c420706399d96747e87df69a105",
+      "manifest_artifact_hash": "c6b160e08681d87954b20d2e11dbd4cdb3d4ca2c3aba211453633732f68ccdae",
+      "manifest_path": "data/splits/openml/36/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "test": {
+          "0": 66,
+          "1": 66,
+          "2": 66,
+          "3": 66,
+          "4": 66,
+          "5": 66,
+          "6": 66
+        },
+        "train": {
+          "0": 198,
+          "1": 198,
+          "2": 198,
+          "3": 198,
+          "4": 198,
+          "5": 198,
+          "6": 198
+        }
+      },
+      "partition_counts": {
+        "calibration": 462,
+        "test": 462,
+        "train": 1386
+      },
+      "predictor_group_count": 2086,
+      "protected_baseline": false,
+      "row_count": 2310,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "462c95d28d1a6845dace8fcccd815c4e1d307e4fe706c96606c3717773e9ccc8",
+      "assignments_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "c9ec9c955ee490b804633ab91b8e61c07ffe1e2edd751cb6f78a286b9422da82",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 37,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "253c02dde0d8ba5340a0e0b138f8b13db784e6156d936a036a398787a23a3796",
+      "manifest_artifact_hash": "5b8bfb7f759950ae5edb8953a93e1c6ae01577325479363df478307136fb9387",
+      "manifest_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 100,
+          "1": 54
+        },
+        "test": {
+          "0": 100,
+          "1": 53
+        },
+        "train": {
+          "0": 300,
+          "1": 161
+        }
+      },
+      "partition_counts": {
+        "calibration": 154,
+        "test": 153,
+        "train": 461
+      },
+      "predictor_group_count": 768,
+      "protected_baseline": false,
+      "row_count": 768,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b180f5714bda07efcdf79b575fe3ee56627e50be2e40bbf185c0a4435c90cf46",
+      "assignments_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "a2ba7f3f96a1bcc3e7b69660e9af2fae452de4eada8b6a78ab7940f27fdb90ce",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 37,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "128dd49dd56db42000264f8d363c3f1f338c4fcc0bc2a91e4d3c12ac180b39c9",
+      "manifest_artifact_hash": "27c0d3a235f9b4652a867d0700acd410efcc898e0096a174e066f8ba53898ad4",
+      "manifest_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 100,
+          "1": 53
+        },
+        "test": {
+          "0": 100,
+          "1": 54
+        },
+        "train": {
+          "0": 300,
+          "1": 161
+        }
+      },
+      "partition_counts": {
+        "calibration": 153,
+        "test": 154,
+        "train": 461
+      },
+      "predictor_group_count": 768,
+      "protected_baseline": false,
+      "row_count": 768,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "5d338941854ace9077502c4d7571a3d9813ca32e10ca759b30c6c060b0752117",
+      "assignments_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "1d68ed920254a9a5cf927ac3604cc8f923078d6bd009347399e1f25ecbcad74d",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 37,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "4c318f750a3715e6feedc8289d2b20e3dee96d8284ea5c129888fbe98af8eef6",
+      "manifest_artifact_hash": "7cb828bac3f16d219e7314253812bdeae26605824fd018f7a4dc16f65402addf",
+      "manifest_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 100,
+          "1": 54
+        },
+        "test": {
+          "0": 100,
+          "1": 53
+        },
+        "train": {
+          "0": 300,
+          "1": 161
+        }
+      },
+      "partition_counts": {
+        "calibration": 154,
+        "test": 153,
+        "train": 461
+      },
+      "predictor_group_count": 768,
+      "protected_baseline": false,
+      "row_count": 768,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "c36fa64605b42e77a27bcb19e49bb0417c6544bf146d112a7b1dfb274a69753e",
+      "assignments_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "bfde4aea17dbe7a4e347384353d7ed85aaa9f9ced3c0a2f5b67a2ec0b7d84b31",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 37,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "5b608fd7dc5ff041576777b93486b6d58f93ebd93f2d02d2276f069028f0bf45",
+      "manifest_artifact_hash": "3cf8c1690212d0490e90969fdac9f92c069b23383f67c1f9278c16dc3c680647",
+      "manifest_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 100,
+          "1": 53
+        },
+        "test": {
+          "0": 100,
+          "1": 54
+        },
+        "train": {
+          "0": 300,
+          "1": 161
+        }
+      },
+      "partition_counts": {
+        "calibration": 153,
+        "test": 154,
+        "train": 461
+      },
+      "predictor_group_count": 768,
+      "protected_baseline": false,
+      "row_count": 768,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "33c4cdb4e9d95d77ce481a2079966000b0a2c2ae094a78e57f089ae9e286a1e7",
+      "assignments_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "f6defb3a2d8be7a3f8d37e0117f36d81a937e312fd383482c486e9f7c97e3d2b",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 37,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "aec09d467ed20dc640c30a3965b1843e4375b946f082672890aa836d8dc3d918",
+      "manifest_artifact_hash": "915bbd0317e2442b1a1c71d87dbc224ec61a82d6ac24d72e16e2e4f3e54e0e7f",
+      "manifest_path": "data/splits/openml/37/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 100,
+          "1": 53
+        },
+        "test": {
+          "0": 100,
+          "1": 54
+        },
+        "train": {
+          "0": 300,
+          "1": 161
+        }
+      },
+      "partition_counts": {
+        "calibration": 153,
+        "test": 154,
+        "train": 461
+      },
+      "predictor_group_count": 768,
+      "protected_baseline": false,
+      "row_count": 768,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "7ce5c368acdcf201dd23ce4c7edfcc18985f96ef608fc561c01c1fc592ca74da",
+      "assignments_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "55c153526f1307dae582d7343e5eb771e97da03a0c5673b0f1766ab098a59fe4",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 38,
+      "duplicate_group_count": 33,
+      "logical_assignment_hash": "1327136ffd7cd4de6823ec3ebf016c8960de81a8b70657b62d8f704b1c0e74ea",
+      "manifest_artifact_hash": "8a4a96bd727a2f6956965442c011341ba1715adbfe5e1b31c90798f1c3fd9caf",
+      "manifest_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 709,
+          "1": 46
+        },
+        "test": {
+          "0": 708,
+          "1": 46
+        },
+        "train": {
+          "0": 2124,
+          "1": 139
+        }
+      },
+      "partition_counts": {
+        "calibration": 755,
+        "test": 754,
+        "train": 2263
+      },
+      "predictor_group_count": 3711,
+      "protected_baseline": false,
+      "row_count": 3772,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "eedc717b0aff8e7fb4d7b0d8e8ecd9ab1f9b041cc6982f433c601f9aec33b795",
+      "assignments_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "6f20303e1822b84b262598ac12ac1ab076364dfedff04a9887d02c07732d09dc",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 38,
+      "duplicate_group_count": 33,
+      "logical_assignment_hash": "7d0878af1d2bd344115bbbf4ae65099249ffc4c2d30eaa3ccec47fb42e22c7d9",
+      "manifest_artifact_hash": "3ca9c6101c493a4ff3a7bf2c3f1d58b5e8623287c6f2b8ee8e03634fb330af7d",
+      "manifest_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 709,
+          "1": 46
+        },
+        "test": {
+          "0": 708,
+          "1": 46
+        },
+        "train": {
+          "0": 2124,
+          "1": 139
+        }
+      },
+      "partition_counts": {
+        "calibration": 755,
+        "test": 754,
+        "train": 2263
+      },
+      "predictor_group_count": 3711,
+      "protected_baseline": false,
+      "row_count": 3772,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "e266ffd382f09a4c450705d0ba0cf7b5507d0dc6ee3a9538f84b820fe5ed0fee",
+      "assignments_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "e4ba74c937ed4b642b835f66cdff268e5803a7b6686790d0dfc26b521825e7c9",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 38,
+      "duplicate_group_count": 33,
+      "logical_assignment_hash": "c5181f664785b79ff0e8ee6c0b58d6dbb65ceb77d6f5acb1bf422e9080c261ea",
+      "manifest_artifact_hash": "1c00322ff84fb2feae2b94052ac5fd9e3bd54d32a83531034a72db7549a7d530",
+      "manifest_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 709,
+          "1": 46
+        },
+        "test": {
+          "0": 708,
+          "1": 46
+        },
+        "train": {
+          "0": 2124,
+          "1": 139
+        }
+      },
+      "partition_counts": {
+        "calibration": 755,
+        "test": 754,
+        "train": 2263
+      },
+      "predictor_group_count": 3711,
+      "protected_baseline": false,
+      "row_count": 3772,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "890169ee20d47feca9f7aced356cdbe1651c727b76b2be6a95544e7badbd2f07",
+      "assignments_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "39fbd8d09e8d39a93c29e4bcdb658e82c6f5d615e18451619511be68c351206b",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 38,
+      "duplicate_group_count": 33,
+      "logical_assignment_hash": "03bb6a43f26e07c26c543f196f201636bb9ec632aa6900e15aee36905184ab3d",
+      "manifest_artifact_hash": "8d505dbd12fa06f2a3a379202c27e186fd54f9dfeb8ec68d33cf49ab02a193a3",
+      "manifest_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 709,
+          "1": 46
+        },
+        "test": {
+          "0": 708,
+          "1": 46
+        },
+        "train": {
+          "0": 2124,
+          "1": 139
+        }
+      },
+      "partition_counts": {
+        "calibration": 755,
+        "test": 754,
+        "train": 2263
+      },
+      "predictor_group_count": 3711,
+      "protected_baseline": false,
+      "row_count": 3772,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "8aa2fbbffff794e8d54698ac79a64068b88c817f3cc0b34e4c58be8fb86e1948",
+      "assignments_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "55630dd52e8e1fc5fac7dffedcce0cefaa4b1510cea4b9b745e2a05d0370658c",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 38,
+      "duplicate_group_count": 33,
+      "logical_assignment_hash": "52f9bbef8646c5e712ae350af2b313a0a59ab70ea493a7ecc278b22a116d4e7f",
+      "manifest_artifact_hash": "d3ccd985790f597cd545fbb4a5df77a467e878e6245b83dc1fafe87235891a51",
+      "manifest_path": "data/splits/openml/38/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 709,
+          "1": 46
+        },
+        "test": {
+          "0": 708,
+          "1": 46
+        },
+        "train": {
+          "0": 2124,
+          "1": 139
+        }
+      },
+      "partition_counts": {
+        "calibration": 755,
+        "test": 754,
+        "train": 2263
+      },
+      "predictor_group_count": 3711,
+      "protected_baseline": false,
+      "row_count": 3772,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "324a0dec7b262c2b795f51a89bc866e0b11e4335a712d50e4f03d91d39923c43",
+      "assignments_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "6ce62517ae57a575b3148e54c344eb56f49fa8227064a5f00dc731395239bd4a",
+      "conflicting_target_group_count": 3,
+      "cross_partition_group_count": 0,
+      "dataset_id": 44,
+      "duplicate_group_count": 183,
+      "logical_assignment_hash": "5fbdd846273d70f9e8dea96f125be76838dde2cc525ac0a93d47075cf048cab5",
+      "manifest_artifact_hash": "6bc0b292f6ed334f3b6a0019722af3669705da31692fdebcfd323d5b9cb624bb",
+      "manifest_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 557,
+          "1": 362
+        },
+        "test": {
+          "0": 558,
+          "1": 363
+        },
+        "train": {
+          "0": 1673,
+          "1": 1088
+        }
+      },
+      "partition_counts": {
+        "calibration": 919,
+        "test": 921,
+        "train": 2761
+      },
+      "predictor_group_count": 4207,
+      "protected_baseline": false,
+      "row_count": 4601,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "443e99505254b259af6b22abbd649292e658d729fc3eb7fbfebfe1dff86430a8",
+      "assignments_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "b45e104e9f8eb99d298e64abe7ac5ddc51a7b01bd03680c9a3f4fe85fd134d64",
+      "conflicting_target_group_count": 3,
+      "cross_partition_group_count": 0,
+      "dataset_id": 44,
+      "duplicate_group_count": 183,
+      "logical_assignment_hash": "306f08ea7e75dd6db890a6c71288b7e80e911aef7ef2a779d96949afa8778906",
+      "manifest_artifact_hash": "858c1131eeddc6774e64813a1d3e3ffca90566b0f84c833ba63e9f97815a4a2e",
+      "manifest_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 557,
+          "1": 362
+        },
+        "test": {
+          "0": 558,
+          "1": 363
+        },
+        "train": {
+          "0": 1673,
+          "1": 1088
+        }
+      },
+      "partition_counts": {
+        "calibration": 919,
+        "test": 921,
+        "train": 2761
+      },
+      "predictor_group_count": 4207,
+      "protected_baseline": false,
+      "row_count": 4601,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "eee6c2dc6a3676c6b78c51f9fcce935f79d0655da631e20b9da4bc3071b26f02",
+      "assignments_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "b77af758906e3a64913b53d06f58841a2417c60a0cec8d2a4bbd301f2ea729a3",
+      "conflicting_target_group_count": 3,
+      "cross_partition_group_count": 0,
+      "dataset_id": 44,
+      "duplicate_group_count": 183,
+      "logical_assignment_hash": "7789c5fcdce0b6a04ceaaac2e5a997484403b819ba7d5a31ba098da5f1b04be1",
+      "manifest_artifact_hash": "75d8c751339c3704368c6e4009203efff26620fa0eaac46a54a950a4d3e9efe6",
+      "manifest_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 557,
+          "1": 362
+        },
+        "test": {
+          "0": 558,
+          "1": 363
+        },
+        "train": {
+          "0": 1673,
+          "1": 1088
+        }
+      },
+      "partition_counts": {
+        "calibration": 919,
+        "test": 921,
+        "train": 2761
+      },
+      "predictor_group_count": 4207,
+      "protected_baseline": false,
+      "row_count": 4601,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "4718e5a1090efbfd7b732d9bbde3ee80b8af2f4896adc6ca8296173dd7366a3a",
+      "assignments_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "d3869ad0d6e683200c082cdcab21ba6cb3929edf8faa3373680bef2ffec6a082",
+      "conflicting_target_group_count": 3,
+      "cross_partition_group_count": 0,
+      "dataset_id": 44,
+      "duplicate_group_count": 183,
+      "logical_assignment_hash": "61b04db5262939bdeac06722e837aceab65e63cb2afca8d278d716ef43ad7d29",
+      "manifest_artifact_hash": "26dc3b30c98e71c1a1d51b5733ee7e3e553ce5116752089b3c8e34e9831df552",
+      "manifest_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 557,
+          "1": 362
+        },
+        "test": {
+          "0": 558,
+          "1": 363
+        },
+        "train": {
+          "0": 1673,
+          "1": 1088
+        }
+      },
+      "partition_counts": {
+        "calibration": 919,
+        "test": 921,
+        "train": 2761
+      },
+      "predictor_group_count": 4207,
+      "protected_baseline": false,
+      "row_count": 4601,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "f32830c1ae58e3397f1b108dbc1e3fc8eeed89ffc0b9397b5b16fb156bf21e36",
+      "assignments_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "5dcf05f40ba83689328e6b4df694fa5ddd1a0c051dfe8e9d50c9acfe63481103",
+      "conflicting_target_group_count": 3,
+      "cross_partition_group_count": 0,
+      "dataset_id": 44,
+      "duplicate_group_count": 183,
+      "logical_assignment_hash": "272b47e5977ce4cbcb15f3f2cf63c4a9a72092c378720ecd64df0ed9900d0210",
+      "manifest_artifact_hash": "2f1c51a3e3eb54e25a2dc16bf42eaa581ace1e1af05408d1ba0e1278914ed741",
+      "manifest_path": "data/splits/openml/44/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 557,
+          "1": 362
+        },
+        "test": {
+          "0": 558,
+          "1": 363
+        },
+        "train": {
+          "0": 1673,
+          "1": 1088
+        }
+      },
+      "partition_counts": {
+        "calibration": 919,
+        "test": 921,
+        "train": 2761
+      },
+      "predictor_group_count": 4207,
+      "protected_baseline": false,
+      "row_count": 4601,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b58bf25b88d30ed6f0b843eaef1eaddfbde44e71701a4305944e12948163f283",
+      "assignments_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "64cbec98755d70d3840247c87e2fc09bbf8e01e51c7ee3eec308cc5719c72e50",
+      "conflicting_target_group_count": 1,
+      "cross_partition_group_count": 0,
+      "dataset_id": 46,
+      "duplicate_group_count": 125,
+      "logical_assignment_hash": "7c92f36efa49d078fdd59854812e4339b03118c04e7444b420643f133e224d51",
+      "manifest_artifact_hash": "18b80d078664f3b6692db3cbd44fe1c64c6ff901ad2dabae24496a620c004d2f",
+      "manifest_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "test": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "train": {
+          "0": 461,
+          "1": 460,
+          "2": 993
+        }
+      },
+      "partition_counts": {
+        "calibration": 638,
+        "test": 638,
+        "train": 1914
+      },
+      "predictor_group_count": 3005,
+      "protected_baseline": false,
+      "row_count": 3190,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "bda35ea0cfae6db740c0395d8ffa577c6686835ff47a3c84136ad59faf54c750",
+      "assignments_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "9cdadb27a794b21fd135b44f227a2c3ec1adc87cd72f0f0b9e4e968ca05b1b5b",
+      "conflicting_target_group_count": 1,
+      "cross_partition_group_count": 0,
+      "dataset_id": 46,
+      "duplicate_group_count": 125,
+      "logical_assignment_hash": "e149e0c58e09f501967f842864a30cd8e4c7840043e1d055a31a485244506cea",
+      "manifest_artifact_hash": "4e9bef7bc9bb3ff317405c793e44e6065e71e0f352a2a3015f6789ef5c9d9bbc",
+      "manifest_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 154,
+          "1": 153,
+          "2": 331
+        },
+        "test": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "train": {
+          "0": 460,
+          "1": 461,
+          "2": 993
+        }
+      },
+      "partition_counts": {
+        "calibration": 638,
+        "test": 638,
+        "train": 1914
+      },
+      "predictor_group_count": 3005,
+      "protected_baseline": false,
+      "row_count": 3190,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "92d6cc7a4119940c2118300f4b06bd661f9510135425d95bbe45b83acfdec893",
+      "assignments_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "043b7ead1e95d767c20dee6aa5d47dfd01cffef24ba55f8216351c724d93d00f",
+      "conflicting_target_group_count": 1,
+      "cross_partition_group_count": 0,
+      "dataset_id": 46,
+      "duplicate_group_count": 125,
+      "logical_assignment_hash": "15400e04f2c101191c91419523375288dcc0f346eec5de7d8268c83fe178914b",
+      "manifest_artifact_hash": "95d13bfc17a80d0ba2afc7a0592af77079ee90b17ca4cf4e29c83ec138a96d65",
+      "manifest_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "test": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "train": {
+          "0": 461,
+          "1": 460,
+          "2": 993
+        }
+      },
+      "partition_counts": {
+        "calibration": 638,
+        "test": 638,
+        "train": 1914
+      },
+      "predictor_group_count": 3005,
+      "protected_baseline": false,
+      "row_count": 3190,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "94f8778c3d15f0e191a710cb1311bd638c72a9d044515f88095781ec1afea4b3",
+      "assignments_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "b94ad0efcecb680a4a9b909925601f2893d2a219d309db64807a6db47585fb41",
+      "conflicting_target_group_count": 1,
+      "cross_partition_group_count": 0,
+      "dataset_id": 46,
+      "duplicate_group_count": 125,
+      "logical_assignment_hash": "fa0cfe562bf628e2b389ad063dd60ce4e8f151fd323f4bf857e65c1badc1b820",
+      "manifest_artifact_hash": "acb18a11e862168117b264ebb3ce554f9c8f8fff42a2a27ace4cfef86cdb09e7",
+      "manifest_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "test": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "train": {
+          "0": 461,
+          "1": 460,
+          "2": 993
+        }
+      },
+      "partition_counts": {
+        "calibration": 638,
+        "test": 638,
+        "train": 1914
+      },
+      "predictor_group_count": 3005,
+      "protected_baseline": false,
+      "row_count": 3190,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "30c8214b21cf710cfabbda83937b89bcb6bbfb31d051aeae66b126ce1ac0372e",
+      "assignments_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "9d933b50b32c5457c986847b4351a41e9ee1ee1e8c5b330f101fdcc769323c83",
+      "conflicting_target_group_count": 1,
+      "cross_partition_group_count": 0,
+      "dataset_id": 46,
+      "duplicate_group_count": 125,
+      "logical_assignment_hash": "dd08840d7c2a9d46a3d23900817d46ec6465e835bb4dbbb6507744d70518271f",
+      "manifest_artifact_hash": "796b4b0a8c77fdec7ed23964d8ff7ab8d2d0432a1cd0fd1438bd32c4e1253c30",
+      "manifest_path": "data/splits/openml/46/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 153,
+          "1": 154,
+          "2": 331
+        },
+        "test": {
+          "0": 154,
+          "1": 153,
+          "2": 331
+        },
+        "train": {
+          "0": 460,
+          "1": 461,
+          "2": 993
+        }
+      },
+      "partition_counts": {
+        "calibration": 638,
+        "test": 638,
+        "train": 1914
+      },
+      "predictor_group_count": 3005,
+      "protected_baseline": false,
+      "row_count": 3190,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "a1962b3e6ddeea30f4b2ca27567796fc0088cb6a3fb9878ace708f9ca8cf9505",
+      "assignments_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "7be32cda2904c9e31dd2dde8c3028b940a8490b0a6107dacf770e05e06c81251",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 50,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "1a5a8c297e44c40f1130353a3eb9a7638aae67c3e24566847ab7c219a9374d6a",
+      "manifest_artifact_hash": "ba9aa65c1d7b9c7201fa484105d6721381395d07aa05abc774af617c2d50873e",
+      "manifest_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 125
+        },
+        "test": {
+          "0": 67,
+          "1": 125
+        },
+        "train": {
+          "0": 199,
+          "1": 376
+        }
+      },
+      "partition_counts": {
+        "calibration": 191,
+        "test": 192,
+        "train": 575
+      },
+      "predictor_group_count": 958,
+      "protected_baseline": false,
+      "row_count": 958,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "34355f363d26a12227d5df52d12735cbcdf3bc4fb0de2007e4d1ca2274e0cd1c",
+      "assignments_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "45ef566b3933f50b67f9e5934301c91ea12a9551049230a63e6096946730f4a9",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 50,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "97be157f434f6bc2e9af8279db3d8f83cf16075fc707d2948b2f6e4b7b27cf59",
+      "manifest_artifact_hash": "3fcfbbf604436c9dec53802c22b385999706b9654d4aec5aba42f9de502438f6",
+      "manifest_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 67,
+          "1": 125
+        },
+        "test": {
+          "0": 66,
+          "1": 125
+        },
+        "train": {
+          "0": 199,
+          "1": 376
+        }
+      },
+      "partition_counts": {
+        "calibration": 192,
+        "test": 191,
+        "train": 575
+      },
+      "predictor_group_count": 958,
+      "protected_baseline": false,
+      "row_count": 958,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "e158ee91ba337e165931bd5e3829850e96b390811d9b557c2a103dfa30345e12",
+      "assignments_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "87dc479ecabb93df5362c5cd7cb8f90153cd526e231a57d31875416c47dbb781",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 50,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "f5ac9fb0b75645d5bb25a8f9d1ad4b52c560e76706a9cb42a7fd76354efd7d9e",
+      "manifest_artifact_hash": "4df8783167403cab7e16fb9a17481d7712252781e60210c51e9af7959384554a",
+      "manifest_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 66,
+          "1": 125
+        },
+        "test": {
+          "0": 67,
+          "1": 125
+        },
+        "train": {
+          "0": 199,
+          "1": 376
+        }
+      },
+      "partition_counts": {
+        "calibration": 191,
+        "test": 192,
+        "train": 575
+      },
+      "predictor_group_count": 958,
+      "protected_baseline": false,
+      "row_count": 958,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "dcfcf7c2ad7e6149e0b5069bbd5ab688c753ecf08603f627ba55b3d9c09de47b",
+      "assignments_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "3a03ff0c1a7016180ed14e43b0c8071a75b207eb319df3883e28f45f8587068d",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 50,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "cd5ade2959f535e0966b10fcedd16a627b72a05e4377f54bdcbd2da68e9da452",
+      "manifest_artifact_hash": "25a9fd376307043d456c682e731e8c4173740801d47324d4d3adb57bb1d3e78a",
+      "manifest_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 67,
+          "1": 125
+        },
+        "test": {
+          "0": 66,
+          "1": 125
+        },
+        "train": {
+          "0": 199,
+          "1": 376
+        }
+      },
+      "partition_counts": {
+        "calibration": 192,
+        "test": 191,
+        "train": 575
+      },
+      "predictor_group_count": 958,
+      "protected_baseline": false,
+      "row_count": 958,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "9c357295ca042ebefd53e1a1158be6dcb524b2705b4d1eb9488dcbddf6be44c4",
+      "assignments_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "bbd65ee28087094b81068c0172be448ef40af0b5171ab87efe7eb31f7305ce96",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 50,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "915afbefbe7c52d37fc381ee3d4ee0fe8c6c9ca84dd49ef3c83572888b25aaae",
+      "manifest_artifact_hash": "b88252dc1cb0c87abb2ba0e26903cd7536486687e4bd2e26777344ae23bacdf7",
+      "manifest_path": "data/splits/openml/50/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 67,
+          "1": 125
+        },
+        "test": {
+          "0": 66,
+          "1": 125
+        },
+        "train": {
+          "0": 199,
+          "1": 376
+        }
+      },
+      "partition_counts": {
+        "calibration": 192,
+        "test": 191,
+        "train": 575
+      },
+      "predictor_group_count": 958,
+      "protected_baseline": false,
+      "row_count": 958,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "3d6674fd73619c673c08743e68d8d3f17abdf2a1b7c3baf9874817955abdcc6b",
+      "assignments_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "144ffbf1ea02fe62e2098a5ec0e3236e0dc945d79660c7de67c22f417687fc58",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 54,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "d100ad3604782cbab3fdaa1e9e7705b357a6b57340cfd42ada809fb8bf08391c",
+      "manifest_artifact_hash": "1d580c3029dfec64dca6157f17226d820a8ca5c0b8a6b694f73609f6a398eb12",
+      "manifest_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 43,
+          "1": 42,
+          "2": 44,
+          "3": 40
+        },
+        "test": {
+          "0": 44,
+          "1": 42,
+          "2": 43,
+          "3": 40
+        },
+        "train": {
+          "0": 131,
+          "1": 128,
+          "2": 130,
+          "3": 119
+        }
+      },
+      "partition_counts": {
+        "calibration": 169,
+        "test": 169,
+        "train": 508
+      },
+      "predictor_group_count": 846,
+      "protected_baseline": false,
+      "row_count": 846,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "4117c79089fe18a72228d21c4394b5792bd1a1c9b0b77530db5084e84c28c740",
+      "assignments_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "579f04e7e8c8a63165bc4a13501ab8d4cfd994c3200ea2c6a243766005e1d696",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 54,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "9b99cf20f32a39ecc51bc0a6846ed1026a0737f4fc1487ec1c290363479b5866",
+      "manifest_artifact_hash": "3ea7f5597350260f08de8486a9ae56698675f348788ec2eceea26da81d15fd20",
+      "manifest_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 43,
+          "1": 42,
+          "2": 44,
+          "3": 40
+        },
+        "test": {
+          "0": 44,
+          "1": 42,
+          "2": 43,
+          "3": 40
+        },
+        "train": {
+          "0": 131,
+          "1": 128,
+          "2": 130,
+          "3": 119
+        }
+      },
+      "partition_counts": {
+        "calibration": 169,
+        "test": 169,
+        "train": 508
+      },
+      "predictor_group_count": 846,
+      "protected_baseline": false,
+      "row_count": 846,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "417f9c0fe3c502d35d5d1efd35566c1eb5e6ce1677835fcaaae3e433eada4fd5",
+      "assignments_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "ebbb51bda58fc34be69a61eb0381379cb6fc0ccd4a53e796be35c709c2cbd411",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 54,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "65f22aaa47e978eea7657e704538b77b131a49fea577d676f9be8299db9c251a",
+      "manifest_artifact_hash": "9822e43766d1a412d6e6d26a90a622e110d66d70e8a45720d12fa6d33fc15dbd",
+      "manifest_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 44,
+          "1": 42,
+          "2": 43,
+          "3": 40
+        },
+        "test": {
+          "0": 43,
+          "1": 43,
+          "2": 43,
+          "3": 40
+        },
+        "train": {
+          "0": 131,
+          "1": 127,
+          "2": 131,
+          "3": 119
+        }
+      },
+      "partition_counts": {
+        "calibration": 169,
+        "test": 169,
+        "train": 508
+      },
+      "predictor_group_count": 846,
+      "protected_baseline": false,
+      "row_count": 846,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "e1460c8640b04274489f3b6ecbcaa9ed9070c8239875a20bc367b7ee124af07e",
+      "assignments_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "acef037b117b25098463752ecfc8e691733be1b233168fc684a5c92171956e91",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 54,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "c0cfb613853f1ab6937a144877f8e5266adf720454525ab2132726217371fa70",
+      "manifest_artifact_hash": "3d926a048699e0f035fc62c9aca819ce9acdc24568f2783aa8feccf55ad4eb87",
+      "manifest_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 43,
+          "1": 43,
+          "2": 43,
+          "3": 40
+        },
+        "test": {
+          "0": 44,
+          "1": 42,
+          "2": 43,
+          "3": 40
+        },
+        "train": {
+          "0": 131,
+          "1": 127,
+          "2": 131,
+          "3": 119
+        }
+      },
+      "partition_counts": {
+        "calibration": 169,
+        "test": 169,
+        "train": 508
+      },
+      "predictor_group_count": 846,
+      "protected_baseline": false,
+      "row_count": 846,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "8cb76a9716bb70f081850c8619ac807bcb8ed6f3fcd5df87d2dec64b37e09552",
+      "assignments_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "0737bc1b4f65840558db5c950aa225c4d89bb315481168bcc0dcec6128ab2ace",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 54,
+      "duplicate_group_count": 0,
+      "logical_assignment_hash": "68e6a092c01fa5607cea6e7ac0fb54e7d16545a5156ca6632a996e294277fc0b",
+      "manifest_artifact_hash": "d19a15948511ac865f974f539df8aa99328dcd036e5367e40e28844bc09acdcf",
+      "manifest_path": "data/splits/openml/54/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 44,
+          "1": 42,
+          "2": 43,
+          "3": 40
+        },
+        "test": {
+          "0": 43,
+          "1": 43,
+          "2": 43,
+          "3": 40
+        },
+        "train": {
+          "0": 131,
+          "1": 127,
+          "2": 131,
+          "3": 119
+        }
+      },
+      "partition_counts": {
+        "calibration": 169,
+        "test": 169,
+        "train": 508
+      },
+      "predictor_group_count": 846,
+      "protected_baseline": false,
+      "row_count": 846,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "c0ce2857a15d615df564fe804af42d7299e710e8bc996df76e09adf9a1b7e814",
+      "assignments_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "0aafcca9873746b7937549e18bcdeb8c716a97607ea48aafd057a51c76c3c415",
+      "conflicting_target_group_count": 20,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1067,
+      "duplicate_group_count": 177,
+      "logical_assignment_hash": "00a0c5f66c0624a1b2d497d26987826ecf449e8d1d8a6397c9dd70204e395fa3",
+      "manifest_artifact_hash": "b431594a37c69a9b67ecc655b1cc3c349a917302c1fc79d48f41e53a51ff299c",
+      "manifest_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 357,
+          "1": 65
+        },
+        "test": {
+          "0": 357,
+          "1": 65
+        },
+        "train": {
+          "0": 1069,
+          "1": 196
+        }
+      },
+      "partition_counts": {
+        "calibration": 422,
+        "test": 422,
+        "train": 1265
+      },
+      "predictor_group_count": 1192,
+      "protected_baseline": false,
+      "row_count": 2109,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "82af7cba9a04df6ad102c62242dfc15b02e32206d9ca008756558c85194e9c3c",
+      "assignments_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "f762f829ed4ca196b1e6d2c8b37242bd7202e1f9e778cdde9233661c11cf7cce",
+      "conflicting_target_group_count": 20,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1067,
+      "duplicate_group_count": 177,
+      "logical_assignment_hash": "b624cadae228875088473e21c307c7191ec15348232a2c4dd1b06ecbe81a13bf",
+      "manifest_artifact_hash": "781145546c9315e95122d87da9b927214dabdab474dbc5ac9da9a9aff93a50ff",
+      "manifest_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 357,
+          "1": 65
+        },
+        "test": {
+          "0": 357,
+          "1": 65
+        },
+        "train": {
+          "0": 1069,
+          "1": 196
+        }
+      },
+      "partition_counts": {
+        "calibration": 422,
+        "test": 422,
+        "train": 1265
+      },
+      "predictor_group_count": 1192,
+      "protected_baseline": false,
+      "row_count": 2109,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "ebee4666f541ce7c089d20b76189f301e36e766754b1954c200d2709fd864fa9",
+      "assignments_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "19772ed33585a3acd0244a7aba70522d11dc666bb321dfe98ceebc6d1eab197d",
+      "conflicting_target_group_count": 20,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1067,
+      "duplicate_group_count": 177,
+      "logical_assignment_hash": "5ee5ac93805375a7a0554fbd7de5d9cd73d5589ce03b477acd441b8f54a5e658",
+      "manifest_artifact_hash": "1dc4ff3b2fc74ee6e1bbff230855d06718b95756537b9c500c386b6e036348fb",
+      "manifest_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 357,
+          "1": 65
+        },
+        "test": {
+          "0": 357,
+          "1": 65
+        },
+        "train": {
+          "0": 1069,
+          "1": 196
+        }
+      },
+      "partition_counts": {
+        "calibration": 422,
+        "test": 422,
+        "train": 1265
+      },
+      "predictor_group_count": 1192,
+      "protected_baseline": false,
+      "row_count": 2109,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "97f530dd0e734ea2016a0bca1623b1e5b29f01adde5a3baec578dffa99f6f5ea",
+      "assignments_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "c53dd8d8820d65f997099b2735802b0a09bcd9ee4d7947d97b3ad2db1686f7a1",
+      "conflicting_target_group_count": 20,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1067,
+      "duplicate_group_count": 177,
+      "logical_assignment_hash": "8c7fe98a2f2f416f0149c264b901f4d11467e4be2d2e92e8efcf2c90e637fdb0",
+      "manifest_artifact_hash": "7af7c51d67d9be772225c0e5db386c9fea201fe75a1c6d5e0c7b0db306865e37",
+      "manifest_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 357,
+          "1": 65
+        },
+        "test": {
+          "0": 357,
+          "1": 65
+        },
+        "train": {
+          "0": 1069,
+          "1": 196
+        }
+      },
+      "partition_counts": {
+        "calibration": 422,
+        "test": 422,
+        "train": 1265
+      },
+      "predictor_group_count": 1192,
+      "protected_baseline": false,
+      "row_count": 2109,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "b618cc671a7cad9cd8f53e88e6814ccb0a051c70a566a2688c7d484166b00659",
+      "assignments_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "4afa2029aa90aa61f02a42818963500385410aa4483cc9258cf3670eb1c207c9",
+      "conflicting_target_group_count": 20,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1067,
+      "duplicate_group_count": 177,
+      "logical_assignment_hash": "d36cf769a23688fe68f845adf743be8c219aba0d42046d0a00ccab7113cf5235",
+      "manifest_artifact_hash": "74cfdcaa3e55ed6a8638016533c8357745e82001624b8517cf208e9be84e2f40",
+      "manifest_path": "data/splits/openml/1067/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 357,
+          "1": 65
+        },
+        "test": {
+          "0": 357,
+          "1": 65
+        },
+        "train": {
+          "0": 1069,
+          "1": 196
+        }
+      },
+      "partition_counts": {
+        "calibration": 422,
+        "test": 422,
+        "train": 1265
+      },
+      "predictor_group_count": 1192,
+      "protected_baseline": false,
+      "row_count": 2109,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "e08b9d5c94578b317dcc844c2a6aa7a4f96ad8df699352d1e11d86a7dd452236",
+      "assignments_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": null,
+      "conflicting_target_group_count": 31,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1464,
+      "duplicate_group_count": 69,
+      "logical_assignment_hash": "f66b2ab092218813b82e49b6a3c19df98b06840d90b463bd9d09ba1bce385365",
+      "manifest_artifact_hash": "0a97a18238b209e1c933d7c2eb89135f477fa0abce55ba09840169aac0bae190",
+      "manifest_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 114,
+          "1": 36
+        },
+        "test": {
+          "0": 114,
+          "1": 35
+        },
+        "train": {
+          "0": 342,
+          "1": 107
+        }
+      },
+      "partition_counts": {
+        "calibration": 150,
+        "test": 149,
+        "train": 449
+      },
+      "predictor_group_count": 502,
+      "protected_baseline": true,
+      "row_count": 748,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "08e4d6f6971577f29816159721983df84b4a5b745cc0cd140c26c511ecccd437",
+      "assignments_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "2e4d3dcc4b2f8e0f81501320abb058432f77441dbe79f6fd8453158930ef8fb8",
+      "conflicting_target_group_count": 31,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1464,
+      "duplicate_group_count": 69,
+      "logical_assignment_hash": "7a360922ac055a47f049cf8bd8ba506dfdb16f0d16ce4f225d202e2ccbf1882d",
+      "manifest_artifact_hash": "7a3935ccdfe270cafd779bf8c93fcf47f9bf25cca60522981a33f6b328f54bce",
+      "manifest_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 114,
+          "1": 36
+        },
+        "test": {
+          "0": 114,
+          "1": 35
+        },
+        "train": {
+          "0": 342,
+          "1": 107
+        }
+      },
+      "partition_counts": {
+        "calibration": 150,
+        "test": 149,
+        "train": 449
+      },
+      "predictor_group_count": 502,
+      "protected_baseline": false,
+      "row_count": 748,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "008876eafb3e7f14c415d90c9f390600a6158d45a507ec7dc9200e54525197f7",
+      "assignments_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "b747f1ccc57ea339d5c16590e364c0ae05b693a74875effb1252ec8dd3249a59",
+      "conflicting_target_group_count": 31,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1464,
+      "duplicate_group_count": 69,
+      "logical_assignment_hash": "db15be1e435f161222a6855dab2bd0d002d230d965d77fd90f80f539fd6bd432",
+      "manifest_artifact_hash": "4505279f15c8989ef48d6b039e800f2db78d78ac3ecec32481ef471ab2988867",
+      "manifest_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 114,
+          "1": 36
+        },
+        "test": {
+          "0": 114,
+          "1": 35
+        },
+        "train": {
+          "0": 342,
+          "1": 107
+        }
+      },
+      "partition_counts": {
+        "calibration": 150,
+        "test": 149,
+        "train": 449
+      },
+      "predictor_group_count": 502,
+      "protected_baseline": false,
+      "row_count": 748,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "824c30aab35eed230e16c6410f42a45f7bf6eca2fa4e11df1957b0e4c16be185",
+      "assignments_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "27c136d97da53570dfb9361ac24ffc99e0deab2845055def8f5de1b7875fc87a",
+      "conflicting_target_group_count": 31,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1464,
+      "duplicate_group_count": 69,
+      "logical_assignment_hash": "321e887033b357aa7de7e91f27180e20e0f4bba3faecfbb88c50f9db6e54a228",
+      "manifest_artifact_hash": "14f82cd012b9700b3eaeea98925a68749eb98a8be140326ec6766eaccf0dd79b",
+      "manifest_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 114,
+          "1": 36
+        },
+        "test": {
+          "0": 114,
+          "1": 35
+        },
+        "train": {
+          "0": 342,
+          "1": 107
+        }
+      },
+      "partition_counts": {
+        "calibration": 150,
+        "test": 149,
+        "train": 449
+      },
+      "predictor_group_count": 502,
+      "protected_baseline": false,
+      "row_count": 748,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "e0c03c5404e9f8f7d75b9d81846dc1a67a96bfdc4876acc04741a325509c3a4d",
+      "assignments_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "8bad362a6c0a5f5b6c143a4cc46fd5cd945b7fc0fb6f1bc8e5b888d0576933e0",
+      "conflicting_target_group_count": 31,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1464,
+      "duplicate_group_count": 69,
+      "logical_assignment_hash": "9dd50048c9fdf3c063aca3c816b41c4342bad8000ef95cf4da10efe52ba94161",
+      "manifest_artifact_hash": "f4fa1457d607f303dd7ab426f5e689d8df402745487e5f875780fa8ab806b85d",
+      "manifest_path": "data/splits/openml/1464/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 114,
+          "1": 36
+        },
+        "test": {
+          "0": 114,
+          "1": 35
+        },
+        "train": {
+          "0": 342,
+          "1": 107
+        }
+      },
+      "partition_counts": {
+        "calibration": 150,
+        "test": 149,
+        "train": 449
+      },
+      "predictor_group_count": 502,
+      "protected_baseline": false,
+      "row_count": 748,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "df8cc168ecb9da8c4d3feb37590b9c7da56506abb4c6c7169c34ce71c853ffce",
+      "assignments_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_1729/assignments.parquet",
+      "cache_identity_hash": "0a431ca8019250ac8b95af43e79e51c3983894a16afb6f9f5ca7bc4f5f060d05",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1489,
+      "duplicate_group_count": 9,
+      "logical_assignment_hash": "a182a9105ec19ba98204746f4bbd8b3e03d5b226fcded231c928ef98169c2c0e",
+      "manifest_artifact_hash": "2225ccce09c3a49f6656bb6b9c15e31169215bc361a3cc248f1bf8c947154f0d",
+      "manifest_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_1729/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 764,
+          "1": 317
+        },
+        "test": {
+          "0": 764,
+          "1": 317
+        },
+        "train": {
+          "0": 2290,
+          "1": 952
+        }
+      },
+      "partition_counts": {
+        "calibration": 1081,
+        "test": 1081,
+        "train": 3242
+      },
+      "predictor_group_count": 5395,
+      "protected_baseline": false,
+      "row_count": 5404,
+      "schema_version": 1,
+      "seed": 1729,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "d46832c6ee574a663a9ebbc129fd4341cbe2644b4f77ddf542488b5c4eeab6dd",
+      "assignments_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_2718/assignments.parquet",
+      "cache_identity_hash": "bec1ea68ee94dd47c51530d0c825d97dad058482942feabcf5ed16ee54943e03",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1489,
+      "duplicate_group_count": 9,
+      "logical_assignment_hash": "221e380515832bb7fb80abf31967270f6519d6d3db2838d07f6eeb284bd54c40",
+      "manifest_artifact_hash": "66105b84a5ff10f450725dda483090cf2e51e0b27fc0c924642758055255a409",
+      "manifest_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_2718/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 764,
+          "1": 317
+        },
+        "test": {
+          "0": 764,
+          "1": 317
+        },
+        "train": {
+          "0": 2290,
+          "1": 952
+        }
+      },
+      "partition_counts": {
+        "calibration": 1081,
+        "test": 1081,
+        "train": 3242
+      },
+      "predictor_group_count": 5395,
+      "protected_baseline": false,
+      "row_count": 5404,
+      "schema_version": 1,
+      "seed": 2718,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "5a5937434dea91a2e57d8eae2fca4d93f3cad8534c6be6d93b35b694ccdad2b6",
+      "assignments_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_31415/assignments.parquet",
+      "cache_identity_hash": "a02ffcc01d30d5f0b0c529335bb025b0f88e08f13bbdf3abe54807c005d76841",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1489,
+      "duplicate_group_count": 9,
+      "logical_assignment_hash": "5b70a0f024fa13c81eea17b9a53f2f87b69376d949da86db26cfac4ed3355281",
+      "manifest_artifact_hash": "03f23821759976449ea4df3b4dcff058c0a97d2c78a6c8de3f3f8e01dd135a8f",
+      "manifest_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_31415/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 764,
+          "1": 317
+        },
+        "test": {
+          "0": 764,
+          "1": 317
+        },
+        "train": {
+          "0": 2290,
+          "1": 952
+        }
+      },
+      "partition_counts": {
+        "calibration": 1081,
+        "test": 1081,
+        "train": 3242
+      },
+      "predictor_group_count": 5395,
+      "protected_baseline": false,
+      "row_count": 5404,
+      "schema_version": 1,
+      "seed": 31415,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "89a20cc25978623f6e48b48ffc2bf095824d17001b500f0ee51c91ea775a7b5f",
+      "assignments_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_57721/assignments.parquet",
+      "cache_identity_hash": "09450873c3e16e173d87fde67c8b28c7de65f518120e569f4de3eb5c7a6c783b",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1489,
+      "duplicate_group_count": 9,
+      "logical_assignment_hash": "198dd1b041ef90697a6a9318bed44d1229af2dcda6acccfe76ac9ff6a2a1141e",
+      "manifest_artifact_hash": "f76b33c34430a94c7385e13746d6db7c40623c32f08d1187597681c0fd667d08",
+      "manifest_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_57721/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 764,
+          "1": 317
+        },
+        "test": {
+          "0": 764,
+          "1": 317
+        },
+        "train": {
+          "0": 2290,
+          "1": 952
+        }
+      },
+      "partition_counts": {
+        "calibration": 1081,
+        "test": 1081,
+        "train": 3242
+      },
+      "predictor_group_count": 5395,
+      "protected_baseline": false,
+      "row_count": 5404,
+      "schema_version": 1,
+      "seed": 57721,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    },
+    {
+      "assignment_artifact_hash": "bafff3a65e43b1a8db02c6ce39478f9f7a9cbf247dd830d262566a411a302254",
+      "assignments_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_161803/assignments.parquet",
+      "cache_identity_hash": "bd19b25202d1c68fbedb677966c04410f3e9346ed13090c4e38de00e0e3f1e20",
+      "conflicting_target_group_count": 0,
+      "cross_partition_group_count": 0,
+      "dataset_id": 1489,
+      "duplicate_group_count": 9,
+      "logical_assignment_hash": "ac033de0557fb7db858d9039a141d932f6db78139ef3f0008dcf28723cf91936",
+      "manifest_artifact_hash": "250b2a540644e9be535ed14148d66c730ac853fa58190298c94c0330bf59852f",
+      "manifest_path": "data/splits/openml/1489/stratified_group_5fold_v1/seed_161803/split_manifest.json",
+      "partition_class_counts": {
+        "calibration": {
+          "0": 764,
+          "1": 317
+        },
+        "test": {
+          "0": 764,
+          "1": 317
+        },
+        "train": {
+          "0": 2290,
+          "1": 952
+        }
+      },
+      "partition_counts": {
+        "calibration": 1081,
+        "test": 1081,
+        "train": 3242
+      },
+      "predictor_group_count": 5395,
+      "protected_baseline": false,
+      "row_count": 5404,
+      "schema_version": 1,
+      "seed": 161803,
+      "split_implementation_hash": "f623df5c2054065695a8579f751f5c78fd38d30b5a64e823999978cdef5865fe",
+      "status": "PASS"
+    }
+  ],
+  "schema_version": 1
+}
