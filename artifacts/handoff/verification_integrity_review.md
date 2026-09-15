@@ -13,12 +13,13 @@ authorize split generation or any later research workstream.
 - completed_stage: verification_integrity_repair
 - next_stage: independent_review_then_explicit_split_generation_authorization
 - Required base commit: 3ace6087488f0e8e9635c70ce5da39d1f672f388
-- Final commit: fe37b938840496adc9631e55a22cb0926b7bdf3a
+- Implementation commit: fe37b938840496adc9631e55a22cb0926b7bdf3a
+- Handoff commit: ba975cbb6d52a08902ebb492daa591b7d11976b4
 - Branch: main
 
 ## Remote verification
 
-Workflow run: https://github.com/mdshoaibuddinchanda/SchemaGuard/actions/runs/34959344609
+Workflow run: https://github.com/mdshoaibuddinchanda/SchemaGuard/actions/runs/34959791125
 
 Both jobs succeeded:
 
@@ -204,4 +205,3 @@ checks and uv sync --extra dev --extra models-cpu for the classical check.
 This repair is ready for independent review. Split generation remains
 NOT_AUTHORIZED by this task. It may be considered only after independent
 acceptance of this handoff and explicit authorization in a new request.
-
