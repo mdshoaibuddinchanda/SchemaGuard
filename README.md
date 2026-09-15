@@ -28,9 +28,9 @@ stratification under `stratified_group_5fold_v1`.
 | Experiment registry | Specification freeze, identifiers, manifest counts | PASS |
 | Data foundation | Reproducible data foundation and predictor-group split audit | VERIFIED_PASS |
 | Model compatibility | Frozen model runtime gate | PASS |
-| Dataset registry | SchemaOrbit-14 acquisition and validation | PASS_PENDING_REPAIR_REVIEW |
-| GPU capacity | Foundation-model resource envelope | PASS_PENDING_REPAIR_REVIEW |
-| Split generation | Additional grouped splits | NOT_STARTED |
+| Dataset registry | SchemaOrbit-14 acquisition and validation | VERIFIED_PASS |
+| GPU capacity | Foundation-model resource envelope | VERIFIED_PASS |
+| Split generation | Additional grouped splits | VERIFIED_PASS |
 | Transformation engine | Lossless schema views | NOT_STARTED |
 | Model adapters | Frozen model adapters | NOT_STARTED |
 | Smoke experiment | Controlled smoke experiment | NOT_STARTED |

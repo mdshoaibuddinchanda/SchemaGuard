@@ -1,0 +1,12 @@
+schema_version: 1
+strategy: stratified_group_5fold_v1
+grouping_method: typed_predictor_sha256_v1
+group_by: predictors
+group_folds: 5
+train_fraction: 0.60
+calibration_fraction: 0.20
+test_fraction: 0.20
+minimum_class_count_per_partition: 5
+seeds: [1729, 2718, 31415, 57721, 161803]
+datasets: [3, 23, 29, 31, 36, 37, 38, 44, 46, 50, 54, 1067, 1464, 1489]
+max_workers: 2

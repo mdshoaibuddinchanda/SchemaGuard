@@ -1700,8 +1700,8 @@ Place this in `AGENTS.md`:
 12. GPU jobs must be sequential and protected by a file lock.
 13. Every output must record its source hashes.
 14. Test labels must never enter preprocessing fitting, COSA selection, or parameter selection.
-15. At the end of each phase, create artifacts/handoff/phase_NN_review.md.
-16. Do not begin the next phase until phase_NN_review.md reports PASS.
+15. At the end of each phase, create a semantic review file in artifacts/handoff/.
+16. Do not begin the next phase until the semantic handoff review reports PASS.
 ```
 
 Required Luna phase response:
@@ -1756,7 +1756,7 @@ exact commands
 For every completed phase, collect these files:
 
 ```text
-artifacts/handoff/phase_NN_review.md
+artifacts/handoff/split_generation_review.md
 results/validation/validation_summary.json
 results/manifests/run_manifest.json
 uv.lock
