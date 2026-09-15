@@ -12,6 +12,7 @@ data/processed/
 data/splits/
 data/cache/
 data/cache/models/
+data/transformed/
 data/tmp/
 logs/
 cache/
@@ -30,6 +31,7 @@ artifacts/data_foundation/
 artifacts/model_compatibility/
 artifacts/dataset_registry/
 artifacts/gpu_capacity/
+artifacts/transformation_engine/
 
 # Other generated outputs and local build state
 results/

@@ -1,0 +1,209 @@
+{
+  "$defs": {
+    "TransformationValidationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability": {
+          "enum": [
+            "APPLICABLE",
+            "NOT_APPLICABLE"
+          ],
+          "title": "Applicability",
+          "type": "string"
+        },
+        "certificate_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Certificate Hashes",
+          "type": "array"
+        },
+        "dataset_id": {
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "deterministic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deterministic"
+        },
+        "output_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Hash"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "reconstruction_error": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconstruction Error"
+        },
+        "runtime_seconds": {
+          "minimum": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Hash"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "N/A",
+            "FAIL"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "view_id": {
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "seed",
+        "view_id",
+        "status",
+        "applicability",
+        "runtime_seconds"
+      ],
+      "title": "TransformationValidationRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "engine_name": {
+      "const": "certified_lossless_transformations",
+      "title": "Engine Name",
+      "type": "string"
+    },
+    "expected_record_count": {
+      "exclusiveMinimum": 0,
+      "title": "Expected Record Count",
+      "type": "integer"
+    },
+    "generated_at": {
+      "title": "Generated At",
+      "type": "string"
+    },
+    "property_example_count": {
+      "minimum": 0,
+      "title": "Property Example Count",
+      "type": "integer"
+    },
+    "protected_hash_comparison": {
+      "additionalProperties": true,
+      "title": "Protected Hash Comparison",
+      "type": "object"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/TransformationValidationRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "registry_hash": {
+      "title": "Registry Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "split_inventory_hash": {
+      "title": "Split Inventory Hash",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS_PENDING_REVIEW",
+        "FAIL",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "engine_name",
+    "status",
+    "records",
+    "expected_record_count",
+    "registry_hash",
+    "split_inventory_hash",
+    "property_example_count",
+    "protected_hash_comparison",
+    "generated_at"
+  ],
+  "title": "TransformationValidationReport",
+  "type": "object"
+}

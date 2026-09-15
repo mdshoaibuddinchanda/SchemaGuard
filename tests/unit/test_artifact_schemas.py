@@ -84,6 +84,10 @@ def test_every_named_contract_rejects_unknown_top_level_keys() -> None:
         "gpu_capacity_report.schema.json",
         "repository_validation.schema.json",
         "split_generation_inventory.schema.json",
+        "transformation_certificate.schema.json",
+        "transformation_manifest.schema.json",
+        "transformation_inventory.schema.json",
+        "transformation_validation.schema.json",
     }
     for contract in SCHEMA_CONTRACTS.values():
         with pytest.raises(ValidationError):

@@ -1,0 +1,291 @@
+{
+  "$defs": {
+    "TransformationInventoryRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability": {
+          "enum": [
+            "APPLICABLE",
+            "NOT_APPLICABLE"
+          ],
+          "title": "Applicability",
+          "type": "string"
+        },
+        "certificate_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Certificate Ids",
+          "type": "array"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "dataset_id": {
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "deterministic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deterministic"
+        },
+        "output_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Hash"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "reconstruction_exact": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconstruction Exact"
+        },
+        "reconstruction_max_abs_error": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconstruction Max Abs Error"
+        },
+        "runtime_seconds": {
+          "minimum": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "schema_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Hash"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "N/A",
+            "FAIL"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "view_id": {
+          "title": "View Id",
+          "type": "string"
+        },
+        "view_name": {
+          "title": "View Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "seed",
+        "view_id",
+        "view_name",
+        "status",
+        "applicability",
+        "runtime_seconds",
+        "created_at"
+      ],
+      "title": "TransformationInventoryRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applicable_count": {
+      "minimum": 0,
+      "title": "Applicable Count",
+      "type": "integer"
+    },
+    "dataset_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Dataset Ids",
+      "type": "array"
+    },
+    "engine_name": {
+      "const": "certified_lossless_transformations",
+      "title": "Engine Name",
+      "type": "string"
+    },
+    "expected_record_count": {
+      "exclusiveMinimum": 0,
+      "title": "Expected Record Count",
+      "type": "integer"
+    },
+    "fail_count": {
+      "minimum": 0,
+      "title": "Fail Count",
+      "type": "integer"
+    },
+    "generated_at": {
+      "title": "Generated At",
+      "type": "string"
+    },
+    "missing_count": {
+      "minimum": 0,
+      "title": "Missing Count",
+      "type": "integer"
+    },
+    "not_applicable_count": {
+      "minimum": 0,
+      "title": "Not Applicable Count",
+      "type": "integer"
+    },
+    "pass_count": {
+      "minimum": 0,
+      "title": "Pass Count",
+      "type": "integer"
+    },
+    "property_example_count": {
+      "minimum": 0,
+      "title": "Property Example Count",
+      "type": "integer"
+    },
+    "protected_hash_comparison": {
+      "additionalProperties": true,
+      "title": "Protected Hash Comparison",
+      "type": "object"
+    },
+    "reconstruction_max_abs_error": {
+      "minimum": 0,
+      "title": "Reconstruction Max Abs Error",
+      "type": "number"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/TransformationInventoryRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "registry_hash": {
+      "title": "Registry Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seeds": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Seeds",
+      "type": "array"
+    },
+    "split_inventory_hash": {
+      "title": "Split Inventory Hash",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS_PENDING_REVIEW",
+        "FAIL",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "view_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "View Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine_name",
+    "status",
+    "dataset_ids",
+    "seeds",
+    "view_ids",
+    "records",
+    "expected_record_count",
+    "applicable_count",
+    "not_applicable_count",
+    "pass_count",
+    "fail_count",
+    "missing_count",
+    "property_example_count",
+    "registry_hash",
+    "split_inventory_hash",
+    "protected_hash_comparison",
+    "reconstruction_max_abs_error",
+    "generated_at"
+  ],
+  "title": "TransformationInventory",
+  "type": "object"
+}

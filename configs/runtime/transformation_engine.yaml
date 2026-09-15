@@ -1,0 +1,23 @@
+schema_version: 1
+engine_name: certified_lossless_transformations
+split_strategy: stratified_group_5fold_v1
+max_numeric_columns: 3
+category_minimum: 2
+quotient_modulus: 10
+numerical_rtol: 1.0e-10
+numerical_atol: 1.0e-12
+cpu_workers: 2
+gpu_enabled: false
+schema_registry_hash: 362fbd5d39f6a6e18703c15370e13e725ba96e71f752d127fe6244b05e150f51
+views:
+  - {id: V00, name: identity, certificate_type: CONTROL}
+  - {id: V01, name: numeric_affine_units, certificate_type: BIJECTION}
+  - {id: V02, name: numeric_asinh, certificate_type: BIJECTION}
+  - {id: V03, name: category_permutation, certificate_type: BIJECTION}
+  - {id: V04, name: categorical_onehot, certificate_type: BIJECTION}
+  - {id: V05, name: duplicate_feature, certificate_type: PROJECTION}
+  - {id: V06, name: redundant_affine_feature, certificate_type: PROJECTION}
+  - {id: V07, name: integer_quotient_remainder, certificate_type: BIJECTION}
+  - {id: V08, name: column_permutation_control, certificate_type: CONTROL}
+  - {id: V09, name: row_permutation_control, certificate_type: CONTROL}
+  - {id: V10, name: composite_migration, certificate_type: COMPOSITION}

@@ -1,0 +1,105 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "certificate_paths": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Certificate Paths",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "dataset_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "Dataset Id"
+    },
+    "dataset_version": {
+      "title": "Dataset Version",
+      "type": "string"
+    },
+    "manifest_status": {
+      "const": "PASS",
+      "title": "Manifest Status",
+      "type": "string"
+    },
+    "partition_feature_paths": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Partition Feature Paths",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "source_feature_path": {
+      "title": "Source Feature Path",
+      "type": "string"
+    },
+    "source_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Source Hashes",
+      "type": "object"
+    },
+    "split_strategy": {
+      "title": "Split Strategy",
+      "type": "string"
+    },
+    "target_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Target Hashes",
+      "type": "object"
+    },
+    "target_reference_path": {
+      "title": "Target Reference Path",
+      "type": "string"
+    },
+    "view_id": {
+      "title": "View Id",
+      "type": "string"
+    },
+    "view_name": {
+      "title": "View Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "dataset_version",
+    "seed",
+    "split_strategy",
+    "view_id",
+    "view_name",
+    "source_feature_path",
+    "target_reference_path",
+    "partition_feature_paths",
+    "certificate_paths",
+    "source_hashes",
+    "target_hashes",
+    "manifest_status",
+    "created_at"
+  ],
+  "title": "TransformationManifest",
+  "type": "object"
+}

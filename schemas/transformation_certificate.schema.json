@@ -1,0 +1,226 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "certificate_type": {
+      "enum": [
+        "BIJECTION",
+        "PROJECTION",
+        "CONTROL",
+        "COMPOSITION"
+      ],
+      "title": "Certificate Type",
+      "type": "string"
+    },
+    "configuration_hash": {
+      "title": "Configuration Hash",
+      "type": "string"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "dataset_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "Dataset Id"
+    },
+    "dataset_version": {
+      "title": "Dataset Version",
+      "type": "string"
+    },
+    "dtype_policy": {
+      "title": "Dtype Policy",
+      "type": "string"
+    },
+    "fit_scope": {
+      "enum": [
+        "train_only",
+        "none"
+      ],
+      "title": "Fit Scope",
+      "type": "string"
+    },
+    "generated_columns": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Generated Columns",
+      "type": "array"
+    },
+    "implementation_hash": {
+      "title": "Implementation Hash",
+      "type": "string"
+    },
+    "inverse_parameters": {
+      "additionalProperties": true,
+      "title": "Inverse Parameters",
+      "type": "object"
+    },
+    "missing_mask_policy": {
+      "title": "Missing Mask Policy",
+      "type": "string"
+    },
+    "not_applicable_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Not Applicable Reason"
+    },
+    "numerical_tolerance": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Numerical Tolerance",
+      "type": "object"
+    },
+    "output_artifact_hash": {
+      "title": "Output Artifact Hash",
+      "type": "string"
+    },
+    "output_row_id_hash": {
+      "title": "Output Row Id Hash",
+      "type": "string"
+    },
+    "output_schema_hash": {
+      "title": "Output Schema Hash",
+      "type": "string"
+    },
+    "output_target_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Target Hash"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "partition": {
+      "enum": [
+        "train",
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "selected_columns": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Selected Columns",
+      "type": "array"
+    },
+    "source_artifact_hash": {
+      "title": "Source Artifact Hash",
+      "type": "string"
+    },
+    "source_commit": {
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "source_row_id_hash": {
+      "title": "Source Row Id Hash",
+      "type": "string"
+    },
+    "source_schema_hash": {
+      "title": "Source Schema Hash",
+      "type": "string"
+    },
+    "source_target_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Target Hash"
+    },
+    "split_strategy": {
+      "title": "Split Strategy",
+      "type": "string"
+    },
+    "validation_results": {
+      "additionalProperties": true,
+      "title": "Validation Results",
+      "type": "object"
+    },
+    "validation_status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "N/A"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    },
+    "view_id": {
+      "title": "View Id",
+      "type": "string"
+    },
+    "view_name": {
+      "title": "View Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "view_id",
+    "view_name",
+    "certificate_type",
+    "dataset_id",
+    "dataset_version",
+    "seed",
+    "split_strategy",
+    "partition",
+    "fit_scope",
+    "source_schema_hash",
+    "output_schema_hash",
+    "source_artifact_hash",
+    "output_artifact_hash",
+    "source_row_id_hash",
+    "output_row_id_hash",
+    "missing_mask_policy",
+    "dtype_policy",
+    "numerical_tolerance",
+    "configuration_hash",
+    "implementation_hash",
+    "source_commit",
+    "validation_status",
+    "validation_results",
+    "created_at"
+  ],
+  "title": "TransformationCertificate",
+  "type": "object"
+}

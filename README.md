@@ -31,7 +31,7 @@ stratification under `stratified_group_5fold_v1`.
 | Dataset registry | SchemaOrbit-14 acquisition and validation | VERIFIED_PASS |
 | GPU capacity | Foundation-model resource envelope | VERIFIED_PASS |
 | Split generation | Additional grouped splits | VERIFIED_PASS |
-| Transformation engine | Lossless schema views | NOT_STARTED |
+| Transformation engine | Lossless schema views | IN_PROGRESS |
 | Model adapters | Frozen model adapters | NOT_STARTED |
 | Smoke experiment | Controlled smoke experiment | NOT_STARTED |
 | Pilot experiment | Pilot experiment | NOT_STARTED |
