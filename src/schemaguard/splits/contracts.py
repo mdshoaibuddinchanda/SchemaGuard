@@ -76,6 +76,8 @@ class SplitManifestContract(StrictSplitContract):
     logical_assignment_hash: Sha256
     configuration_hash: Sha256
     grouping_implementation_hash: Sha256
+    split_implementation_hash: Sha256
+    cache_identity_hash: Sha256
     source_commit: str
     created_at: str
     validation_status: Literal["PASS", "FAILED", "CONSTRAINT_INFEASIBLE"]
@@ -135,6 +137,7 @@ class CacheIdentityContract(StrictSplitContract):
     strategy_version: str
     grouping_implementation_hash: Sha256
     split_configuration_hash: Sha256
+    split_implementation_hash: Sha256
     source_commit: str
     artifact_schema_version: int = Field(ge=1)
 
@@ -171,7 +174,14 @@ class SplitInventoryRecord(StrictSplitContract):
     assignment_artifact_hash: Sha256 | None = None
     manifest_artifact_hash: Sha256 | None = None
     logical_assignment_hash: Sha256 | None = None
+    split_implementation_hash: Sha256 | None = None
+    cache_identity_hash: Sha256 | None = None
     row_count: int | None = Field(default=None, ge=0)
+    partition_counts: dict[str, int] | None = None
+    partition_class_counts: dict[str, dict[str, int]] | None = None
+    predictor_group_count: int | None = Field(default=None, ge=0)
+    duplicate_group_count: int | None = Field(default=None, ge=0)
+    conflicting_target_group_count: int | None = Field(default=None, ge=0)
     cross_partition_group_count: int | None = Field(default=None, ge=0)
 
 

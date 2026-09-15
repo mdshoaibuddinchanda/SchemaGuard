@@ -24,9 +24,10 @@ from schemaguard.data.schemaorbit import (
 from schemaguard.utils.hashing import sha256_file
 from schemaguard.utils.io import atomic_write_json, atomic_write_parquet
 
-from .caching import logical_assignment_hash
+from .caching import cache_identity, cache_key, logical_assignment_hash
 from .contracts import SplitGenerationConfig, SplitManifestContract
 from .grouping import GROUPING_IMPLEMENTATION_HASH, grouped_features
+from .implementation import SPLIT_IMPLEMENTATION_HASH
 from .locking import split_lock
 from .selection import select_fold_assignment
 
@@ -126,19 +127,13 @@ def _assignment_rows(
             .loc[row_ids]["predictor_group_id"]
             .astype("string")
             .tolist(),
-            "partition": pd.Series(
-                [labels[row_id] for row_id in row_ids], dtype="string"
-            ),
+            "partition": pd.Series([labels[row_id] for row_id in row_ids], dtype="string"),
         }
     )
-    # The exact fold ID is not needed to identify a partition, but retaining it
-    # makes candidate selection and independent audits inspectable.
-    fold_lookup = {}
-    for partition, fold_ids in selection["fold_assignment"].items():
-        for fold_id in fold_ids:
-            fold_lookup[partition] = fold_id
-    frame["fold_id"] = frame["partition"].map(fold_lookup).astype("int64")
+    fold_by_row = selection["fold_by_row"]
+    frame["fold_id"] = frame[ROW_ID_COLUMN].map(fold_by_row).astype("int64")
     frame = frame[[ROW_ID_COLUMN, "predictor_group_id", "fold_id", "partition"]]
+    frame = frame.sort_values(ROW_ID_COLUMN, kind="mergesort").reset_index(drop=True)
     return frame, logical_assignment_hash(frame.to_dict(orient="records"))
 
 
@@ -158,6 +153,22 @@ def _manifest(
 ) -> SplitManifestContract:
     feature_path = root / "data" / "processed" / "openml" / str(spec.id) / "features.parquet"
     target_path = root / "data" / "processed" / "openml" / str(spec.id) / "targets.parquet"
+    feature_hash = sha256_file(feature_path)
+    target_hash = sha256_file(target_path)
+    identity = cache_identity(
+        spec.id,
+        spec.version,
+        feature_hash,
+        target_hash,
+        data_manifest_hash,
+        seed,
+        "stratified_group_5fold_v1",
+        "v1",
+        GROUPING_IMPLEMENTATION_HASH,
+        configuration_hash,
+        source_commit,
+        split_implementation_hash=SPLIT_IMPLEMENTATION_HASH,
+    )
     return SplitManifestContract(
         dataset_id=spec.id,
         dataset_version=spec.version,
@@ -186,13 +197,15 @@ def _manifest(
             .sum()
         ),
         cross_partition_group_count=0,
-        feature_artifact_hash=sha256_file(feature_path),
-        target_artifact_hash=sha256_file(target_path),
+        feature_artifact_hash=feature_hash,
+        target_artifact_hash=target_hash,
         dataset_manifest_hash=data_manifest_hash,
         assignment_artifact_hash=assignment_hash,
         logical_assignment_hash=logical_hash,
         configuration_hash=configuration_hash,
         grouping_implementation_hash=GROUPING_IMPLEMENTATION_HASH,
+        split_implementation_hash=SPLIT_IMPLEMENTATION_HASH,
+        cache_identity_hash=cache_key(identity),
         source_commit=source_commit,
         created_at=_utc_now(),
         validation_status="PASS",

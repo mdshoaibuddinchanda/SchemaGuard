@@ -20,10 +20,17 @@ def derive_fold_seed(seed: int, strategy: str = "stratified_group_5fold_v1") -> 
 def _folds(
     features: pd.DataFrame, targets: pd.DataFrame, config: SplitGenerationConfig, seed: int
 ) -> dict[str, int]:
-    row_ids = targets[ROW_ID_COLUMN].tolist()
-    target = targets[TARGET_CODE_COLUMN].reset_index(drop=True)
-    predictors = features.drop(columns=[ROW_ID_COLUMN], errors="ignore")
-    group_ids = features["predictor_group_id"].tolist()
+    order = targets[ROW_ID_COLUMN].astype(str).sort_values(kind="mergesort").index
+    ordered_targets = targets.loc[order].reset_index(drop=True).copy()
+    ordered_targets[ROW_ID_COLUMN] = ordered_targets[ROW_ID_COLUMN].astype(str)
+    feature_input = features.copy()
+    feature_input[ROW_ID_COLUMN] = feature_input[ROW_ID_COLUMN].astype(str)
+    feature_by_row = feature_input.set_index(ROW_ID_COLUMN)
+    ordered_features = feature_by_row.loc[ordered_targets[ROW_ID_COLUMN].tolist()].reset_index()
+    row_ids = ordered_targets[ROW_ID_COLUMN].tolist()
+    target = ordered_targets[TARGET_CODE_COLUMN].reset_index(drop=True)
+    predictors = ordered_features.drop(columns=[ROW_ID_COLUMN], errors="ignore")
+    group_ids = ordered_features["predictor_group_id"].tolist()
     splitter = StratifiedGroupKFold(
         n_splits=config.group_folds,
         shuffle=True,
@@ -123,7 +130,7 @@ def select_fold_assignment(
 ) -> dict[str, Any]:
     """Select the best valid calibration/test fold pair and retain diagnostics."""
 
-    row_ids = targets[ROW_ID_COLUMN].tolist()
+    row_ids = targets[ROW_ID_COLUMN].astype(str).tolist()
     target_by_row = dict(zip(row_ids, targets[TARGET_CODE_COLUMN].astype(int), strict=True))
     fold_by_row = _folds(features, targets, config, seed)
     candidates: list[dict[str, Any]] = []
@@ -178,6 +185,7 @@ def select_fold_assignment(
     return {
         **selected,
         "status": "PASS",
+        "fold_by_row": fold_by_row,
         "candidate_count": 20,
         "valid_candidate_count": len(candidates),
         "hard_violation_candidate_count": hard_violation_candidates,

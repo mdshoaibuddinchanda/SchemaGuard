@@ -19,6 +19,7 @@ from .data.contracts import (
     DatasetInventoryContract,
     DatasetValidationRecordContract,
 )
+from .splits.contracts import SplitGenerationInventoryContract
 
 Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 
@@ -272,6 +273,7 @@ SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "dataset_inventory.schema.json": DatasetRegistryReportContract,
     "gpu_capacity_report.schema.json": GpuCapacityReportContract,
     "repository_validation.schema.json": RepositoryValidationReportContract,
+    "split_generation_inventory.schema.json": SplitGenerationInventoryContract,
 }
 
 
@@ -291,6 +293,7 @@ __all__ = [
     "GpuCapacityReportContract",
     "ModelCompatibilityReportContract",
     "RepositoryValidationReportContract",
+    "SplitGenerationInventoryContract",
     "SCHEMA_CONTRACTS",
     "schema_documents",
 ]

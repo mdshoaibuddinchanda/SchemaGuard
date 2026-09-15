@@ -15,6 +15,7 @@ def test_cache_identity_changes_for_each_material_input() -> None:
         "e" * 64,
         "commit-a",
     )
+    assert len(identity["split_implementation_hash"]) == 64
     assert cache_key(identity) == cache_key(dict(identity))
     for field, value in {
         "dataset_id": 23,
@@ -27,6 +28,7 @@ def test_cache_identity_changes_for_each_material_input() -> None:
         "strategy_version": "v2",
         "grouping_implementation_hash": "i" * 64,
         "split_configuration_hash": "j" * 64,
+        "split_implementation_hash": "k" * 64,
         "source_commit": "commit-b",
         "artifact_schema_version": 2,
     }.items():

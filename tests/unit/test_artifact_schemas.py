@@ -66,6 +66,15 @@ def test_tracked_data_foundation_baseline_is_a_valid_schema_fixture() -> None:
     assert baseline.dataset.row_count == 748
 
 
+def test_tracked_split_inventory_is_valid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    path = root / "artifacts/handoff/split_generation_inventory.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    Draft202012Validator(schema_documents()["split_generation_inventory.schema.json"]).validate(
+        payload
+    )
+
+
 def test_every_named_contract_rejects_unknown_top_level_keys() -> None:
     assert set(SCHEMA_CONTRACTS) == {
         "condition_manifest.schema.json",
@@ -74,6 +83,7 @@ def test_every_named_contract_rejects_unknown_top_level_keys() -> None:
         "dataset_inventory.schema.json",
         "gpu_capacity_report.schema.json",
         "repository_validation.schema.json",
+        "split_generation_inventory.schema.json",
     }
     for contract in SCHEMA_CONTRACTS.values():
         with pytest.raises(ValidationError):

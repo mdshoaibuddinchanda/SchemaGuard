@@ -7,6 +7,7 @@ from typing import Any
 from schemaguard.utils.hashing import sha256_canonical_json
 
 from .contracts import CacheIdentityContract
+from .implementation import SPLIT_IMPLEMENTATION_HASH
 
 
 def cache_identity(
@@ -22,6 +23,7 @@ def cache_identity(
     split_configuration_hash: str,
     source_commit: str,
     artifact_schema_version: int = 1,
+    split_implementation_hash: str = SPLIT_IMPLEMENTATION_HASH,
 ) -> dict[str, Any]:
     identity = {
         "dataset_id": dataset_id,
@@ -34,6 +36,7 @@ def cache_identity(
         "strategy_version": strategy_version,
         "grouping_implementation_hash": grouping_implementation_hash,
         "split_configuration_hash": split_configuration_hash,
+        "split_implementation_hash": split_implementation_hash,
         "source_commit": source_commit,
         "artifact_schema_version": artifact_schema_version,
     }

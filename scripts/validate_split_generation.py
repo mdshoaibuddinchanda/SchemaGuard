@@ -14,13 +14,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from schemaguard.splits.contracts import SplitGenerationConfig  # noqa: E402
 from schemaguard.splits.inventory import (  # noqa: E402
-    compare_snapshots,
-    protected_paths,
-    snapshot_paths,
+    verify_protected_snapshot,
     write_inventory,
 )
 from schemaguard.splits.validation import validate_all, validate_split  # noqa: E402
-from schemaguard.utils.io import atomic_write_json  # noqa: E402
 
 
 def main() -> int:
@@ -51,14 +48,10 @@ def main() -> int:
         inventory = write_inventory(ROOT, config, args.inventory_output)
         before_path = ROOT / "artifacts" / "validation" / "split_generation_hashes_before.json"
         after_path = ROOT / "artifacts" / "validation" / "split_generation_hashes_after.json"
-        comparison_path = ROOT / "artifacts" / "validation" / (
-            "split_generation_hash_comparison.json"
+        comparison_path = (
+            ROOT / "artifacts" / "validation" / ("split_generation_hash_comparison.json")
         )
-        if before_path.is_file():
-            before = json.loads(before_path.read_text(encoding="utf-8"))
-            after = snapshot_paths(ROOT, protected_paths(ROOT, config))
-            atomic_write_json(after_path, after)
-            atomic_write_json(comparison_path, compare_snapshots(before, after))
+        verify_protected_snapshot(ROOT, config, before_path, after_path, comparison_path)
         print(
             json.dumps(
                 {

@@ -14,6 +14,7 @@ from schemaguard.utils.io import atomic_write_json
 
 from .contracts import SplitGenerationConfig, SplitGenerationInventoryContract, SplitInventoryRecord
 from .generation import PROTECTED_LOGICAL_ASSIGNMENT_SHA256
+from .implementation import SPLIT_IMPLEMENTATION_HASH
 
 
 def _utc_now() -> str:
@@ -76,6 +77,40 @@ def compare_snapshots(before: dict[str, Any], after: dict[str, Any]) -> dict[str
     }
 
 
+def verify_protected_snapshot(
+    root: str | Path,
+    config: SplitGenerationConfig,
+    before_path: str | Path,
+    after_path: str | Path,
+    comparison_path: str | Path,
+) -> dict[str, Any]:
+    """Require an existing local baseline and fail closed on any protected mutation."""
+
+    base = Path(root)
+    before_file = Path(before_path)
+    evidence_roots = (
+        base / "data" / "raw",
+        base / "data" / "processed",
+        base / "data" / "splits",
+    )
+    local_evidence_exists = any(
+        evidence_root.is_dir() and any(path.is_file() for path in evidence_root.rglob("*"))
+        for evidence_root in evidence_roots
+    )
+    if not before_file.is_file():
+        if local_evidence_exists:
+            raise ValueError("BLOCKED_PROTECTED_SNAPSHOT_MISSING")
+        return {"status": "NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT"}
+    before = json.loads(before_file.read_text(encoding="utf-8"))
+    after = snapshot_paths(base, protected_paths(base, config))
+    atomic_write_json(after_path, after)
+    comparison = compare_snapshots(before, after)
+    atomic_write_json(comparison_path, comparison)
+    if comparison["status"] != "PASS":
+        raise ValueError(f"protected artifact mutation: {comparison['changed_files']}")
+    return comparison
+
+
 def build_inventory(
     root: str | Path, config: SplitGenerationConfig
 ) -> SplitGenerationInventoryContract:
@@ -124,7 +159,13 @@ def build_inventory(
                         assignment_artifact_hash=sha256_file(assignments_path),
                         manifest_artifact_hash=sha256_file(manifest_path),
                         logical_assignment_hash=PROTECTED_LOGICAL_ASSIGNMENT_SHA256,
+                        split_implementation_hash=SPLIT_IMPLEMENTATION_HASH,
                         row_count=len(frame),
+                        partition_counts=payload.get("row_counts"),
+                        partition_class_counts=payload.get("class_counts_by_split"),
+                        predictor_group_count=payload.get("total_predictor_groups"),
+                        duplicate_group_count=payload.get("duplicate_predictor_groups"),
+                        conflicting_target_group_count=payload.get("conflicting_target_groups"),
                         cross_partition_group_count=int(
                             payload.get("predictor_duplicate_groups_crossing_splits", 0)
                         ),
@@ -145,7 +186,14 @@ def build_inventory(
                         assignment_artifact_hash=sha256_file(assignments_path),
                         manifest_artifact_hash=sha256_file(manifest_path),
                         logical_assignment_hash=manifest.logical_assignment_hash,
+                        split_implementation_hash=manifest.split_implementation_hash,
+                        cache_identity_hash=manifest.cache_identity_hash,
                         row_count=manifest.row_count,
+                        partition_counts=manifest.partition_counts,
+                        partition_class_counts=manifest.partition_class_counts,
+                        predictor_group_count=manifest.predictor_group_count,
+                        duplicate_group_count=manifest.duplicate_group_count,
+                        conflicting_target_group_count=manifest.conflicting_target_group_count,
                         cross_partition_group_count=manifest.cross_partition_group_count,
                     )
                 )

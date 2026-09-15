@@ -1,0 +1,268 @@
+{
+  "$defs": {
+    "SplitInventoryRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_artifact_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assignment Artifact Hash"
+        },
+        "assignments_path": {
+          "title": "Assignments Path",
+          "type": "string"
+        },
+        "cache_identity_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Identity Hash"
+        },
+        "conflicting_target_group_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conflicting Target Group Count"
+        },
+        "cross_partition_group_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cross Partition Group Count"
+        },
+        "dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "duplicate_group_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duplicate Group Count"
+        },
+        "logical_assignment_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Logical Assignment Hash"
+        },
+        "manifest_artifact_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Artifact Hash"
+        },
+        "manifest_path": {
+          "title": "Manifest Path",
+          "type": "string"
+        },
+        "partition_class_counts": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partition Class Counts"
+        },
+        "partition_counts": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partition Counts"
+        },
+        "predictor_group_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predictor Group Count"
+        },
+        "protected_baseline": {
+          "title": "Protected Baseline",
+          "type": "boolean"
+        },
+        "row_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row Count"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "split_implementation_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Split Implementation Hash"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAILED",
+            "CONSTRAINT_INFEASIBLE",
+            "MISSING"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "seed",
+        "status",
+        "protected_baseline",
+        "assignments_path",
+        "manifest_path"
+      ],
+      "title": "SplitInventoryRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "configuration_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Hash",
+      "type": "string"
+    },
+    "expected_dataset_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Expected Dataset Ids",
+      "type": "array"
+    },
+    "expected_seeds": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Expected Seeds",
+      "type": "array"
+    },
+    "generated_at": {
+      "title": "Generated At",
+      "type": "string"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/SplitInventoryRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "generated_at",
+    "configuration_hash",
+    "expected_dataset_ids",
+    "expected_seeds",
+    "records"
+  ],
+  "title": "SplitGenerationInventoryContract",
+  "type": "object"
+}
