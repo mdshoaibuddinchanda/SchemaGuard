@@ -137,10 +137,19 @@ def build_certificate(
 
 def _logical_identity_payload(certificate: TransformationCertificate) -> dict[str, Any]:
     """Return the certificate fields that define its scientific identity."""
-    payload = certificate.canonical_dict()
-    payload.pop("created_at", None)
-    payload.pop("source_commit", None)
-    return payload
+
+    def remove_provenance(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {
+                key: remove_provenance(item)
+                for key, item in value.items()
+                if key not in {"created_at", "source_commit"}
+            }
+        if isinstance(value, list):
+            return [remove_provenance(item) for item in value]
+        return value
+
+    return remove_provenance(certificate.canonical_dict())
 
 
 def certificate_identity_hash(certificate: TransformationCertificate) -> str:

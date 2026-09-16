@@ -39,6 +39,46 @@ def test_logical_identity_excludes_generation_provenance_only() -> None:
     assert certificate_hash(certificate) == certificate_identity_hash(certificate)
 
 
+def test_nested_certificate_provenance_is_excluded_but_nested_science_is_bound() -> None:
+    certificate = _certificate()
+    first = certificate.model_copy(
+        update={
+            "parameters": {
+                "component_certificate": {
+                    "source_commit": "first-commit",
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "implementation_hash": "a" * 64,
+                }
+            }
+        }
+    )
+    provenance_changed = first.model_copy(
+        update={
+            "parameters": {
+                "component_certificate": {
+                    "source_commit": "second-commit",
+                    "created_at": "2027-01-01T00:00:00Z",
+                    "implementation_hash": "a" * 64,
+                }
+            }
+        }
+    )
+    scientific_changed = first.model_copy(
+        update={
+            "parameters": {
+                "component_certificate": {
+                    "source_commit": "first-commit",
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "implementation_hash": "b" * 64,
+                }
+            }
+        }
+    )
+
+    assert certificate_identity_hash(first) == certificate_identity_hash(provenance_changed)
+    assert certificate_identity_hash(first) != certificate_identity_hash(scientific_changed)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
