@@ -96,6 +96,16 @@ def compare_protected_snapshot(
     unexpected_changed = sorted(path for path in changed if path not in allowed_changed)
     unexpected_added = sorted(path for path in added if path not in allowed_added)
     unexpected_removed = sorted(path for path in removed if path not in allowed_removed)
+    stable_after_files = [
+        item
+        for item in after["files"]
+        if item["path"] not in allowed_changed | allowed_added
+    ]
+    stable_after = {
+        "schema_version": after["schema_version"],
+        "file_count": len(stable_after_files),
+        "files": stable_after_files,
+    }
     return {
         "status": "PASS"
         if not unexpected_changed and not unexpected_added and not unexpected_removed
@@ -113,7 +123,7 @@ def compare_protected_snapshot(
         "before_file_count": len(old),
         "after_file_count": len(new),
         "before_snapshot_hash": sha256_file(before_path),
-        "after_snapshot_hash": sha256_canonical_json(after),
+        "after_snapshot_hash": sha256_canonical_json(stable_after),
     }
 
 

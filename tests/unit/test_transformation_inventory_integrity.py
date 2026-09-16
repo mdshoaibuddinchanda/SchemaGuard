@@ -20,6 +20,7 @@ def _baseline(root: Path) -> Path:
     handoff = root / "artifacts/handoff/split_generation_inventory.json"
     handoff.parent.mkdir(parents=True, exist_ok=True)
     handoff.write_bytes(b"baseline")
+    (root / "artifacts/handoff/transformation_inventory.json").write_bytes(b"baseline")
     snapshot = root / "before.json"
     snapshot.write_text(json.dumps(_protected_snapshot(root)), encoding="utf-8")
     return snapshot
@@ -59,3 +60,24 @@ def test_explicit_protected_addition_modification_and_removal_are_allowed(tmp_pa
     assert result["unexpected_added_files"] == []
     assert result["unexpected_changed_files"] == []
     assert result["unexpected_removed_files"] == []
+
+
+def test_after_snapshot_hash_is_stable_for_an_allowed_self_referential_inventory(
+    tmp_path: Path,
+) -> None:
+    before = _baseline(tmp_path)
+    inventory = tmp_path / "artifacts/handoff/transformation_inventory.json"
+    allowed_change = {"artifacts/handoff/transformation_inventory.json"}
+
+    inventory.write_bytes(b"first generated inventory")
+    first = compare_protected_snapshot(
+        tmp_path, before, allowed_changed_paths=allowed_change
+    )
+    inventory.write_bytes(b"second generated inventory with new timestamp")
+    second = compare_protected_snapshot(
+        tmp_path, before, allowed_changed_paths=allowed_change
+    )
+
+    assert first["status"] == second["status"] == "PASS"
+    assert first["after_snapshot_hash"] == second["after_snapshot_hash"]
+    assert first["changed_files"] == second["changed_files"] == sorted(allowed_change)
