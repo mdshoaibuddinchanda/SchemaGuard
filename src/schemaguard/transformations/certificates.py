@@ -86,6 +86,10 @@ def build_certificate(
     parameters["_scientific_role"] = scientific_role
     selected = parameters.get("selected_columns", [])
     generated = parameters.get("generated_columns", [])
+    numerical_tolerance = {
+        "rtol": float(transformation.config.get("numerical_rtol", 1.0e-10)),
+        "atol": float(transformation.config.get("numerical_atol", 1.0e-12)),
+    }
     return TransformationCertificate(
         schema_version=2,
         view_id=transformation.view_id,
@@ -120,7 +124,7 @@ def build_certificate(
         },
         missing_mask_policy="preserve_missing_masks_exactly",
         dtype_policy="restore_exact_source_dtypes",
-        numerical_tolerance={"rtol": 1.0e-10, "atol": 1.0e-12},
+        numerical_tolerance=numerical_tolerance,
         configuration_hash=transformation.configuration_hash(),
         implementation_hash=transformation.implementation_hash(),
         source_commit=current_commit(),
@@ -165,24 +169,52 @@ def _maximum_errors(source: pd.DataFrame, restored: pd.DataFrame) -> tuple[float
 def _validate_projection_relationship(
     source: pd.DataFrame, transformed: pd.DataFrame, certificate: TransformationCertificate
 ) -> None:
+    generated_columns = set(certificate.generated_columns)
+    relationships = certificate.parameters.get("generated_relationship")
+    if not isinstance(relationships, dict) or set(relationships) != generated_columns:
+        raise ValueError("projection relationships must cover exactly the generated columns")
+    if any(column not in transformed.columns for column in generated_columns):
+        raise ValueError("projection output is missing a declared generated column")
     aligned = transformed.set_index(ROW_ID_COLUMN).loc[source[ROW_ID_COLUMN].tolist()]
-    for generated, relationship in certificate.parameters.get("generated_relationship", {}).items():
+    for generated, relationship in relationships.items():
+        if not isinstance(relationship, dict):
+            raise ValueError("projection relationship must be a mapping")
         parent = relationship["parent"]
+        if parent not in source.columns:
+            raise ValueError("projection relationship parent column is missing")
+        parent_values = source[parent].reset_index(drop=True)
+        generated_values = aligned[generated].reset_index(drop=True)
+        if not parent_values.isna().equals(generated_values.isna()):
+            raise ValueError("projection parent and generated missing masks differ")
         if relationship["relationship"] == "equal":
-            if (
-                not source[parent]
-                .reset_index(drop=True)
-                .equals(aligned[generated].reset_index(drop=True))
+            if str(parent_values.dtype) != str(generated_values.dtype) or not parent_values.equals(
+                generated_values
             ):
                 raise ValueError("duplicate feature relationship is invalid")
-        elif relationship["relationship"] == "3*x+7":
-            expected = source[parent].astype(float) * 3.0 + 7.0
-            actual = aligned[generated].astype(float).reset_index(drop=True)
-            valid = expected.notna() & actual.notna()
-            if not np.allclose(
-                expected[valid].to_numpy(), actual[valid].to_numpy(), rtol=0.0, atol=0.0
+            for parent_value, generated_value in zip(
+                parent_values.tolist(), generated_values.tolist(), strict=True
             ):
-                raise ValueError("redundant affine relationship is invalid")
+                if pd.isna(parent_value):
+                    continue
+                if type(parent_value) is not type(generated_value):
+                    raise ValueError("duplicate feature relationship changed value type")
+        elif relationship["relationship"] == "3*x+7":
+            valid = parent_values.notna() & generated_values.notna()
+            if valid.any():
+                parent_numeric = parent_values[valid].astype(float)
+                generated_numeric = generated_values[valid].astype(float)
+                if not np.isfinite(parent_numeric).all() or not np.isfinite(
+                    generated_numeric
+                ).all():
+                    raise ValueError("affine projection contains non-finite values")
+                expected = parent_numeric * 3.0 + 7.0
+                actual = generated_numeric
+                if not np.allclose(
+                    expected.to_numpy(), actual.to_numpy(), rtol=0.0, atol=0.0
+                ):
+                    raise ValueError("redundant affine relationship is invalid")
+        else:
+            raise ValueError("unknown projection relationship")
 
 
 def _validate_permutation(certificate: TransformationCertificate) -> None:
@@ -226,6 +258,16 @@ def validate_roundtrip(
     """Validate every certificate claim against the supplied artifacts."""
 
     TransformationCertificate.model_validate(certificate.canonical_dict())
+    if transformation is None and certificate.validation_status == "PASS":
+        raise ValueError(
+            "configuration and implementation identity require the fitted transformation"
+        )
+    if certificate.view_name != certificate.parameters.get("_view_name"):
+        raise ValueError("certificate reserved view name does not match the top-level view name")
+    if certificate.numerical_tolerance.get("rtol") != rtol or certificate.numerical_tolerance.get(
+        "atol"
+    ) != atol:
+        raise ValueError("certificate numerical tolerances do not match validation tolerances")
     if certificate.source_artifact_hash != hash_dataframe_logically(source.reset_index(drop=True)):
         raise ValueError("source artifact hash does not match certificate")
     if certificate.output_artifact_hash != hash_dataframe_logically(
@@ -320,10 +362,10 @@ def validate_roundtrip(
         "reconstruction_exact": bool(exact),
         "maximum_absolute_error": maximum_absolute,
         "maximum_relative_error": maximum_relative,
-        "configuration_hash_verified": transformation is None
-        or certificate.configuration_hash == transformation.configuration_hash(),
-        "implementation_hash_verified": transformation is None
-        or certificate.implementation_hash == transformation.implementation_hash(),
+        "configuration_hash_verified": transformation is not None
+        and certificate.configuration_hash == transformation.configuration_hash(),
+        "implementation_hash_verified": transformation is not None
+        and certificate.implementation_hash == transformation.implementation_hash(),
         "certificate_type_verified": certificate.view_id in VIEW_METADATA
         and VIEW_METADATA[certificate.view_id][1] == certificate.certificate_type,
     }

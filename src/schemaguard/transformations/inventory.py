@@ -11,7 +11,7 @@ from typing import Any
 
 import pandas as pd
 
-from ..utils.hashing import hash_dataframe_logically, sha256_file
+from ..utils.hashing import hash_dataframe_logically, sha256_canonical_json, sha256_file
 from ..utils.io import atomic_write_json
 from .applicability import assess_applicability
 from .base import feature_schema_from_frame, frame_hash
@@ -44,7 +44,15 @@ def _protected_snapshot(root: Path) -> dict[str, Any]:
         "schemas",
     ):
         paths.extend(path for path in (root / relative).rglob("*") if path.is_file())
-    paths.append(root / "artifacts/handoff/split_generation_inventory.json")
+    paths.extend(
+        root / relative
+        for relative in (
+            "artifacts/handoff/split_generation_inventory.json",
+            "artifacts/handoff/transformation_engine_review.md",
+            "artifacts/handoff/transformation_inventory.json",
+        )
+        if (root / relative).is_file()
+    )
     records = []
     for path in sorted(set(paths)):
         records.append(
@@ -62,6 +70,8 @@ def compare_protected_snapshot(
     before_path: str | Path,
     *,
     allowed_changed_paths: set[str] | None = None,
+    allowed_added_paths: set[str] | None = None,
+    allowed_removed_paths: set[str] | None = None,
 ) -> dict[str, Any]:
     project_root = Path(root)
     before = json.loads(Path(before_path).read_text(encoding="utf-8"))
@@ -70,19 +80,34 @@ def compare_protected_snapshot(
         str(item["path"]).replace("\\", "/"): item["sha256"] for item in before["files"]
     }
     new = {item["path"]: item["sha256"] for item in after["files"]}
-    changed = sorted(path for path in old if old.get(path) != new.get(path))
+    changed = sorted(path for path in old.keys() & new.keys() if old[path] != new[path])
     added = sorted(path for path in new if path not in old)
-    allowed = allowed_changed_paths or set()
-    unexpected_changed = sorted(path for path in changed if path not in allowed)
+    removed = sorted(path for path in old if path not in new)
+    unchanged = sorted(path for path in old.keys() & new.keys() if old[path] == new[path])
+    allowed_changed = {path.replace("\\", "/") for path in (allowed_changed_paths or set())}
+    allowed_added = {path.replace("\\", "/") for path in (allowed_added_paths or set())}
+    allowed_removed = {path.replace("\\", "/") for path in (allowed_removed_paths or set())}
+    unexpected_changed = sorted(path for path in changed if path not in allowed_changed)
+    unexpected_added = sorted(path for path in added if path not in allowed_added)
+    unexpected_removed = sorted(path for path in removed if path not in allowed_removed)
     return {
-        "status": "PASS" if not unexpected_changed else "FAIL",
+        "status": "PASS"
+        if not unexpected_changed and not unexpected_added and not unexpected_removed
+        else "FAIL",
         "changed_files": changed,
-        "allowed_changed_files": sorted(path for path in changed if path in allowed),
-        "unexpected_changed_files": unexpected_changed,
         "added_files": added,
+        "removed_files": removed,
+        "unchanged_files": unchanged,
+        "allowed_changed_files": sorted(path for path in changed if path in allowed_changed),
+        "allowed_added_files": sorted(path for path in added if path in allowed_added),
+        "allowed_removed_files": sorted(path for path in removed if path in allowed_removed),
+        "unexpected_changed_files": unexpected_changed,
+        "unexpected_added_files": unexpected_added,
+        "unexpected_removed_files": unexpected_removed,
         "before_file_count": len(old),
         "after_file_count": len(new),
         "before_snapshot_hash": sha256_file(before_path),
+        "after_snapshot_hash": sha256_canonical_json(after),
     }
 
 
@@ -292,6 +317,10 @@ def build_inventory(
             "schemas/transformation_certificate.schema.json",
             "schemas/transformation_inventory.schema.json",
             "schemas/transformation_manifest.schema.json",
+        },
+        allowed_added_paths={
+            "schemas/transformation_property_evidence.schema.json",
+            "schemas/transformation_cache_manifest.schema.json",
         },
     )
     property_evidence = _load_property_evidence(project_root)

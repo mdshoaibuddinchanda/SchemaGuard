@@ -22,4 +22,9 @@ def test_composite_has_ordered_component_certificates_and_roundtrips() -> None:
     restored = transformation.reconstruct(output, certificate)
     assert certificate.parameters["components"] == ["V01", "V03", "V08"]
     assert len(certificate.parameters["component_certificates"]) == 3
-    assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
+    assert (
+        validate_roundtrip(frame, output, restored, certificate, transformation=transformation)[
+            "status"
+        ]
+        == "PASS"
+    )

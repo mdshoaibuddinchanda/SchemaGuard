@@ -35,9 +35,10 @@ CATEGORIES = [
     np.int8(-1),
     np.float32(2.5),
 ]
+CATEGORICAL_VALUES = {"category": CATEGORIES, "bool_category": [False, True]}
 
 
-def generated_frame(example: int) -> pd.DataFrame:
+def generated_frame(example: int, row_id_prefix: str = "property-row") -> pd.DataFrame:
     rng = np.random.default_rng(SEED + example)
     row_count = 1 if example % 11 == 0 else 12
     values = rng.integers(-1000, 1001, size=row_count)
@@ -45,9 +46,9 @@ def generated_frame(example: int) -> pd.DataFrame:
     if row_count > 1:
         nullable.iloc[0] = pd.NA
     category_values = [CATEGORIES[index % len(CATEGORIES)] for index in range(row_count)]
-    return pd.DataFrame(
+    frame = pd.DataFrame(
         {
-            "__sg_row_id": [f"property-row-{index}" for index in range(row_count)],
+            "__sg_row_id": [f"{row_id_prefix}-{example}-{index}" for index in range(row_count)],
             "amount_float32": (values.astype(np.float32) / 7.0),
             "amount_float64": values.astype(np.float64) / 7.0,
             "extreme_magnitude": values.astype(np.float64) * 1.0e6,
@@ -66,6 +67,9 @@ def generated_frame(example: int) -> pd.DataFrame:
             "count_int64__remainder": values.astype(np.int64),
         }
     )
+    # Keep the mixed typed vocabulary in an object column even for one-row cases.
+    frame["category"] = pd.Series(category_values, index=frame.index, dtype="object")
+    return frame
 
 
 def target_frame(frame: pd.DataFrame) -> pd.DataFrame:
@@ -78,9 +82,15 @@ def target_frame(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def assert_property_roundtrip(
-    source: pd.DataFrame, transformed: pd.DataFrame, restored: pd.DataFrame
+    source: pd.DataFrame,
+    transformed: pd.DataFrame,
+    restored: pd.DataFrame,
+    certificate,
+    *,
+    rtol: float,
+    atol: float,
 ) -> None:
-    """Check the invariant on a generated example using the fitted certificate."""
+    """Check every declared invariant on one independently certified example."""
 
     if len(source) != len(transformed) or len(source) != len(restored):
         raise AssertionError("row count changed")
@@ -90,6 +100,8 @@ def assert_property_roundtrip(
         raise AssertionError("transformation changed row IDs")
     if tuple(restored.columns) != tuple(source.columns):
         raise AssertionError("reconstruction columns changed")
+    if [str(dtype) for dtype in restored.dtypes] != [str(dtype) for dtype in source.dtypes]:
+        raise AssertionError("reconstruction dtypes changed")
     if (
         not source["__sg_row_id"]
         .reset_index(drop=True)
@@ -104,60 +116,88 @@ def assert_property_roundtrip(
             if mask.any() and not np.allclose(
                 source.loc[mask, column].astype(float),
                 restored.loc[mask, column].astype(float),
-                rtol=1.0e-10,
-                atol=1.0e-12,
+                rtol=rtol,
+                atol=atol,
             ):
                 raise AssertionError(f"numeric reconstruction exceeded tolerance for {column}")
-        elif (
-            not source[column].astype("object").tolist()
-            == restored[column].astype("object").tolist()
-        ):
-            raise AssertionError(f"categorical reconstruction changed values for {column}")
+        else:
+            for source_value, restored_value in zip(
+                source[column].tolist(), restored[column].tolist(), strict=True
+            ):
+                if pd.isna(source_value) and pd.isna(restored_value):
+                    continue
+                if type(source_value) is not type(restored_value) or source_value != restored_value:
+                    raise AssertionError(f"categorical reconstruction changed values for {column}")
 
 
 def run_view(view_id: str, examples: int, config: object) -> dict[str, object]:
     passed = 0
     failures: list[str] = []
-    fit_frame = generated_frame(1)
-    schema = feature_schema_from_frame(fit_frame, {"category": CATEGORIES})
-    transformation = get_transformation(view_id, config.model_dump())
-    transformation.fit(fit_frame, "property", SEED, schema)
-    target_hash = hash_dataframe_logically(target_frame(fit_frame))
-    baseline_output = transformation.transform(fit_frame, "train")
-    baseline_certificate = transformation.certificate_for(
-        fit_frame,
-        baseline_output,
-        "train",
-        source_target_hash=target_hash,
-        output_target_hash=target_hash,
-    )
-    baseline_restored = transformation.reconstruct(baseline_output, baseline_certificate)
-    validate_transformation(
-        fit_frame,
-        baseline_output,
-        baseline_restored,
-        baseline_certificate,
-        transformation=transformation,
-    )
-    repeat_output = transformation.transform(fit_frame, "train")
-    repeat_certificate = transformation.certificate_for(
-        fit_frame,
-        repeat_output,
-        "train",
-        source_target_hash=target_hash,
-        output_target_hash=target_hash,
-    )
-    if certificate_hash(baseline_certificate) != certificate_hash(repeat_certificate):
-        raise RuntimeError("baseline certificate identity is not deterministic")
+    rtol = float(config.model_dump()["numerical_rtol"])
+    atol = float(config.model_dump()["numerical_atol"])
     for example in range(examples):
         try:
-            frame = generated_frame(example)
-            output = transformation.transform(frame, "train")
-            restored = transformation.reconstruct(output, baseline_certificate)
-            repeat = transformation.transform(frame, "train")
-            assert_property_roundtrip(frame, output, restored)
+            source = generated_frame(example)
+            training_example = example + 1 if example % 11 == 0 else example
+            training = generated_frame(training_example, "fit-row")
+            schema = feature_schema_from_frame(training, CATEGORICAL_VALUES)
+            transformation = get_transformation(view_id, config.model_dump())
+            transformation.fit(training, "property", SEED, schema)
+            target = target_frame(source)
+            target_hash = hash_dataframe_logically(target)
+            output = transformation.transform(source, "test")
+            certificate = transformation.certificate_for(
+                source,
+                output,
+                "test",
+                source_target_hash=target_hash,
+                output_target_hash=target_hash,
+            )
+            restored = transformation.reconstruct(output, certificate)
+            validation = validate_transformation(
+                source,
+                output,
+                restored,
+                certificate,
+                rtol=rtol,
+                atol=atol,
+                transformation=transformation,
+            )
+            assert_property_roundtrip(
+                source, output, restored, certificate, rtol=rtol, atol=atol
+            )
+            if (
+                certificate.source_target_hash != target_hash
+                or certificate.output_target_hash != target_hash
+            ):
+                raise AssertionError("target hash claim changed")
+            if validation["source_schema_hash"] != certificate.source_schema_hash:
+                raise AssertionError("certificate source schema claim changed")
+            repeat = transformation.transform(source, "test")
+            repeat_certificate = transformation.certificate_for(
+                source,
+                repeat,
+                "test",
+                source_target_hash=target_hash,
+                output_target_hash=target_hash,
+            )
+            repeat_restored = transformation.reconstruct(repeat, repeat_certificate)
+            validate_transformation(
+                source,
+                repeat,
+                repeat_restored,
+                repeat_certificate,
+                rtol=rtol,
+                atol=atol,
+                transformation=transformation,
+            )
+            assert_property_roundtrip(
+                source, repeat, repeat_restored, repeat_certificate, rtol=rtol, atol=atol
+            )
             if hash_dataframe_logically(output) != hash_dataframe_logically(repeat):
                 raise AssertionError("repeat output hash changed")
+            if certificate_hash(certificate) != certificate_hash(repeat_certificate):
+                raise AssertionError("repeat certificate identity changed")
             passed += 1
         except Exception as exc:  # pragma: no cover - evidence records the concrete failure
             failures.append(f"example={example}: {type(exc).__name__}: {exc}")

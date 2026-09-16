@@ -1,0 +1,125 @@
+{
+  "additionalProperties": false,
+  "description": "Strict persisted identity for one validated transformation cache entry.",
+  "properties": {
+    "cache_key": {
+      "title": "Cache Key",
+      "type": "string"
+    },
+    "certificate_identity": {
+      "title": "Certificate Identity",
+      "type": "string"
+    },
+    "certificate_schema_version": {
+      "minimum": 1,
+      "title": "Certificate Schema Version",
+      "type": "integer"
+    },
+    "certificate_sha256": {
+      "title": "Certificate Sha256",
+      "type": "string"
+    },
+    "dataset_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "Dataset Id"
+    },
+    "dataset_version": {
+      "title": "Dataset Version",
+      "type": "string"
+    },
+    "feature_sha256": {
+      "title": "Feature Sha256",
+      "type": "string"
+    },
+    "fit_parameter_hash": {
+      "title": "Fit Parameter Hash",
+      "type": "string"
+    },
+    "implementation_hash": {
+      "title": "Implementation Hash",
+      "type": "string"
+    },
+    "output_artifact_hash": {
+      "title": "Output Artifact Hash",
+      "type": "string"
+    },
+    "partition": {
+      "enum": [
+        "train",
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "python_major_minor": {
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Python Major Minor",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "source_artifact_hash": {
+      "title": "Source Artifact Hash",
+      "type": "string"
+    },
+    "source_feature_hash": {
+      "title": "Source Feature Hash",
+      "type": "string"
+    },
+    "split_logical_hash": {
+      "title": "Split Logical Hash",
+      "type": "string"
+    },
+    "target_hash": {
+      "title": "Target Hash",
+      "type": "string"
+    },
+    "view_configuration_hash": {
+      "title": "View Configuration Hash",
+      "type": "string"
+    },
+    "view_id": {
+      "title": "View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cache_key",
+    "dataset_id",
+    "dataset_version",
+    "seed",
+    "source_feature_hash",
+    "target_hash",
+    "split_logical_hash",
+    "partition",
+    "view_id",
+    "view_configuration_hash",
+    "implementation_hash",
+    "fit_parameter_hash",
+    "certificate_schema_version",
+    "python_major_minor",
+    "feature_sha256",
+    "certificate_sha256",
+    "certificate_identity",
+    "source_artifact_hash",
+    "output_artifact_hash"
+  ],
+  "title": "TransformationCacheManifest",
+  "type": "object"
+}

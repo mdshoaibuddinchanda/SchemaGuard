@@ -22,4 +22,9 @@ def test_identity_preserves_rows_columns_values_and_certificate() -> None:
     restored = transformation.reconstruct(output, certificate)
     assert output.equals(frame)
     assert restored.equals(frame)
-    assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
+    assert (
+        validate_roundtrip(frame, output, restored, certificate, transformation=transformation)[
+            "status"
+        ]
+        == "PASS"
+    )

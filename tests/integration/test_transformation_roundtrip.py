@@ -7,7 +7,11 @@ import pandas as pd
 import pytest
 
 from schemaguard.transformations.base import feature_schema_from_frame
-from schemaguard.transformations.caching import TransformationCache, transformation_cache_key
+from schemaguard.transformations.caching import (
+    TransformationCache,
+    certificate_parameter_hash,
+    transformation_cache_key,
+)
 from schemaguard.transformations.contracts import TransformationManifest
 from schemaguard.transformations.inventory import VIEW_IDS
 from schemaguard.transformations.registry import get_transformation, load_transformation_config
@@ -112,10 +116,11 @@ def test_end_to_end_materialization_cache_and_promotion_for_all_views(tmp_path: 
                 split_logical_hash=hash_dataframe_logically(assignment),
                 partition=partition,
                 view_id=view_id,
-                view_config=config.model_dump(),
+                view_config={"view_id": view_id, "config": config.model_dump()},
                 implementation_hash=transformation.implementation_hash(),
-                fit_parameter_hash=sha256_canonical_json(transformation.parameters_for(partition)),
+                fit_parameter_hash=certificate_parameter_hash(certificate),
                 certificate_schema_version=certificate.schema_version,
+                python_major_minor="3.12",
             )
             cache.publish(
                 key,
@@ -125,16 +130,16 @@ def test_end_to_end_materialization_cache_and_promotion_for_all_views(tmp_path: 
                     "dataset_id": "e2e",
                     "dataset_version": "e2e",
                     "seed": 1729,
-                    "partition": partition,
-                    "view_id": view_id,
-                    "feature_hash": source_hashes[partition],
+                    "source_feature_hash": source_hashes[partition],
                     "target_hash": target_hash,
                     "split_logical_hash": hash_dataframe_logically(assignment),
+                    "partition": partition,
+                    "view_id": view_id,
+                    "view_configuration_hash": transformation.configuration_hash(),
                     "implementation_hash": transformation.implementation_hash(),
-                    "fit_parameter_hash": sha256_canonical_json(
-                        transformation.parameters_for(partition)
-                    ),
+                    "fit_parameter_hash": certificate_parameter_hash(certificate),
                     "certificate_schema_version": certificate.schema_version,
+                    "python_major_minor": "3.12",
                 },
             )
             assert cache.read_validated(key) is not None
@@ -146,10 +151,11 @@ def test_end_to_end_materialization_cache_and_promotion_for_all_views(tmp_path: 
                 split_logical_hash=hash_dataframe_logically(assignment),
                 partition=partition,
                 view_id=view_id,
-                view_config=config.model_dump(),
+                view_config={"view_id": view_id, "config": config.model_dump()},
                 implementation_hash="f" * 64,
-                fit_parameter_hash=sha256_canonical_json(transformation.parameters_for(partition)),
+                fit_parameter_hash=certificate_parameter_hash(certificate),
                 certificate_schema_version=certificate.schema_version,
+                python_major_minor="3.12",
             )
             assert cache.read_validated(changed_key) is None
         manifest = TransformationManifest(

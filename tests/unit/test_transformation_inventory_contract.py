@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+import copy
+import json
+from pathlib import Path
+
+import pytest
+from pydantic import ValidationError
+
+from schemaguard.transformations.contracts import TransformationInventory
+
+
+def _payload() -> dict:
+    return json.loads(
+        (
+            Path(__file__).resolve().parents[2]
+            / "artifacts/handoff/transformation_inventory.json"
+        ).read_text(encoding="utf-8")
+    )
+
+
+def test_current_inventory_has_exact_frozen_matrix() -> None:
+    inventory = TransformationInventory.model_validate(_payload())
+    assert len(inventory.records) == 770
+    assert inventory.pass_count == 545
+    assert inventory.not_applicable_count == 225
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda payload: payload["records"].__setitem__(1, copy.deepcopy(payload["records"][0])),
+        lambda payload: payload["records"].__setitem__(
+            0, {**payload["records"][0], "dataset_id": 999}
+        ),
+        lambda payload: payload["records"].__setitem__(0, {**payload["records"][0], "seed": 999}),
+        lambda payload: payload["records"].__setitem__(
+            0, {**payload["records"][0], "view_id": "V99"}
+        ),
+        lambda payload: payload.__setitem__("pass_count", payload["pass_count"] + 1),
+        lambda payload: payload["protected_hash_comparison"].__setitem__("status", "FAIL"),
+        lambda payload: payload["property_evidence"].__setitem__(
+            0, {**payload["property_evidence"][0], "test_implementation_hash": "0" * 64}
+        ),
+        lambda payload: payload["property_evidence"].append(
+            copy.deepcopy(payload["property_evidence"][0])
+        ),
+    ],
+)
+def test_inventory_tampering_is_rejected(mutation) -> None:
+    payload = _payload()
+    mutation(payload)
+    with pytest.raises(ValidationError):
+        TransformationInventory.model_validate(payload)

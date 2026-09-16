@@ -34,7 +34,12 @@ def test_structural_views_roundtrip(factory) -> None:
         output_target_hash=target_hash(frame),
     )
     restored = transformation.reconstruct(output, certificate)
-    assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
+    assert (
+        validate_roundtrip(frame, output, restored, certificate, transformation=transformation)[
+            "status"
+        ]
+        == "PASS"
+    )
 
 
 def test_row_permutation_does_not_reorder_calibration_or_test() -> None:

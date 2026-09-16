@@ -34,6 +34,10 @@ ALLOWED_REPAIR_SCHEMA_CHANGES = {
     "schemas/transformation_inventory.schema.json",
     "schemas/transformation_manifest.schema.json",
 }
+ALLOWED_REPAIR_SCHEMA_ADDITIONS = {
+    "schemas/transformation_property_evidence.schema.json",
+    "schemas/transformation_cache_manifest.schema.json",
+}
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -119,7 +123,10 @@ def main() -> int:
         "split_inventory_hash": split_hash,
         "records": [record.canonical_dict() for record in records],
         "protected_hash_comparison": compare_protected_snapshot(
-            ROOT, before, allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES
+            ROOT,
+            before,
+            allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES,
+            allowed_added_paths=ALLOWED_REPAIR_SCHEMA_ADDITIONS,
         ),
     }
     if args.inventory_output and not args.validate_only:

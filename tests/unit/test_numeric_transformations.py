@@ -24,7 +24,12 @@ def test_numeric_views_roundtrip_from_training_fit(factory) -> None:
         output_target_hash=target_hash(frame),
     )
     restored = transformation.reconstruct(output, certificate)
-    assert validate_roundtrip(frame, output, restored, certificate)["status"] == "PASS"
+    assert (
+        validate_roundtrip(frame, output, restored, certificate, transformation=transformation)[
+            "status"
+        ]
+        == "PASS"
+    )
 
 
 def test_numeric_views_reject_nonfinite_input() -> None:

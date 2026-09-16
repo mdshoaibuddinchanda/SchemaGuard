@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ..utils.hashing import sha256_canonical_json
+from ..utils.hashing import sha256_canonical_json, sha256_file
+
+FROZEN_DATASET_IDS = (3, 23, 29, 31, 36, 37, 38, 44, 46, 50, 54, 1067, 1464, 1489)
+FROZEN_SEEDS = (1729, 2718, 31415, 57721, 161803)
+FROZEN_VIEW_IDS = tuple(f"V{index:02d}" for index in range(11))
 
 
 class StrictTransformationContract(BaseModel):
@@ -122,8 +127,8 @@ class TransformationCertificate(StrictTransformationContract):
     generated_columns: list[str] = Field(default_factory=list)
     parameters: dict[str, Any] = Field(default_factory=dict)
     inverse_parameters: dict[str, Any] = Field(default_factory=dict)
-    missing_mask_policy: str
-    dtype_policy: str
+    missing_mask_policy: Literal["preserve_missing_masks_exactly"]
+    dtype_policy: Literal["restore_exact_source_dtypes"]
     numerical_tolerance: dict[str, float]
     configuration_hash: str
     implementation_hash: str
@@ -176,6 +181,8 @@ class TransformationCertificate(StrictTransformationContract):
             raise ValueError("unknown transformation view identity")
         if (self.view_name, self.certificate_type, self.scientific_role) != expected[self.view_id]:
             raise ValueError("certificate view identity, proof type, or scientific role is invalid")
+        if self.parameters.get("_view_name") != self.view_name:
+            raise ValueError("certificate reserved view name does not match top-level view name")
         if self.validation_status == "N/A" and not self.not_applicable_reason:
             raise ValueError("N/A certificates require a controlled reason")
         if self.validation_status == "PASS" and self.not_applicable_reason:
@@ -226,6 +233,17 @@ class TransformationCertificate(StrictTransformationContract):
                 )
             ):
                 raise ValueError("passing certificate contains failed validation evidence")
+            if self.validation_results.get("status") != "PASS":
+                raise ValueError("passing certificate must record PASS validation status")
+            for key in ("maximum_absolute_error", "maximum_relative_error"):
+                value = self.validation_results.get(key)
+                if not isinstance(value, (int, float)) or not float(value) >= 0:
+                    raise ValueError("passing certificate contains invalid numerical evidence")
+            if self.validation_results["reconstruction_exact"] and any(
+                self.validation_results[key] != 0.0
+                for key in ("maximum_absolute_error", "maximum_relative_error")
+            ):
+                raise ValueError("exact reconstruction cannot report a nonzero error")
         if self.certificate_type == "BIJECTION":
             if self.inverse_parameters.get("operation") != "reconstruct":
                 raise ValueError("bijection certificates require a reconstruction operation")
@@ -254,6 +272,49 @@ class TransformationCertificate(StrictTransformationContract):
             if any(item.get("validation_status") != "PASS" for item in components):
                 raise ValueError("composition component certificates must all pass")
         return self
+
+
+class TransformationCacheManifest(StrictTransformationContract):
+    """Strict persisted identity for one validated transformation cache entry."""
+
+    schema_version: Literal[1] = 1
+    cache_key: str
+    dataset_id: int | str
+    dataset_version: str
+    seed: int
+    source_feature_hash: str
+    target_hash: str
+    split_logical_hash: str
+    partition: Literal["train", "calibration", "test"]
+    view_id: str
+    view_configuration_hash: str
+    implementation_hash: str
+    fit_parameter_hash: str
+    certificate_schema_version: int = Field(ge=1)
+    python_major_minor: str = Field(pattern=r"^\d+\.\d+$")
+    feature_sha256: str
+    certificate_sha256: str
+    certificate_identity: str
+    source_artifact_hash: str
+    output_artifact_hash: str
+
+    @field_validator(
+        "cache_key",
+        "source_feature_hash",
+        "target_hash",
+        "split_logical_hash",
+        "view_configuration_hash",
+        "implementation_hash",
+        "fit_parameter_hash",
+        "feature_sha256",
+        "certificate_sha256",
+        "certificate_identity",
+        "source_artifact_hash",
+        "output_artifact_hash",
+    )
+    @classmethod
+    def validate_cache_hash(cls, value: str) -> str:
+        return _hash(value) or value
 
 
 class TransformationManifest(StrictTransformationContract):
@@ -390,6 +451,16 @@ class TransformationPropertyEvidence(StrictTransformationContract):
         return self
 
 
+def _current_property_runner_hash() -> str | None:
+    """Return the repository property-runner hash when running from a checkout."""
+
+    path = Path(__file__).resolve().parents[3] / "scripts/run_transformation_properties.py"
+    try:
+        return sha256_file(path) if path.is_file() else None
+    except OSError:
+        return None
+
+
 class TransformationInventory(StrictTransformationContract):
     engine_name: Literal["certified_lossless_transformations"]
     status: Literal["PASS_PENDING_REVIEW", "FAIL", "BLOCKED"]
@@ -418,8 +489,29 @@ class TransformationInventory(StrictTransformationContract):
 
     @model_validator(mode="after")
     def validate_counts(self) -> TransformationInventory:
+        if self.dataset_ids != list(FROZEN_DATASET_IDS):
+            raise ValueError(
+                "inventory dataset IDs do not match the frozen fourteen-dataset registry"
+            )
+        if self.seeds != list(FROZEN_SEEDS):
+            raise ValueError("inventory seeds do not match the frozen five-seed registry")
+        if self.view_ids != list(FROZEN_VIEW_IDS):
+            raise ValueError("inventory view IDs do not match the frozen eleven-view registry")
         if self.expected_record_count != len(self.records):
             raise ValueError("expected_record_count must equal records length")
+        expected_tuples = {
+            (dataset_id, seed, view_id)
+            for dataset_id in FROZEN_DATASET_IDS
+            for seed in FROZEN_SEEDS
+            for view_id in FROZEN_VIEW_IDS
+        }
+        observed_tuples = {
+            (record.dataset_id, record.seed, record.view_id) for record in self.records
+        }
+        if len(observed_tuples) != len(self.records):
+            raise ValueError("inventory contains duplicate dataset/seed/view tuples")
+        if observed_tuples != expected_tuples:
+            raise ValueError("inventory does not exactly cover the frozen dataset/seed/view matrix")
         observed_pass = sum(record.status == "PASS" for record in self.records)
         observed_fail = sum(record.status == "FAIL" for record in self.records)
         observed_na = sum(record.status == "N/A" for record in self.records)
@@ -437,9 +529,21 @@ class TransformationInventory(StrictTransformationContract):
         ):
             raise ValueError("validation counts do not account for all records")
         if self.status == "PASS_PENDING_REVIEW" and (
-            self.fail_count or self.missing_count or self.expected_record_count != 770
+            self.fail_count
+            or self.missing_count
+            or self.expected_record_count != 770
+            or any(
+                record.status != "PASS"
+                for record in self.records
+                if record.applicability == "APPLICABLE"
+            )
         ):
             raise ValueError("a passing inventory requires the complete 770-record matrix")
+        if (
+            self.status == "PASS_PENDING_REVIEW"
+            and self.protected_hash_comparison.get("status") != "PASS"
+        ):
+            raise ValueError("a passing inventory requires a passing protected-artifact comparison")
         evidence = {item.view_id: item for item in self.property_evidence}
         if len(self.property_evidence) != 11 or set(evidence) != {
             f"V{index:02d}" for index in range(11)
@@ -449,8 +553,19 @@ class TransformationInventory(StrictTransformationContract):
             item.executed_example_count for item in evidence.values()
         ):
             raise ValueError("property_example_count must be derived from per-view evidence")
-        if self.status == "PASS_PENDING_REVIEW" and self.property_example_count < 11000:
-            raise ValueError("a passing inventory requires at least 11000 property examples")
+        if self.status == "PASS_PENDING_REVIEW":
+            if any(
+                item.executed_example_count < 1000
+                or item.passed_example_count != item.executed_example_count
+                or item.failed_example_count != 0
+                for item in evidence.values()
+            ):
+                raise ValueError("a passing inventory requires 1000 successful examples per view")
+            current_hash = _current_property_runner_hash()
+            if current_hash is not None and any(
+                item.test_implementation_hash != current_hash for item in evidence.values()
+            ):
+                raise ValueError("property evidence test implementation hash is stale")
         return self
 
 
@@ -491,6 +606,7 @@ __all__ = [
     "FeatureSchemaContract",
     "StrictTransformationContract",
     "TransformationCertificate",
+    "TransformationCacheManifest",
     "TransformationConfig",
     "TransformationInventory",
     "TransformationInventoryRecord",
@@ -499,4 +615,7 @@ __all__ = [
     "TransformationValidationRecord",
     "TransformationValidationReport",
     "contract_hash",
+    "FROZEN_DATASET_IDS",
+    "FROZEN_SEEDS",
+    "FROZEN_VIEW_IDS",
 ]

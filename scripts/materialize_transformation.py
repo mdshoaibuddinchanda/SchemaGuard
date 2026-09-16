@@ -20,6 +20,7 @@ from schemaguard.transformations.applicability import assess_applicability  # no
 from schemaguard.transformations.base import feature_schema_from_frame  # noqa: E402
 from schemaguard.transformations.caching import (  # noqa: E402
     TransformationCache,
+    certificate_parameter_hash,
     transformation_cache_key,
 )
 from schemaguard.transformations.contracts import TransformationManifest  # noqa: E402
@@ -185,7 +186,7 @@ def main() -> int:
                 transformed_feature_hashes[partition] = sha256_file(feature_path)
                 certificate_hashes[partition] = sha256_file(certificate_path)
                 row_order_hashes[partition] = hash_dataframe_logically(transformed[["__sg_row_id"]])
-                fit_parameter_hash = sha256_canonical_json(transformation.parameters_for(partition))
+                fit_parameter_hash = certificate_parameter_hash(certificate)
                 key = transformation_cache_key(
                     dataset_id=args.dataset_id,
                     dataset_version="local",
@@ -194,16 +195,31 @@ def main() -> int:
                     split_logical_hash=split_assignment_hash,
                     partition=partition,
                     view_id=view_id,
-                    view_config=config.model_dump(),
+                    view_config={"view_id": view_id, "config": config.model_dump()},
                     implementation_hash=implementation_hash,
                     fit_parameter_hash=fit_parameter_hash,
                     certificate_schema_version=certificate.schema_version,
+                    python_major_minor=f"{sys.version_info.major}.{sys.version_info.minor}",
                 )
                 cache.publish(
                     key,
                     feature_path,
                     certificate_path,
-                    {"partition": partition, "cache_identity": cache_identity},
+                    {
+                        "dataset_id": args.dataset_id,
+                        "dataset_version": "local",
+                        "seed": args.seed,
+                        "source_feature_hash": source_hashes[partition],
+                        "target_hash": target_hash,
+                        "split_logical_hash": split_assignment_hash,
+                        "partition": partition,
+                        "view_id": view_id,
+                        "view_configuration_hash": configuration_hash,
+                        "implementation_hash": implementation_hash,
+                        "fit_parameter_hash": fit_parameter_hash,
+                        "certificate_schema_version": certificate.schema_version,
+                        "python_major_minor": f"{sys.version_info.major}.{sys.version_info.minor}",
+                    },
                 )
                 if cache.read_validated(key) is None:
                     raise ValueError("published cache entry failed independent validation")

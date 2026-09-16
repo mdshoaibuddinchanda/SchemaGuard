@@ -35,6 +35,7 @@
       "type": "string"
     },
     "dtype_policy": {
+      "const": "restore_exact_source_dtypes",
       "title": "Dtype Policy",
       "type": "string"
     },
@@ -63,6 +64,7 @@
       "type": "object"
     },
     "missing_mask_policy": {
+      "const": "preserve_missing_masks_exactly",
       "title": "Missing Mask Policy",
       "type": "string"
     },
