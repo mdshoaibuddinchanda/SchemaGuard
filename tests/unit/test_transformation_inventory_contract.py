@@ -7,7 +7,10 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from schemaguard.transformations.contracts import TransformationInventory
+from schemaguard.transformations.contracts import (
+    TransformationInventory,
+    _current_property_runner_hashes,
+)
 
 
 def _payload() -> dict:
@@ -24,6 +27,12 @@ def test_current_inventory_has_exact_frozen_matrix() -> None:
     assert len(inventory.records) == 770
     assert inventory.pass_count == 545
     assert inventory.not_applicable_count == 225
+
+
+def test_property_runner_hash_validation_is_line_ending_stable() -> None:
+    hashes = _current_property_runner_hashes()
+    assert len(hashes) == 2
+    assert all(len(value) == 64 for value in hashes)
 
 
 @pytest.mark.parametrize(

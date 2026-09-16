@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ..utils.hashing import sha256_canonical_json, sha256_file
+from ..utils.hashing import sha256_bytes, sha256_canonical_json
 
 FROZEN_DATASET_IDS = (3, 23, 29, 31, 36, 37, 38, 44, 46, 50, 54, 1067, 1464, 1489)
 FROZEN_SEEDS = (1729, 2718, 31415, 57721, 161803)
@@ -451,14 +451,20 @@ class TransformationPropertyEvidence(StrictTransformationContract):
         return self
 
 
-def _current_property_runner_hash() -> str | None:
-    """Return the repository property-runner hash when running from a checkout."""
+def _current_property_runner_hashes() -> set[str]:
+    """Return line-ending-stable hashes for the checked-out property runner."""
 
     path = Path(__file__).resolve().parents[3] / "scripts/run_transformation_properties.py"
     try:
-        return sha256_file(path) if path.is_file() else None
+        if not path.is_file():
+            return set()
+        source = path.read_bytes().replace(b"\r\n", b"\n")
+        return {
+            sha256_bytes(source),
+            sha256_bytes(source.replace(b"\n", b"\r\n")),
+        }
     except OSError:
-        return None
+        return set()
 
 
 class TransformationInventory(StrictTransformationContract):
@@ -561,9 +567,9 @@ class TransformationInventory(StrictTransformationContract):
                 for item in evidence.values()
             ):
                 raise ValueError("a passing inventory requires 1000 successful examples per view")
-            current_hash = _current_property_runner_hash()
-            if current_hash is not None and any(
-                item.test_implementation_hash != current_hash for item in evidence.values()
+            current_hashes = _current_property_runner_hashes()
+            if current_hashes and any(
+                item.test_implementation_hash not in current_hashes for item in evidence.values()
             ):
                 raise ValueError("property evidence test implementation hash is stale")
         return self
