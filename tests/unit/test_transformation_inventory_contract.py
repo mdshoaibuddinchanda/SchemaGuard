@@ -44,6 +44,8 @@ def test_source_hashes_accept_line_endings_but_reject_semantic_edits(tmp_path: P
     assert source_file_hashes(source) == lf_hashes
     source.write_bytes(b"first\r\nchanged\r\n")
     assert source_file_hashes(source) != lf_hashes
+    with pytest.raises(FileNotFoundError):
+        source_file_hashes(tmp_path / "missing.py")
 
 
 @pytest.mark.parametrize(
