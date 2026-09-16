@@ -124,9 +124,10 @@ Phase 01 data foundation or split artifacts.
 
 | Test group | Passed | Failed | Skipped | Not verified |
 | --- | ---: | ---: | ---: | ---: |
-| Full relevant unit tests plus transformation roundtrip | 197 | 0 | 0 | 0 |
+| Full relevant unit tests plus transformation roundtrip | 198 | 0 | 0 | 0 |
 | Non-network, non-GPU, non-foundation marker suite | 214 | 0 | 0 | 0 |
 | Non-network integration marker suite | 7 | 0 | 0 | 0 |
+| Fresh-clone CI unit selection | 196 | 0 | 0 | 0 |
 | Split validation | 70 | 0 | 0 | 0 |
 | Repository repair, naming, and local evidence validators | 3 | 0 | 0 | 0 |
 | Ruff | 1 | 0 | 0 | 0 |
@@ -137,6 +138,12 @@ inventory coverage, property evidence, projection proof, certificate
 consistency, fault-injection, and transformation roundtrip tests. The only
 pytest warning is the existing scikit-learn warning for a deliberately small
 split-selection fixture.
+
+The first GitHub Actions run after the evidence commit failed because the
+persisted property-runner hash used Windows line endings while the CI checkout
+used Unix line endings. The validator now accepts the two canonical line-ending
+representations of the same source content. The corrective commit passed the
+same CI unit selection in a fresh clone before publication.
 
 ## Cache and offline verification
 
@@ -236,8 +243,12 @@ runs passed with zero unexpected changes.
 ## Review and delivery state
 
 * Implementation commit: `0b163c5f7d46848980a2144f56e6a6ca7f135437`.
+* Corrective portability commit: `a7bce895e247ae7b03916a4a0aad3c1794ab1bb5`.
 * Fresh-clone repository validation at that commit: `PASS`.
-* GitHub delivery: pending independent review and final push.
+* GitHub delivery: pushed to `origin/main`.
+* GitHub Actions run for the corrective commit: `https://github.com/mdshoaibuddinchanda/SchemaGuard/actions/runs/35114647202`.
+* GitHub Actions conclusion: `success`.
+* GitHub Actions jobs: `Core quality=success`; `Classical model validation=success`.
 * Required review status remains `PASS_PENDING_REVIEW`; this handoff does not
   self-approve the work.
 
