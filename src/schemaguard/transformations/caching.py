@@ -113,7 +113,7 @@ class TransformationCache:
         if not directory.is_dir() or self._actual_files(directory) != CACHE_FILES:
             return None
         try:
-            from .certificates import certificate_hash
+            from .certificates import certificate_identity_hash
             from .contracts import TransformationCacheManifest, TransformationCertificate
 
             manifest = TransformationCacheManifest.model_validate(
@@ -134,7 +134,7 @@ class TransformationCache:
                 return None
             if parsed.schema_version != manifest.certificate_schema_version:
                 return None
-            if manifest.certificate_identity != certificate_hash(parsed):
+            if manifest.certificate_identity != certificate_identity_hash(parsed):
                 return None
             if manifest.output_artifact_hash != parsed.output_artifact_hash:
                 return None
@@ -171,7 +171,7 @@ class TransformationCache:
         if not feature_path.is_file() or not certificate_path.is_file():
             raise ValueError("cache publication requires complete feature and certificate files")
         with ProcessLock(self.lock_path(key), timeout=120):
-            from .certificates import certificate_hash
+            from .certificates import certificate_identity_hash
             from .contracts import TransformationCacheManifest, TransformationCertificate
 
             parsed = TransformationCertificate.model_validate(
@@ -190,7 +190,7 @@ class TransformationCache:
                 "cache_key": key,
                 "feature_sha256": _file_sha256(feature_path),
                 "certificate_sha256": _file_sha256(certificate_path),
-                "certificate_identity": certificate_hash(parsed),
+                "certificate_identity": certificate_identity_hash(parsed),
                 "source_artifact_hash": parsed.source_artifact_hash,
                 "output_artifact_hash": parsed.output_artifact_hash,
                 "fit_parameter_hash": fit_parameter_hash,

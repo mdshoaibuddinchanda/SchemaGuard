@@ -11,17 +11,23 @@ from typing import Any
 
 import pandas as pd
 
-from ..utils.hashing import hash_dataframe_logically, sha256_canonical_json, sha256_file
+from ..utils.hashing import (
+    hash_dataframe_logically,
+    sha256_canonical_json,
+    sha256_file,
+    source_file_hashes,
+)
 from ..utils.io import atomic_write_json
 from .applicability import assess_applicability
 from .base import feature_schema_from_frame, frame_hash
-from .certificates import certificate_hash
+from .certificates import certificate_identity_hash
 from .contracts import (
     TransformationConfig,
     TransformationInventory,
     TransformationInventoryRecord,
     TransformationPropertyEvidence,
 )
+from .implementation import transformation_engine_implementation_hash
 from .registry import get_transformation, registry_hash
 from .validation import validate_deterministic_outputs, validate_transformation
 
@@ -225,8 +231,9 @@ def validate_dataset_seed(
                     output_target_hash=hash_dataframe_logically(target),
                 )
                 deterministic = deterministic and validate_deterministic_outputs(output, repeat)
-                deterministic = deterministic and certificate_hash(certificate) == certificate_hash(
-                    repeat_certificate
+                deterministic = deterministic and (
+                    certificate_identity_hash(certificate)
+                    == certificate_identity_hash(repeat_certificate)
                 )
                 max_error = max(max_error, float(validation["maximum_absolute_error"]))
                 certificates.append(certificate)
@@ -242,7 +249,7 @@ def validate_dataset_seed(
                     view_name=str(view["name"]),
                     status="PASS",
                     applicability="APPLICABLE",
-                    certificate_ids=[certificate_hash(item) for item in certificates],
+                    certificate_ids=[certificate_identity_hash(item) for item in certificates],
                     source_hash=frame_hash(features),
                     output_hash=hash_dataframe_logically(pd.concat(outputs, ignore_index=True)),
                     reconstruction_max_abs_error=max_error,
@@ -289,9 +296,12 @@ def _load_property_evidence(root: Path) -> list[TransformationPropertyEvidence]:
     if not isinstance(payload, list):
         raise ValueError("property evidence must be a list")
     evidence = [TransformationPropertyEvidence.model_validate(item) for item in payload]
-    implementation_hash = sha256_file(root / "scripts/run_transformation_properties.py")
-    if any(item.test_implementation_hash != implementation_hash for item in evidence):
+    implementation_hashes = source_file_hashes(root / "scripts/run_transformation_properties.py")
+    if any(item.test_implementation_hash not in implementation_hashes for item in evidence):
         raise ValueError("property evidence test implementation hash is stale")
+    engine_hash = transformation_engine_implementation_hash(root / "src/schemaguard")
+    if any(item.transformation_engine_implementation_hash != engine_hash for item in evidence):
+        raise ValueError("property evidence transformation engine identity is stale")
     return evidence
 
 

@@ -11,6 +11,7 @@ from schemaguard.transformations.contracts import (
     TransformationInventory,
     _current_property_runner_hashes,
 )
+from schemaguard.utils.hashing import source_file_hashes
 
 
 def _payload() -> dict:
@@ -33,6 +34,16 @@ def test_property_runner_hash_validation_is_line_ending_stable() -> None:
     hashes = _current_property_runner_hashes()
     assert len(hashes) == 2
     assert all(len(value) == 64 for value in hashes)
+
+
+def test_source_hashes_accept_line_endings_but_reject_semantic_edits(tmp_path: Path) -> None:
+    source = tmp_path / "runner.py"
+    source.write_bytes(b"first\nsecond\n")
+    lf_hashes = source_file_hashes(source)
+    source.write_bytes(b"first\r\nsecond\r\n")
+    assert source_file_hashes(source) == lf_hashes
+    source.write_bytes(b"first\r\nchanged\r\n")
+    assert source_file_hashes(source) != lf_hashes
 
 
 @pytest.mark.parametrize(

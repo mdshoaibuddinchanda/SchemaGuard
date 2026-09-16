@@ -8,7 +8,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ..utils.hashing import sha256_bytes, sha256_canonical_json
+from ..utils.hashing import sha256_canonical_json, source_file_hashes
+from .implementation import transformation_engine_implementation_hash
 
 FROZEN_DATASET_IDS = (3, 23, 29, 31, 36, 37, 38, 44, 46, 50, 54, 1067, 1464, 1489)
 FROZEN_SEEDS = (1729, 2718, 31415, 57721, 161803)
@@ -432,10 +433,11 @@ class TransformationPropertyEvidence(StrictTransformationContract):
     seed: int
     deterministic_profile: str
     test_implementation_hash: str
+    transformation_engine_implementation_hash: str
     execution_timestamp: str
     failure_examples: list[str] = Field(default_factory=list)
 
-    @field_validator("test_implementation_hash")
+    @field_validator("test_implementation_hash", "transformation_engine_implementation_hash")
     @classmethod
     def validate_test_hash(cls, value: str) -> str:
         return _hash(value) or value
@@ -458,11 +460,7 @@ def _current_property_runner_hashes() -> set[str]:
     try:
         if not path.is_file():
             return set()
-        source = path.read_bytes().replace(b"\r\n", b"\n")
-        return {
-            sha256_bytes(source),
-            sha256_bytes(source.replace(b"\n", b"\r\n")),
-        }
+        return source_file_hashes(path)
     except OSError:
         return set()
 
@@ -572,6 +570,12 @@ class TransformationInventory(StrictTransformationContract):
                 item.test_implementation_hash not in current_hashes for item in evidence.values()
             ):
                 raise ValueError("property evidence test implementation hash is stale")
+            current_engine_hash = transformation_engine_implementation_hash()
+            if any(
+                item.transformation_engine_implementation_hash != current_engine_hash
+                for item in evidence.values()
+            ):
+                raise ValueError("property evidence transformation engine identity is stale")
         return self
 
 

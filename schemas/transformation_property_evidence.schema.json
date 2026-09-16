@@ -45,6 +45,10 @@
       "title": "Test Implementation Hash",
       "type": "string"
     },
+    "transformation_engine_implementation_hash": {
+      "title": "Transformation Engine Implementation Hash",
+      "type": "string"
+    },
     "view_id": {
       "title": "View Id",
       "type": "string"
@@ -58,6 +62,7 @@
     "seed",
     "deterministic_profile",
     "test_implementation_hash",
+    "transformation_engine_implementation_hash",
     "execution_timestamp"
   ],
   "title": "TransformationPropertyEvidence",

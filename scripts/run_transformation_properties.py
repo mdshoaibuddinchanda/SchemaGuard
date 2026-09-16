@@ -14,13 +14,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from schemaguard.transformations.base import feature_schema_from_frame  # noqa: E402
-from schemaguard.transformations.certificates import certificate_hash  # noqa: E402
+from schemaguard.transformations.certificates import certificate_identity_hash  # noqa: E402
+from schemaguard.transformations.implementation import (  # noqa: E402
+    transformation_engine_implementation_hash,
+)
 from schemaguard.transformations.registry import (  # noqa: E402
     get_transformation,
     load_transformation_config,
 )
 from schemaguard.transformations.validation import validate_transformation  # noqa: E402
-from schemaguard.utils.hashing import hash_dataframe_logically, sha256_file  # noqa: E402
+from schemaguard.utils.hashing import canonical_source_hash, hash_dataframe_logically  # noqa: E402
 from schemaguard.utils.io import atomic_write_json  # noqa: E402
 
 SEED = 1729
@@ -196,7 +199,9 @@ def run_view(view_id: str, examples: int, config: object) -> dict[str, object]:
             )
             if hash_dataframe_logically(output) != hash_dataframe_logically(repeat):
                 raise AssertionError("repeat output hash changed")
-            if certificate_hash(certificate) != certificate_hash(repeat_certificate):
+            if certificate_identity_hash(certificate) != certificate_identity_hash(
+                repeat_certificate
+            ):
                 raise AssertionError("repeat certificate identity changed")
             passed += 1
         except Exception as exc:  # pragma: no cover - evidence records the concrete failure
@@ -209,7 +214,8 @@ def run_view(view_id: str, examples: int, config: object) -> dict[str, object]:
         "failed_example_count": examples - passed,
         "seed": SEED,
         "deterministic_profile": "synthetic_mixed_numeric_categorical_v1",
-        "test_implementation_hash": sha256_file(Path(__file__).resolve()),
+        "test_implementation_hash": canonical_source_hash(Path(__file__).resolve()),
+        "transformation_engine_implementation_hash": transformation_engine_implementation_hash(),
         "execution_timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "failure_examples": failures[:10],
     }

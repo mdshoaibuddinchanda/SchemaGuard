@@ -37,6 +37,21 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def canonical_source_hash(path: str | Path) -> str:
+    """Hash source bytes after normalizing CRLF line endings to LF."""
+    source = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    return sha256_bytes(source)
+
+
+def source_file_hashes(path: str | Path) -> set[str]:
+    """Return accepted SHA-256 values for LF and equivalent CRLF source bytes."""
+    source = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    return {
+        sha256_bytes(source),
+        sha256_bytes(source.replace(b"\n", b"\r\n")),
+    }
+
+
 def _canonicalize(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): _canonicalize(value[key]) for key in sorted(value, key=str)}

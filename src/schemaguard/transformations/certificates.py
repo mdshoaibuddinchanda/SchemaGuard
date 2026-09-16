@@ -135,20 +135,23 @@ def build_certificate(
     )
 
 
-def _without_timestamps(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {
-            key: _without_timestamps(item) for key, item in value.items() if key != "created_at"
-        }
-    if isinstance(value, list):
-        return [_without_timestamps(item) for item in value]
-    return value
+def _logical_identity_payload(certificate: TransformationCertificate) -> dict[str, Any]:
+    """Return the certificate fields that define its scientific identity."""
+    payload = certificate.canonical_dict()
+    payload.pop("created_at", None)
+    payload.pop("source_commit", None)
+    return payload
+
+
+def certificate_identity_hash(certificate: TransformationCertificate) -> str:
+    """Return the stable logical identity, excluding generation provenance only."""
+    return sha256_canonical_json(_logical_identity_payload(certificate))
 
 
 def certificate_hash(certificate: TransformationCertificate) -> str:
-    """Return the stable identity of a validated certificate."""
+    """Backward-compatible alias for the stable logical certificate identity."""
 
-    return sha256_canonical_json(_without_timestamps(certificate.canonical_dict()))
+    return certificate_identity_hash(certificate)
 
 
 def _maximum_errors(source: pd.DataFrame, restored: pd.DataFrame) -> tuple[float, float]:
@@ -378,6 +381,7 @@ __all__ = [
     "VIEW_METADATA",
     "build_certificate",
     "certificate_hash",
+    "certificate_identity_hash",
     "schema_hash",
     "validate_roundtrip",
 ]
