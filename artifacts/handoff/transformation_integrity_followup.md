@@ -212,6 +212,8 @@ conda run -n P12 python scripts/validate_repository_naming.py
 conda run -n P12 python scripts/validate_local_evidence.py
 conda run -n P12 python scripts/materialize_transformation.py --dataset-id 1464 --seed 1729 --view numeric_affine_units --offline
 conda run -n P12 python scripts/materialize_transformation.py --dataset-id 1464 --seed 1729 --view numeric_affine_units --offline
+D:\Temp\SchemaGuardIntegrityCleanClone\ (fresh clone of the implementation commit)
+conda run -n P12 python scripts/validate_repository_repair.py (run from the fresh clone)
 git diff --check
 ```
 
@@ -233,7 +235,8 @@ runs passed with zero unexpected changes.
 
 ## Review and delivery state
 
-* Implementation commit: pending local commit.
+* Implementation commit: `0b163c5f7d46848980a2144f56e6a6ca7f135437`.
+* Fresh-clone repository validation at that commit: `PASS`.
 * GitHub delivery: pending independent review and final push.
 * Required review status remains `PASS_PENDING_REVIEW`; this handoff does not
   self-approve the work.
