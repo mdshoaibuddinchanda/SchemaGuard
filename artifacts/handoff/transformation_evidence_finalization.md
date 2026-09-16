@@ -84,4 +84,4 @@ No transformation mathematics, datasets, splits, model adapters, models, SCNF, C
 
 ## GitHub Actions
 
-Finalization commits are to be pushed only after the local gates above pass. The finalization run URL and job conclusions will be recorded here after GitHub Actions completes. The starting-commit Actions run is not treated as evidence for these changes.
+The finalization workflow [run 35142351028](https://github.com/mdshoaibuddinchanda/SchemaGuard/actions/runs/35142351028) validated commit `c2f2eb65e657653014e8ee87c0dff41de4adfb39` and completed successfully. Both `Core quality` and `Classical model validation` concluded `success`. This run is for the final source and evidence plus the initial handoff; the only subsequent change is this Actions-result note. The final documentation commit's run is checked separately in the delivery record.
