@@ -7,6 +7,7 @@ from schemaguard.models.adapters.factory import create_adapter, load_adapter_con
 from schemaguard.models.registry import EXPECTED_MODELS
 
 
+@pytest.mark.foundation_model
 def test_factory_resolves_exactly_the_five_frozen_model_ids() -> None:
     adapters = [create_adapter(model_id) for model_id, *_ in EXPECTED_MODELS]
     assert [adapter.model_id for adapter in adapters] == [row[0] for row in EXPECTED_MODELS]

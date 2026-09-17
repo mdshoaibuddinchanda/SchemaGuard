@@ -5,10 +5,12 @@ import sys
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from schemaguard.models.adapters.factory import create_adapter
 
 
+@pytest.mark.foundation_model
 def test_foundation_adapter_resets_python_numpy_and_torch_rngs(monkeypatch) -> None:
     torch_seeds: list[int] = []
     adapter = create_adapter("TICL2-2.2", seed=1729, device="cpu")

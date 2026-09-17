@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
 from schemaguard.models.adapters.factory import create_adapter, load_adapter_config
+
+pytestmark = pytest.mark.foundation_model
 
 
 def test_tabpfn_adapter_is_frozen_and_uses_validated_checkpoint_identity() -> None:

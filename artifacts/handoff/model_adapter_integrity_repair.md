@@ -65,6 +65,9 @@ own contents.
    surface. Transformation implementation modules and transformation evidence
    remain unchanged; this prevents unrelated adapter schemas from being
    misclassified as transformation mutations.
+7. Unit tests that construct foundation adapters are explicitly marked
+   `foundation_model`, so Core quality does not select them when foundation
+   dependencies are intentionally omitted.
 
 ## Frozen identities
 
@@ -165,8 +168,8 @@ Absolute repository and checkpoint paths are excluded.
 | Check | Result |
 | --- | --- |
 | Focused adapter unit suite | PASS |
-| Required unit subset (`not ... evidence`) | `336 passed` |
-| Full non-network/non-GPU/non-foundation suite | `362 passed` |
+| Required unit subset (`not ... evidence`) | `332 passed` |
+| Full non-network/non-GPU/non-foundation suite | `358 passed` |
 | Full non-foundation integration marker suite | `12 passed` |
 | Isolated foundation CPU integration | `3 passed` |
 | Isolated foundation CUDA integration | `2 passed` |
@@ -201,8 +204,8 @@ selected.
 The preserved Phase 01 SHA-256 values include the raw OpenML source manifest
 and ARFF, processed features/targets/manifests/schema/quality/label mapping,
 and the protected seed-1729 grouped assignment and split manifest. The
-recorded comparison is retained locally under
-`artifacts/phase_02a_model_compatibility/review/`.
+recorded comparison is retained in the ignored local protected-hash review
+directory.
 
 ## Tracked files changed
 
@@ -231,6 +234,10 @@ tests/unit/test_model_adapter_contracts.py
 tests/unit/test_model_adapter_evidence.py
 tests/unit/test_model_adapter_parameter_identity.py
 tests/unit/test_model_adapter_resource_limits.py
+tests/unit/test_model_adapter_determinism.py
+tests/unit/test_model_adapter_factory.py
+tests/unit/test_tabicl_adapter.py
+tests/unit/test_tabpfn_adapter.py
 artifacts/handoff/model_adapter_inventory.json
 artifacts/handoff/model_adapter_leakage_evidence.json
 artifacts/handoff/model_adapter_integrity_repair.md
@@ -278,7 +285,10 @@ push. The evidence was generated at source commit `0aadc04`; the final commit
 containing this handoff and sanitized evidence is created after this document
 to avoid a self-referential SHA. The transformation validator allowlist was
 extended for the three required adapter schemas, while transformation source
-and scientific evidence stayed byte-identical. No other deviation is known.
+and scientific evidence stayed byte-identical. The first Actions run for the
+evidence commit exposed missing foundation markers in four unit-test modules;
+those markers are now corrected, and final CI is being verified on the
+follow-up commit. No other deviation is known.
 
 ## Failures
 
