@@ -7,7 +7,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from validate_repository_repair import _check_private_document, validate_repository  # noqa: E402
+from validate_repository_repair import (  # noqa: E402
+    _check_private_document,
+    _check_workflow,
+    validate_repository,
+)
 
 
 def test_structural_validator_is_rerunnable_without_local_evidence() -> None:
@@ -37,3 +41,23 @@ def test_staged_private_document_fails(tmp_path: Path) -> None:
     document.write_bytes(b"synthetic")
     subprocess.run(["git", "add", document.name], cwd=tmp_path, check=True)
     assert _check_private_document(tmp_path)[0] == "FAIL"
+
+
+def test_workflow_declares_resource_monitoring_for_adapter_tests(tmp_path: Path) -> None:
+    workflow = tmp_path / ".github" / "workflows" / "quality.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "\n".join(
+            (
+                "core-quality:",
+                "uv sync --extra dev --extra monitoring --no-managed-python",
+                "tests/unit",
+                "classical-model-validation:",
+                "uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python",
+                "tests/integration/test_classical_model_probes.py",
+            )
+        ),
+        encoding="utf-8",
+    )
+    status, evidence = _check_workflow(tmp_path)
+    assert status == "PASS", evidence
