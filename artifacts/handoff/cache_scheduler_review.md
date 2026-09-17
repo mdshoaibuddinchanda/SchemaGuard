@@ -170,8 +170,10 @@ git diff --check
   or controlled N/A; the same helper was run read-only with exit code 0. No transformation output,
   inventory, split, or dataset was written or modified. The dedicated 93-file protected comparison
   and all required protected-workstream evidence checks passed.
-- GitHub Actions for the final pushed delivery commit remains to be verified; its exact result and
-  run URL will be reported in the delivery response.
+- GitHub Actions run `35226750306` passed for commit `c1eeec4aa0af0237a5b1ea403f9a2c5a2ea100c9`:
+  [view the successful workflow](https://github.com/mdshoaibuddinchanda/SchemaGuard/actions/runs/35226750306).
+  This handoff update records that verified result; the documentation-only commit carrying this
+  update will receive its own exact-SHA CI check, reported in the delivery response.
 
 ## Review boundary
 
