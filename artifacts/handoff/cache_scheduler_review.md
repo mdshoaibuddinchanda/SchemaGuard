@@ -17,6 +17,7 @@ smoke test or later research work was started.
 - Required starting commit: `cc8e2a53ceb73e833d54917dd195eb99bf01719c`
 - Source implementation commit: `6e1f90c0fc598dac70c1479ccae1f15aaed764c5`
 - CI dependency correction commit: `428ff41fac0f7a1cf9c11f9c50b352c334a4e07a`
+- Corrected evidence bundle commit: `f60e8a6895761e293f451f93591c2699e9774106`
 - Superseded evidence draft: `8189320f788c1ee20ff0e04c8f7bcb202134d275`; the corrected evidence below
   is regenerated against the source implementation commit above.
 - Runtime: existing Conda environment `P12`, Python 3.12, Windows
@@ -83,6 +84,9 @@ network request and verified that it was denied.
 - Sanitized evidence validator: passed with status `PASS_PENDING_REVIEW`
 - LF/CRLF configuration and dependency-lock identity tests: passed; clean-clone portability repair
   prevents Windows checkout line endings from invalidating evidence hashes
+- Clean-clone validation at the corrected evidence bundle commit: passed, including 379 unit tests,
+  9 integration tests, Ruff, mypy, schema regeneration without a diff, evidence validation,
+  repository/naming validation, and Model Adapter evidence validation
 
 The 93-record comparison binds protected local SHA-256/size records to the required baseline and
 implementation Git trees. A separate read-only rehash compared all 281 existing raw, processed, and
@@ -166,8 +170,8 @@ git diff --check
   or controlled N/A; the same helper was run read-only with exit code 0. No transformation output,
   inventory, split, or dataset was written or modified. The dedicated 93-file protected comparison
   and all required protected-workstream evidence checks passed.
-- GitHub Actions and clean-clone validation are delivery gates and will be reported after the
-  evidence commit is created and pushed; this handoff does not claim either has already passed.
+- GitHub Actions for the final pushed delivery commit remains to be verified; its exact result and
+  run URL will be reported in the delivery response.
 
 ## Review boundary
 
