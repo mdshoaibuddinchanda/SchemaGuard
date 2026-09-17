@@ -10,8 +10,16 @@
       "title": "Evidence Sha256",
       "type": "string"
     },
+    "expected_artifact_accepted": {
+      "title": "Expected Artifact Accepted",
+      "type": "boolean"
+    },
     "expected_failure_category": {
       "title": "Expected Failure Category",
+      "type": "string"
+    },
+    "expected_resume_behavior": {
+      "title": "Expected Resume Behavior",
       "type": "string"
     },
     "fault_name": {
@@ -48,7 +56,9 @@
     "injection_point",
     "expected_failure_category",
     "observed_failure_category",
+    "expected_artifact_accepted",
     "artifact_accepted",
+    "expected_resume_behavior",
     "lock_released",
     "resume_behavior",
     "evidence_sha256",
