@@ -387,14 +387,25 @@ def _monitor_worker(
     """Enforce worker timeout and process-tree RAM cap while model code runs."""
 
     deadline = time.monotonic() + timeout
+    missing_telemetry_samples = 0
     while process.poll() is None:
         memory_mib = _worker_memory_mib(process.pid)
         if memory_mib is None:
-            _terminate_worker_tree(process)
-            return {
-                "failure_category": FailureCategory.FAIL_RESOURCE_LIMIT.value,
-                "failure_reason": "worker process-tree RAM telemetry is unavailable",
-            }
+            # The worker can exit between poll() and psutil sampling. Confirm
+            # that race before classifying telemetry as unavailable; persistent
+            # absence remains a hard resource failure.
+            if process.poll() is not None:
+                return None
+            missing_telemetry_samples += 1
+            if missing_telemetry_samples >= 5:
+                _terminate_worker_tree(process)
+                return {
+                    "failure_category": FailureCategory.FAIL_RESOURCE_LIMIT.value,
+                    "failure_reason": "worker process-tree RAM telemetry is unavailable",
+                }
+            time.sleep(0.25)
+            continue
+        missing_telemetry_samples = 0
         if memory_mib > 28672.0:
             _terminate_worker_tree(process)
             return {
