@@ -165,7 +165,7 @@ def _check_workflow(root: Path) -> tuple[str, str]:
     required = (
         "core-quality:",
         "classical-model-validation:",
-        "uv sync --extra dev --extra monitoring --no-managed-python",
+        "uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python",
         "uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python",
         "tests/unit",
         "tests/integration/test_classical_model_probes.py",

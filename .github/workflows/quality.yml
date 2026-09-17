@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install uv
-      - run: uv sync --extra dev --extra monitoring --no-managed-python
+      - run: uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python
       - run: uv run python -m ruff check .
       - run: uv run python -m mypy src/schemaguard
       - run: uv run python -m pytest -q tests/unit -m "not network and not gpu and not foundation_model and not evidence"

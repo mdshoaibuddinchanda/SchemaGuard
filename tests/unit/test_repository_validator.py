@@ -43,14 +43,14 @@ def test_staged_private_document_fails(tmp_path: Path) -> None:
     assert _check_private_document(tmp_path)[0] == "FAIL"
 
 
-def test_workflow_declares_resource_monitoring_for_adapter_tests(tmp_path: Path) -> None:
+def test_workflow_declares_model_and_resource_extras_for_adapter_tests(tmp_path: Path) -> None:
     workflow = tmp_path / ".github" / "workflows" / "quality.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
         "\n".join(
             (
                 "core-quality:",
-                "uv sync --extra dev --extra monitoring --no-managed-python",
+                "uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python",
                 "tests/unit",
                 "classical-model-validation:",
                 "uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python",
