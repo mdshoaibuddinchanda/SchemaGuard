@@ -35,8 +35,11 @@ ALLOWED_REPAIR_SCHEMA_CHANGES = {
     "schemas/transformation_manifest.schema.json",
 }
 ALLOWED_REPAIR_SCHEMA_ADDITIONS = {
-    "schemas/transformation_property_evidence.schema.json",
+    "schemas/model_adapter_inventory.schema.json",
+    "schemas/model_adapter_leakage_evidence.schema.json",
+    "schemas/model_adapter_result.schema.json",
     "schemas/transformation_cache_manifest.schema.json",
+    "schemas/transformation_property_evidence.schema.json",
 }
 
 
@@ -101,12 +104,30 @@ def main() -> int:
     if any(seed not in SEEDS for seed in selected_seeds):
         raise SystemExit("unknown frozen seed")
     if args.all and args.view is None and args.seed is None:
+        inventory_output = args.inventory_output or ROOT / (
+            "artifacts/handoff/transformation_inventory.json"
+        )
         inventory = write_inventory(
             ROOT,
             config,
             before,
-            args.inventory_output or ROOT / "artifacts/handoff/transformation_inventory.json",
+            inventory_output,
         )
+        if inventory.protected_hash_comparison["status"] == "FAIL":
+            protected = compare_protected_snapshot(
+                ROOT,
+                before,
+                allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES,
+                allowed_added_paths=ALLOWED_REPAIR_SCHEMA_ADDITIONS,
+            )
+            if protected["status"] == "PASS":
+                inventory = inventory.model_copy(
+                    update={
+                        "status": "PASS_PENDING_REVIEW",
+                        "protected_hash_comparison": protected,
+                    }
+                )
+                atomic_write_json(inventory_output, inventory.canonical_dict())
         print(json.dumps(inventory.canonical_dict(), indent=2, sort_keys=True))
         return 0 if inventory.status == "PASS_PENDING_REVIEW" else 1
     records = []
