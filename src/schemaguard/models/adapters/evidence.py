@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 from ...utils.hashing import hash_dataframe_logically, sha256_canonical_json
 from .contracts import (
@@ -53,7 +54,7 @@ def build_leakage_evidence(
     numeric_columns = [
         name
         for name in sentinel_predictors.columns
-        if np.issubdtype(sentinel_predictors[name].dtype, np.number)
+        if pd.api.types.is_numeric_dtype(sentinel_predictors[name].dtype)
     ]
     if numeric_columns:
         sentinel.loc[:, numeric_columns[0]] = 987654321.0
