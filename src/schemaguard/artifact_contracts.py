@@ -33,6 +33,22 @@ from .data.contracts import (
     DatasetInventoryContract,
     DatasetValidationRecordContract,
 )
+from .experiments.contracts import (
+    ConditionResource,
+    MetricRecord,
+    PairedMetricRecord,
+    PredictionFileRecord,
+    ProtectedFoundationHashComparison,
+    ProtectedSplitValidation,
+    ResumeVerification,
+    RuntimeEstimate,
+    SmokeCondition,
+    SmokeEvidenceInventory,
+    SmokePlan,
+    SmokeRunReport,
+    SmokeValidationReport,
+)
+from .experiments.planning import SmokeConfig
 from .models.adapters.contracts import (
     AdapterLeakageEvidenceManifest,
     ModelAdapterInventory,
@@ -311,6 +327,20 @@ class RepositoryValidationReportContract(ArtifactContract):
 
 SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "condition_manifest.schema.json": ConditionManifestContract,
+    "smoke_condition.schema.json": SmokeCondition,
+    "smoke_config.schema.json": SmokeConfig,
+    "smoke_plan.schema.json": SmokePlan,
+    "smoke_prediction_file.schema.json": PredictionFileRecord,
+    "smoke_metric.schema.json": MetricRecord,
+    "smoke_runtime_estimate.schema.json": RuntimeEstimate,
+    "smoke_paired_metric.schema.json": PairedMetricRecord,
+    "smoke_condition_resource.schema.json": ConditionResource,
+    "smoke_protected_foundation_hash_comparison.schema.json": ProtectedFoundationHashComparison,
+    "smoke_protected_split_validation.schema.json": ProtectedSplitValidation,
+    "smoke_resume_verification.schema.json": ResumeVerification,
+    "smoke_run_report.schema.json": SmokeRunReport,
+    "smoke_evidence_inventory.schema.json": SmokeEvidenceInventory,
+    "smoke_validation_report.schema.json": SmokeValidationReport,
     "cache_artifact_manifest.schema.json": CacheArtifactManifest,
     "cache_completion_marker.schema.json": CompletionMarker,
     "cache_identity.schema.json": CacheIdentity,
@@ -362,6 +392,11 @@ def schema_documents() -> dict[str, dict[str, Any]]:
 
 __all__ = [
     "ConditionManifestContract",
+    "SmokeCondition",
+    "SmokePlan",
+    "SmokeEvidenceInventory",
+    "SmokeRunReport",
+    "SmokeValidationReport",
     "DataFoundationBaselineContract",
     "DatasetRegistryReportContract",
     "GpuCapacityReportContract",

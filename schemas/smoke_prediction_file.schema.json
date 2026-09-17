@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "partition": {
+      "enum": [
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "probability_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Probability Sha256",
+      "type": "string"
+    },
+    "relative_path": {
+      "pattern": "^results/smoke/predictions/[A-Za-z0-9_.-]+\\.parquet$",
+      "title": "Relative Path",
+      "type": "string"
+    },
+    "row_count": {
+      "exclusiveMinimum": 0,
+      "title": "Row Count",
+      "type": "integer"
+    },
+    "row_id_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Row Id Sha256",
+      "type": "string"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "partition",
+    "relative_path",
+    "sha256",
+    "row_count",
+    "row_id_sha256",
+    "probability_sha256"
+  ],
+  "title": "PredictionFileRecord",
+  "type": "object"
+}

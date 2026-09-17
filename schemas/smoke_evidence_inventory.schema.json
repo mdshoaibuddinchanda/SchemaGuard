@@ -1,0 +1,906 @@
+{
+  "$defs": {
+    "ConditionResource": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_resource_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Adapter Resource Sha256",
+          "type": "string"
+        },
+        "cleanup_passed": {
+          "title": "Cleanup Passed",
+          "type": "boolean"
+        },
+        "cpu_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Seconds"
+        },
+        "fit_seconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Fit Seconds",
+          "type": "number"
+        },
+        "free_vram_before_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Free Vram Before Mib"
+        },
+        "peak_process_tree_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Process Tree Rss Mib"
+        },
+        "peak_vram_allocated_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Vram Allocated Mib"
+        },
+        "peak_vram_reserved_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Vram Reserved Mib"
+        },
+        "peak_worker_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Worker Rss Mib"
+        },
+        "prediction_seconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Prediction Seconds",
+          "type": "number"
+        },
+        "telemetry_complete": {
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        },
+        "wall_seconds": {
+          "minimum": 0,
+          "title": "Wall Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "wall_seconds",
+        "telemetry_complete",
+        "cleanup_passed",
+        "adapter_resource_sha256"
+      ],
+      "title": "ConditionResource",
+      "type": "object"
+    },
+    "MetricRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "accuracy": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Accuracy",
+          "type": "number"
+        },
+        "balanced_accuracy": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Balanced Accuracy",
+          "type": "number"
+        },
+        "brier_score": {
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Brier Score",
+          "type": "number"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "expected_calibration_error": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Expected Calibration Error",
+          "type": "number"
+        },
+        "log_loss": {
+          "minimum": 0,
+          "title": "Log Loss",
+          "type": "number"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "partition": {
+          "enum": [
+            "calibration",
+            "test"
+          ],
+          "title": "Partition",
+          "type": "string"
+        },
+        "prediction_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Prediction Sha256",
+          "type": "string"
+        },
+        "roc_auc": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roc Auc"
+        },
+        "roc_auc_status": {
+          "enum": [
+            "defined",
+            "undefined_single_class"
+          ],
+          "title": "Roc Auc Status",
+          "type": "string"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "target_artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Target Artifact Sha256",
+          "type": "string"
+        },
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01"
+          ],
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "view_id",
+        "device",
+        "partition",
+        "row_count",
+        "brier_score",
+        "log_loss",
+        "accuracy",
+        "balanced_accuracy",
+        "roc_auc_status",
+        "expected_calibration_error",
+        "prediction_sha256",
+        "target_artifact_sha256"
+      ],
+      "title": "MetricRecord",
+      "type": "object"
+    },
+    "PairedMetricRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "label_flip_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Label Flip Rate",
+          "type": "number"
+        },
+        "maximum_absolute_probability_difference": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Maximum Absolute Probability Difference",
+          "type": "number"
+        },
+        "mean_absolute_probability_difference": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Mean Absolute Probability Difference",
+          "type": "number"
+        },
+        "metric_deltas_v01_minus_v00": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "propertyNames": {
+            "enum": [
+              "brier_score",
+              "log_loss",
+              "accuracy",
+              "balanced_accuracy",
+              "roc_auc",
+              "expected_calibration_error"
+            ]
+          },
+          "title": "Metric Deltas V01 Minus V00",
+          "type": "object"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "partition": {
+          "enum": [
+            "calibration",
+            "test"
+          ],
+          "title": "Partition",
+          "type": "string"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "sii_max_js_divergence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Sii Max Js Divergence",
+          "type": "number"
+        },
+        "sii_mean_js_divergence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Sii Mean Js Divergence",
+          "type": "number"
+        },
+        "sii_median_js_divergence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Sii Median Js Divergence",
+          "type": "number"
+        },
+        "sii_p90_js_divergence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Sii P90 Js Divergence",
+          "type": "number"
+        },
+        "v00_prediction_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "V00 Prediction Sha256",
+          "type": "string"
+        },
+        "v01_prediction_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "V01 Prediction Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "device",
+        "partition",
+        "row_count",
+        "sii_mean_js_divergence",
+        "sii_median_js_divergence",
+        "sii_p90_js_divergence",
+        "sii_max_js_divergence",
+        "label_flip_rate",
+        "maximum_absolute_probability_difference",
+        "mean_absolute_probability_difference",
+        "metric_deltas_v01_minus_v00",
+        "v00_prediction_sha256",
+        "v01_prediction_sha256"
+      ],
+      "title": "PairedMetricRecord",
+      "type": "object"
+    },
+    "SmokeEnvironment": {
+      "additionalProperties": false,
+      "properties": {
+        "conda_environment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Conda Environment"
+        },
+        "cpu_identifier": {
+          "title": "Cpu Identifier",
+          "type": "string"
+        },
+        "cpu_logical_cores": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Logical Cores"
+        },
+        "cpu_physical_cores": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Physical Cores"
+        },
+        "cuda_visible": {
+          "title": "Cuda Visible",
+          "type": "boolean"
+        },
+        "gpu_driver": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Gpu Driver"
+        },
+        "gpu_free_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Free Mib"
+        },
+        "gpu_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Gpu Name"
+        },
+        "gpu_total_mib": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Total Mib"
+        },
+        "os_platform": {
+          "title": "Os Platform",
+          "type": "string"
+        },
+        "python_version": {
+          "title": "Python Version",
+          "type": "string"
+        },
+        "ram_available_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ram Available Mib"
+        },
+        "ram_total_mib": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ram Total Mib"
+        },
+        "runtime_package_versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Runtime Package Versions",
+          "type": "object"
+        },
+        "telemetry_warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Warnings",
+          "type": "array"
+        },
+        "torch_cuda_build": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Torch Cuda Build"
+        },
+        "torch_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Torch Version"
+        }
+      },
+      "required": [
+        "os_platform",
+        "python_version",
+        "conda_environment",
+        "cpu_identifier",
+        "gpu_name",
+        "gpu_driver",
+        "torch_version",
+        "torch_cuda_build",
+        "cuda_visible",
+        "runtime_package_versions",
+        "telemetry_warnings"
+      ],
+      "title": "SmokeEnvironment",
+      "type": "object"
+    },
+    "SmokeEvidenceCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Cache Identity Sha256",
+          "type": "string"
+        },
+        "cache_status": {
+          "enum": [
+            "created",
+            "validated_cache_hit",
+            "not_published"
+          ],
+          "title": "Cache Status",
+          "type": "string"
+        },
+        "condition_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Condition Id",
+          "type": "string"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Failure Category"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "prediction_hashes": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "title": "Prediction Hashes",
+          "type": "array"
+        },
+        "resource": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionResource"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01"
+          ],
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "condition_id",
+        "cache_identity_sha256",
+        "model_id",
+        "view_id",
+        "device",
+        "status",
+        "cache_status",
+        "prediction_hashes",
+        "failure_category",
+        "resource"
+      ],
+      "title": "SmokeEvidenceCondition",
+      "type": "object"
+    },
+    "SmokeGateRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Sha256",
+          "type": "string"
+        },
+        "gate_id": {
+          "pattern": "^S[0-9]{2}$",
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_VERIFIED"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "result",
+        "evidence_sha256",
+        "detail"
+      ],
+      "title": "SmokeGateRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_gates": {
+      "items": {
+        "$ref": "#/$defs/SmokeGateRecord"
+      },
+      "minItems": 1,
+      "title": "Acceptance Gates",
+      "type": "array"
+    },
+    "blocked_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Blocked Conditions",
+      "type": "integer"
+    },
+    "condition_count": {
+      "const": 10,
+      "default": 10,
+      "title": "Condition Count",
+      "type": "integer"
+    },
+    "conditions": {
+      "items": {
+        "$ref": "#/$defs/SmokeEvidenceCondition"
+      },
+      "maxItems": 10,
+      "minItems": 10,
+      "title": "Conditions",
+      "type": "array"
+    },
+    "dataset_features_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dataset Features Sha256",
+      "type": "string"
+    },
+    "dataset_source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dataset Source Sha256",
+      "type": "string"
+    },
+    "environment": {
+      "$ref": "#/$defs/SmokeEnvironment"
+    },
+    "failed_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Failed Conditions",
+      "type": "integer"
+    },
+    "metric_record_count": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Metric Record Count",
+      "type": "integer"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricRecord"
+      },
+      "title": "Metrics",
+      "type": "array"
+    },
+    "network_attempt_count": {
+      "minimum": 0,
+      "title": "Network Attempt Count",
+      "type": "integer"
+    },
+    "paired_metric_record_count": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Paired Metric Record Count",
+      "type": "integer"
+    },
+    "paired_metrics": {
+      "items": {
+        "$ref": "#/$defs/PairedMetricRecord"
+      },
+      "title": "Paired Metrics",
+      "type": "array"
+    },
+    "passed_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Passed Conditions",
+      "type": "integer"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "prediction_artifact_count": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Prediction Artifact Count",
+      "type": "integer"
+    },
+    "protected_foundation_unchanged": {
+      "title": "Protected Foundation Unchanged",
+      "type": "boolean"
+    },
+    "protected_split_validation_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Protected Split Validation Sha256"
+    },
+    "resume_verification_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resume Verification Sha256"
+    },
+    "run_report_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Run Report Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "split_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Split Sha256",
+      "type": "string"
+    },
+    "stage": {
+      "const": "smoke_experiment_evidence",
+      "default": "smoke_experiment_evidence",
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS_PENDING_REVIEW",
+        "PARTIAL_VALID",
+        "REPAIR_REQUIRED",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "target_artifact_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Artifact Sha256",
+      "type": "string"
+    },
+    "test_labels_opened_after_predictions": {
+      "title": "Test Labels Opened After Predictions",
+      "type": "boolean"
+    },
+    "transformation_inventory_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Transformation Inventory Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "source_commit",
+    "plan_sha256",
+    "run_report_sha256",
+    "passed_conditions",
+    "failed_conditions",
+    "blocked_conditions",
+    "prediction_artifact_count",
+    "metric_record_count",
+    "paired_metric_record_count",
+    "protected_foundation_unchanged",
+    "test_labels_opened_after_predictions",
+    "network_attempt_count",
+    "dataset_features_sha256",
+    "dataset_source_sha256",
+    "target_artifact_sha256",
+    "split_sha256",
+    "transformation_inventory_sha256",
+    "environment",
+    "conditions",
+    "acceptance_gates"
+  ],
+  "title": "SmokeEvidenceInventory",
+  "type": "object"
+}

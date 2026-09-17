@@ -1,0 +1,153 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "assignment_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Assignment Sha256",
+      "type": "string"
+    },
+    "class_counts_by_partition": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Class Counts By Partition"
+    },
+    "conflicting_target_group_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conflicting Target Group Count"
+    },
+    "crossing_predictor_group_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Crossing Predictor Group Count"
+    },
+    "deprecated_row_stratified_split_selected": {
+      "const": false,
+      "default": false,
+      "title": "Deprecated Row Stratified Split Selected",
+      "type": "boolean"
+    },
+    "duplicate_predictor_group_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duplicate Predictor Group Count"
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Reason"
+    },
+    "partition_counts": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Partition Counts"
+    },
+    "predictor_group_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Predictor Group Count"
+    },
+    "row_count": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Row Count"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "strategy": {
+      "const": "stratified_group_5fold_v1",
+      "title": "Strategy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "strategy",
+    "assignment_sha256"
+  ],
+  "title": "ProtectedSplitValidation",
+  "type": "object"
+}

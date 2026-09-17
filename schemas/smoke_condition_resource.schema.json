@@ -1,0 +1,121 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_resource_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Adapter Resource Sha256",
+      "type": "string"
+    },
+    "cleanup_passed": {
+      "title": "Cleanup Passed",
+      "type": "boolean"
+    },
+    "cpu_seconds": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cpu Seconds"
+    },
+    "fit_seconds": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Fit Seconds",
+      "type": "number"
+    },
+    "free_vram_before_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Free Vram Before Mib"
+    },
+    "peak_process_tree_rss_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Process Tree Rss Mib"
+    },
+    "peak_vram_allocated_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Vram Allocated Mib"
+    },
+    "peak_vram_reserved_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Vram Reserved Mib"
+    },
+    "peak_worker_rss_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Worker Rss Mib"
+    },
+    "prediction_seconds": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Prediction Seconds",
+      "type": "number"
+    },
+    "telemetry_complete": {
+      "title": "Telemetry Complete",
+      "type": "boolean"
+    },
+    "wall_seconds": {
+      "minimum": 0,
+      "title": "Wall Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "wall_seconds",
+    "telemetry_complete",
+    "cleanup_passed",
+    "adapter_resource_sha256"
+  ],
+  "title": "ConditionResource",
+  "type": "object"
+}

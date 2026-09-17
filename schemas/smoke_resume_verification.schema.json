@@ -1,0 +1,132 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "after_hashes": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "After Hashes",
+      "type": "object"
+    },
+    "after_mtime_ns": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "After Mtime Ns",
+      "type": "object"
+    },
+    "before_hashes": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Before Hashes",
+      "type": "object"
+    },
+    "before_mtime_ns": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Before Mtime Ns",
+      "type": "object"
+    },
+    "blocked_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Blocked Conditions",
+      "type": "integer"
+    },
+    "cold_run_report_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Cold Run Report Sha256",
+      "type": "string"
+    },
+    "duplicate_prediction_artifacts": {
+      "minimum": 0,
+      "title": "Duplicate Prediction Artifacts",
+      "type": "integer"
+    },
+    "executed_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Executed Conditions",
+      "type": "integer"
+    },
+    "failed_conditions": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Failed Conditions",
+      "type": "integer"
+    },
+    "network_attempt_count": {
+      "minimum": 0,
+      "title": "Network Attempt Count",
+      "type": "integer"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "planned_conditions": {
+      "const": 10,
+      "default": 10,
+      "title": "Planned Conditions",
+      "type": "integer"
+    },
+    "prediction_hashes_unchanged": {
+      "title": "Prediction Hashes Unchanged",
+      "type": "boolean"
+    },
+    "prediction_mtimes_unchanged": {
+      "title": "Prediction Mtimes Unchanged",
+      "type": "boolean"
+    },
+    "result_rewrites": {
+      "minimum": 0,
+      "title": "Result Rewrites",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "validated_cache_hits": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Validated Cache Hits",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "status",
+    "plan_sha256",
+    "before_hashes",
+    "after_hashes",
+    "before_mtime_ns",
+    "after_mtime_ns",
+    "cold_run_report_sha256",
+    "executed_conditions",
+    "validated_cache_hits",
+    "failed_conditions",
+    "blocked_conditions",
+    "network_attempt_count",
+    "duplicate_prediction_artifacts",
+    "result_rewrites",
+    "prediction_hashes_unchanged",
+    "prediction_mtimes_unchanged"
+  ],
+  "title": "ResumeVerification",
+  "type": "object"
+}

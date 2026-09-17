@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "ProtectedFoundationArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "after_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "After Sha256",
+          "type": "string"
+        },
+        "after_size_bytes": {
+          "minimum": 0,
+          "title": "After Size Bytes",
+          "type": "integer"
+        },
+        "before_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Before Sha256",
+          "type": "string"
+        },
+        "before_size_bytes": {
+          "minimum": 0,
+          "title": "Before Size Bytes",
+          "type": "integer"
+        },
+        "path": {
+          "pattern": "^(data/raw|data/processed|data/splits)/[A-Za-z0-9_./-]+$",
+          "title": "Path",
+          "type": "string"
+        },
+        "unchanged": {
+          "title": "Unchanged",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "before_sha256",
+        "after_sha256",
+        "before_size_bytes",
+        "after_size_bytes",
+        "unchanged"
+      ],
+      "title": "ProtectedFoundationArtifactHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/ProtectedFoundationArtifactHash"
+      },
+      "maxItems": 13,
+      "minItems": 13,
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "baseline_snapshot_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Baseline Snapshot Sha256",
+      "type": "string"
+    },
+    "expected_artifact_count": {
+      "const": 13,
+      "default": 13,
+      "title": "Expected Artifact Count",
+      "type": "integer"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan_sha256",
+    "baseline_snapshot_sha256",
+    "status",
+    "artifacts"
+  ],
+  "title": "ProtectedFoundationHashComparison",
+  "type": "object"
+}

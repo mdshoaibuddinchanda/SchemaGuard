@@ -1,0 +1,317 @@
+{
+  "$defs": {
+    "EvaluationConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "ece_binning_rule": {
+          "const": "equal_width_max_probability_confidence",
+          "title": "Ece Binning Rule",
+          "type": "string"
+        },
+        "ece_bins": {
+          "maximum": 100,
+          "minimum": 2,
+          "title": "Ece Bins",
+          "type": "integer"
+        },
+        "label_access_boundary": {
+          "const": "after_all_predictions_complete",
+          "title": "Label Access Boundary",
+          "type": "string"
+        },
+        "log_loss_epsilon": {
+          "exclusiveMaximum": 0.01,
+          "exclusiveMinimum": 0,
+          "title": "Log Loss Epsilon",
+          "type": "number"
+        },
+        "primary_metric": {
+          "const": "brier_score",
+          "title": "Primary Metric",
+          "type": "string"
+        },
+        "probability_sum_tolerance": {
+          "exclusiveMinimum": 0,
+          "maximum": 0.0001,
+          "title": "Probability Sum Tolerance",
+          "type": "number"
+        },
+        "reconstruction_atol": {
+          "maximum": 1e-06,
+          "minimum": 0,
+          "title": "Reconstruction Atol",
+          "type": "number"
+        },
+        "reconstruction_rtol": {
+          "maximum": 1e-06,
+          "minimum": 0,
+          "title": "Reconstruction Rtol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "log_loss_epsilon",
+        "ece_bins",
+        "ece_binning_rule",
+        "probability_sum_tolerance",
+        "reconstruction_rtol",
+        "reconstruction_atol",
+        "primary_metric",
+        "label_access_boundary"
+      ],
+      "title": "EvaluationConfig",
+      "type": "object"
+    },
+    "ExecutionConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_timeout_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Cpu Timeout Seconds",
+          "type": "integer"
+        },
+        "cpu_workers": {
+          "const": 2,
+          "title": "Cpu Workers",
+          "type": "integer"
+        },
+        "cuda_timeout_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Cuda Timeout Seconds",
+          "type": "integer"
+        },
+        "gpu_workers": {
+          "const": 1,
+          "title": "Gpu Workers",
+          "type": "integer"
+        },
+        "maximum_ram_mib": {
+          "exclusiveMinimum": 0,
+          "maximum": 28672,
+          "title": "Maximum Ram Mib",
+          "type": "integer"
+        },
+        "maximum_vram_mib": {
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Maximum Vram Mib",
+          "type": "integer"
+        },
+        "minimum_gpu_headroom_mib": {
+          "minimum": 512,
+          "title": "Minimum Gpu Headroom Mib",
+          "type": "integer"
+        },
+        "network_enabled": {
+          "const": false,
+          "title": "Network Enabled",
+          "type": "boolean"
+        },
+        "resume": {
+          "const": true,
+          "title": "Resume",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "network_enabled",
+        "cpu_workers",
+        "gpu_workers",
+        "resume",
+        "minimum_gpu_headroom_mib",
+        "maximum_vram_mib",
+        "maximum_ram_mib",
+        "cpu_timeout_seconds",
+        "cuda_timeout_seconds"
+      ],
+      "title": "ExecutionConfig",
+      "type": "object"
+    },
+    "OutputPaths": {
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "const": "results/smoke/metrics",
+          "title": "Metrics",
+          "type": "string"
+        },
+        "predictions": {
+          "const": "results/smoke/predictions",
+          "title": "Predictions",
+          "type": "string"
+        },
+        "runs": {
+          "const": "results/smoke/runs",
+          "title": "Runs",
+          "type": "string"
+        },
+        "runtime": {
+          "const": "results/smoke/runtime",
+          "title": "Runtime",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runs",
+        "predictions",
+        "metrics",
+        "runtime"
+      ],
+      "title": "OutputPaths",
+      "type": "object"
+    },
+    "ViewConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01"
+          ],
+          "title": "View Id",
+          "type": "string"
+        },
+        "view_name": {
+          "enum": [
+            "identity",
+            "numeric_affine_units"
+          ],
+          "title": "View Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "view_id",
+        "view_name"
+      ],
+      "title": "ViewConfig",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_config": {
+      "title": "Adapter Config",
+      "type": "string"
+    },
+    "baseline_config": {
+      "title": "Baseline Config",
+      "type": "string"
+    },
+    "cpu_models": {
+      "items": {
+        "enum": [
+          "LR-1.9",
+          "CAT-1.2",
+          "XGB-3.4"
+        ],
+        "type": "string"
+      },
+      "title": "Cpu Models",
+      "type": "array"
+    },
+    "cuda_models": {
+      "items": {
+        "enum": [
+          "TPFN3-8.5",
+          "TICL2-2.2"
+        ],
+        "type": "string"
+      },
+      "title": "Cuda Models",
+      "type": "array"
+    },
+    "dataset_id": {
+      "const": 1464,
+      "title": "Dataset Id",
+      "type": "integer"
+    },
+    "dataset_version": {
+      "const": "openml_file_1586225",
+      "title": "Dataset Version",
+      "type": "string"
+    },
+    "dependency_lock": {
+      "const": "uv.lock",
+      "title": "Dependency Lock",
+      "type": "string"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/EvaluationConfig"
+    },
+    "execution": {
+      "$ref": "#/$defs/ExecutionConfig"
+    },
+    "experiment_registry": {
+      "title": "Experiment Registry",
+      "type": "string"
+    },
+    "model_registry": {
+      "title": "Model Registry",
+      "type": "string"
+    },
+    "output_paths": {
+      "$ref": "#/$defs/OutputPaths"
+    },
+    "protocol_version": {
+      "const": "schema_guard_smoke_v1",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "scheduler_config": {
+      "title": "Scheduler Config",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed": {
+      "const": 1729,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "split_strategy": {
+      "const": "stratified_group_5fold_v1",
+      "title": "Split Strategy",
+      "type": "string"
+    },
+    "transformation_config": {
+      "title": "Transformation Config",
+      "type": "string"
+    },
+    "views": {
+      "items": {
+        "$ref": "#/$defs/ViewConfig"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Views",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "protocol_version",
+    "dataset_id",
+    "dataset_version",
+    "seed",
+    "split_strategy",
+    "baseline_config",
+    "dependency_lock",
+    "model_registry",
+    "experiment_registry",
+    "adapter_config",
+    "transformation_config",
+    "scheduler_config",
+    "views",
+    "cpu_models",
+    "cuda_models",
+    "execution",
+    "evaluation",
+    "output_paths"
+  ],
+  "title": "SmokeConfig",
+  "type": "object"
+}

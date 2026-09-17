@@ -1,0 +1,131 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "device": {
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "label_flip_rate": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Label Flip Rate",
+      "type": "number"
+    },
+    "maximum_absolute_probability_difference": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Maximum Absolute Probability Difference",
+      "type": "number"
+    },
+    "mean_absolute_probability_difference": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Mean Absolute Probability Difference",
+      "type": "number"
+    },
+    "metric_deltas_v01_minus_v00": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "propertyNames": {
+        "enum": [
+          "brier_score",
+          "log_loss",
+          "accuracy",
+          "balanced_accuracy",
+          "roc_auc",
+          "expected_calibration_error"
+        ]
+      },
+      "title": "Metric Deltas V01 Minus V00",
+      "type": "object"
+    },
+    "model_id": {
+      "enum": [
+        "LR-1.9",
+        "CAT-1.2",
+        "XGB-3.4",
+        "TPFN3-8.5",
+        "TICL2-2.2"
+      ],
+      "title": "Model Id",
+      "type": "string"
+    },
+    "partition": {
+      "enum": [
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "row_count": {
+      "exclusiveMinimum": 0,
+      "title": "Row Count",
+      "type": "integer"
+    },
+    "sii_max_js_divergence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Sii Max Js Divergence",
+      "type": "number"
+    },
+    "sii_mean_js_divergence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Sii Mean Js Divergence",
+      "type": "number"
+    },
+    "sii_median_js_divergence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Sii Median Js Divergence",
+      "type": "number"
+    },
+    "sii_p90_js_divergence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Sii P90 Js Divergence",
+      "type": "number"
+    },
+    "v00_prediction_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "V00 Prediction Sha256",
+      "type": "string"
+    },
+    "v01_prediction_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "V01 Prediction Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "model_id",
+    "device",
+    "partition",
+    "row_count",
+    "sii_mean_js_divergence",
+    "sii_median_js_divergence",
+    "sii_p90_js_divergence",
+    "sii_max_js_divergence",
+    "label_flip_rate",
+    "maximum_absolute_probability_difference",
+    "mean_absolute_probability_difference",
+    "metric_deltas_v01_minus_v00",
+    "v00_prediction_sha256",
+    "v01_prediction_sha256"
+  ],
+  "title": "PairedMetricRecord",
+  "type": "object"
+}

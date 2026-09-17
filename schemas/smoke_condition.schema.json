@@ -1,0 +1,166 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "checkpoint_identifier": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Checkpoint Identifier"
+    },
+    "checkpoint_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Checkpoint Sha256"
+    },
+    "condition_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Condition Id",
+      "type": "string"
+    },
+    "dataset_features_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dataset Features Sha256",
+      "type": "string"
+    },
+    "dependency_lock_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dependency Lock Sha256",
+      "type": "string"
+    },
+    "device": {
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "model_id": {
+      "enum": [
+        "LR-1.9",
+        "CAT-1.2",
+        "XGB-3.4",
+        "TPFN3-8.5",
+        "TICL2-2.2"
+      ],
+      "title": "Model Id",
+      "type": "string"
+    },
+    "model_parameters": {
+      "additionalProperties": true,
+      "title": "Model Parameters",
+      "type": "object"
+    },
+    "model_spec_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Model Spec Sha256",
+      "type": "string"
+    },
+    "package_name": {
+      "title": "Package Name",
+      "type": "string"
+    },
+    "package_version": {
+      "title": "Package Version",
+      "type": "string"
+    },
+    "parameters_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Parameters Sha256",
+      "type": "string"
+    },
+    "precision_policy": {
+      "enum": [
+        "native",
+        "auto"
+      ],
+      "title": "Precision Policy",
+      "type": "string"
+    },
+    "preprocessing": {
+      "title": "Preprocessing",
+      "type": "string"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "source_implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Implementation Sha256",
+      "type": "string"
+    },
+    "split_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Split Sha256",
+      "type": "string"
+    },
+    "target_artifact_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Artifact Sha256",
+      "type": "string"
+    },
+    "task_name": {
+      "pattern": "^[A-Za-z0-9_.-]+$",
+      "title": "Task Name",
+      "type": "string"
+    },
+    "view_certificate_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "View Certificate Sha256",
+      "type": "string"
+    },
+    "view_features_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "View Features Sha256",
+      "type": "string"
+    },
+    "view_id": {
+      "enum": [
+        "V00",
+        "V01"
+      ],
+      "title": "View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "condition_id",
+    "task_name",
+    "model_id",
+    "package_name",
+    "package_version",
+    "dataset_features_sha256",
+    "target_artifact_sha256",
+    "view_id",
+    "device",
+    "precision_policy",
+    "seed",
+    "model_spec_sha256",
+    "parameters_sha256",
+    "model_parameters",
+    "preprocessing",
+    "checkpoint_identifier",
+    "checkpoint_sha256",
+    "view_certificate_sha256",
+    "view_features_sha256",
+    "split_sha256",
+    "dependency_lock_sha256",
+    "source_implementation_sha256"
+  ],
+  "title": "SmokeCondition",
+  "type": "object"
+}

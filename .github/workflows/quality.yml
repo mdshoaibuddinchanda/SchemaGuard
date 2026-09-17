@@ -18,6 +18,8 @@ jobs:
       - run: uv run python -m ruff check .
       - run: uv run python -m mypy src/schemaguard
       - run: uv run python -m pytest -q tests/unit -m "not network and not gpu and not foundation_model and not evidence"
+      - name: Run smoke harness with stub models and temporary artifacts
+        run: uv run python -m pytest -q tests/integration/test_smoke_experiment.py -m "integration and not network and not gpu and not foundation_model" -rA
       - run: uv run python scripts/generate_artifact_schemas.py
       - run: git diff --exit-code -- schemas
       - run: uv run python scripts/validate_repository_naming.py

@@ -54,6 +54,38 @@ def test_all_exact_cache_scheduler_schema_additions_are_permitted(tmp_path: Path
     assert result["unexpected_added_files"] == []
 
 
+def test_exact_smoke_contract_schemas_are_permitted_without_weakening_unknown_paths(
+    tmp_path: Path,
+) -> None:
+    expected = {
+        "schemas/smoke_condition.schema.json",
+        "schemas/smoke_condition_resource.schema.json",
+        "schemas/smoke_config.schema.json",
+        "schemas/smoke_evidence_inventory.schema.json",
+        "schemas/smoke_metric.schema.json",
+        "schemas/smoke_paired_metric.schema.json",
+        "schemas/smoke_plan.schema.json",
+        "schemas/smoke_prediction_file.schema.json",
+        "schemas/smoke_protected_foundation_hash_comparison.schema.json",
+        "schemas/smoke_protected_split_validation.schema.json",
+        "schemas/smoke_resume_verification.schema.json",
+        "schemas/smoke_run_report.schema.json",
+        "schemas/smoke_runtime_estimate.schema.json",
+        "schemas/smoke_validation_report.schema.json",
+    }
+    assert expected.issubset(validator.ALLOWED_REPAIR_SCHEMA_ADDITIONS)
+    before = _write_baseline(tmp_path)
+    for relative in expected:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("smoke contract schema", encoding="utf-8")
+
+    result = _compare(tmp_path, before, validator.ALLOWED_REPAIR_SCHEMA_ADDITIONS)
+    assert result["status"] == "PASS"
+    assert set(result["allowed_added_files"]) == expected
+    assert result["unexpected_added_files"] == []
+
+
 def test_removing_an_expected_schema_from_allowlist_fails(tmp_path: Path) -> None:
     before = _write_baseline(tmp_path)
     expected = "schemas/scheduler_run_plan.schema.json"

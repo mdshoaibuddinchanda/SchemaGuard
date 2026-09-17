@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "SmokeGateRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Sha256",
+          "type": "string"
+        },
+        "gate_id": {
+          "pattern": "^S[0-9]{2}$",
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_VERIFIED"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "result",
+        "evidence_sha256",
+        "detail"
+      ],
+      "title": "SmokeGateRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "gates": {
+      "items": {
+        "$ref": "#/$defs/SmokeGateRecord"
+      },
+      "minItems": 1,
+      "title": "Gates",
+      "type": "array"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "run_report_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Run Report Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stage": {
+      "const": "smoke_experiment_validation",
+      "default": "smoke_experiment_validation",
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "validated_metric_record_count": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Validated Metric Record Count",
+      "type": "integer"
+    },
+    "validated_paired_metric_count": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Validated Paired Metric Count",
+      "type": "integer"
+    },
+    "validated_prediction_count": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Validated Prediction Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "status",
+    "plan_sha256",
+    "run_report_sha256",
+    "validated_prediction_count",
+    "validated_metric_record_count",
+    "validated_paired_metric_count",
+    "gates"
+  ],
+  "title": "SmokeValidationReport",
+  "type": "object"
+}

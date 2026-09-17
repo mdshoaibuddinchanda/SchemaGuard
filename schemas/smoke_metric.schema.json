@@ -1,0 +1,123 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "accuracy": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Accuracy",
+      "type": "number"
+    },
+    "balanced_accuracy": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Balanced Accuracy",
+      "type": "number"
+    },
+    "brier_score": {
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Brier Score",
+      "type": "number"
+    },
+    "device": {
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "expected_calibration_error": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Expected Calibration Error",
+      "type": "number"
+    },
+    "log_loss": {
+      "minimum": 0,
+      "title": "Log Loss",
+      "type": "number"
+    },
+    "model_id": {
+      "enum": [
+        "LR-1.9",
+        "CAT-1.2",
+        "XGB-3.4",
+        "TPFN3-8.5",
+        "TICL2-2.2"
+      ],
+      "title": "Model Id",
+      "type": "string"
+    },
+    "partition": {
+      "enum": [
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "prediction_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Prediction Sha256",
+      "type": "string"
+    },
+    "roc_auc": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Roc Auc"
+    },
+    "roc_auc_status": {
+      "enum": [
+        "defined",
+        "undefined_single_class"
+      ],
+      "title": "Roc Auc Status",
+      "type": "string"
+    },
+    "row_count": {
+      "exclusiveMinimum": 0,
+      "title": "Row Count",
+      "type": "integer"
+    },
+    "target_artifact_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Artifact Sha256",
+      "type": "string"
+    },
+    "view_id": {
+      "enum": [
+        "V00",
+        "V01"
+      ],
+      "title": "View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "model_id",
+    "view_id",
+    "device",
+    "partition",
+    "row_count",
+    "brier_score",
+    "log_loss",
+    "accuracy",
+    "balanced_accuracy",
+    "roc_auc_status",
+    "expected_calibration_error",
+    "prediction_sha256",
+    "target_artifact_sha256"
+  ],
+  "title": "MetricRecord",
+  "type": "object"
+}

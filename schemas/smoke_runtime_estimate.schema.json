@@ -1,0 +1,92 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "condition_seconds": {
+      "patternProperties": {
+        "^[0-9a-f]{64}$": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "title": "Condition Seconds",
+      "type": "object"
+    },
+    "coordination_overhead_seconds": {
+      "default": 60.0,
+      "maximum": 60.0,
+      "minimum": 60.0,
+      "title": "Coordination Overhead Seconds",
+      "type": "number"
+    },
+    "cpu_condition_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 6,
+      "minItems": 6,
+      "title": "Cpu Condition Ids",
+      "type": "array"
+    },
+    "estimated_total_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Estimated Total Seconds",
+      "type": "number"
+    },
+    "expected_cpu_seconds": {
+      "minimum": 0,
+      "title": "Expected Cpu Seconds",
+      "type": "number"
+    },
+    "expected_gpu_seconds": {
+      "minimum": 0,
+      "title": "Expected Gpu Seconds",
+      "type": "number"
+    },
+    "gpu_condition_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "title": "Gpu Condition Ids",
+      "type": "array"
+    },
+    "method": {
+      "const": "prior_binary_probe_max_list_schedule_with_safety_factor",
+      "title": "Method",
+      "type": "string"
+    },
+    "safety_factor": {
+      "default": 1.5,
+      "maximum": 1.5,
+      "minimum": 1.5,
+      "title": "Safety Factor",
+      "type": "number"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_inventory_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Inventory Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_inventory_sha256",
+    "method",
+    "condition_seconds",
+    "cpu_condition_ids",
+    "gpu_condition_ids",
+    "expected_cpu_seconds",
+    "expected_gpu_seconds",
+    "estimated_total_seconds"
+  ],
+  "title": "RuntimeEstimate",
+  "type": "object"
+}

@@ -1,0 +1,49 @@
+schema_version: 1
+protocol_version: schema_guard_smoke_v1
+
+dataset_id: 1464
+dataset_version: openml_file_1586225
+seed: 1729
+split_strategy: stratified_group_5fold_v1
+baseline_config: configs/baselines/data_foundation.json
+dependency_lock: uv.lock
+
+model_registry: configs/runtime/model_compatibility.yaml
+experiment_registry: configs/experiment_registry.yaml
+adapter_config: configs/runtime/model_adapters.yaml
+transformation_config: configs/runtime/transformation_engine.yaml
+scheduler_config: configs/runtime/cache_scheduler.yaml
+
+views:
+  - {view_id: V00, view_name: identity}
+  - {view_id: V01, view_name: numeric_affine_units}
+
+cpu_models: [LR-1.9, CAT-1.2, XGB-3.4]
+cuda_models: [TPFN3-8.5, TICL2-2.2]
+
+execution:
+  network_enabled: false
+  cpu_workers: 2
+  gpu_workers: 1
+  resume: true
+  minimum_gpu_headroom_mib: 512
+  maximum_vram_mib: 3600
+  maximum_ram_mib: 28672
+  cpu_timeout_seconds: 3600
+  cuda_timeout_seconds: 1800
+
+evaluation:
+  log_loss_epsilon: 1.0e-15
+  ece_bins: 10
+  ece_binning_rule: equal_width_max_probability_confidence
+  probability_sum_tolerance: 1.0e-6
+  reconstruction_rtol: 1.0e-10
+  reconstruction_atol: 1.0e-12
+  primary_metric: brier_score
+  label_access_boundary: after_all_predictions_complete
+
+output_paths:
+  runs: results/smoke/runs
+  predictions: results/smoke/predictions
+  metrics: results/smoke/metrics
+  runtime: results/smoke/runtime
