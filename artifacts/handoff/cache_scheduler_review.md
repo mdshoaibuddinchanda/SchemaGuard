@@ -162,8 +162,8 @@ git diff --check
 - No implementation or required cache/scheduler gate failed.
 - An initial clean clone of the superseded evidence draft exposed raw line-ending-sensitive hashes
   for YAML and lock files. The current implementation normalizes those identities, hashes text
-  evidence consistently, and the new LF/CRLF tests pass. The superseded draft remains only in local
-  history; the corrected evidence set is the one in the current handoff.
+  evidence consistently, and the new LF/CRLF tests pass. The superseded draft remains in Git history
+  for provenance, not as current evidence; the corrected evidence set is in this handoff.
 - The legacy transformation-engine subset CLI reports a nonzero protected-snapshot result when
   it sees the newly added scheduler schemas, because its historical allowlist does not include
   this workstream's schema additions. Its 11 computed representative view records were all PASS
