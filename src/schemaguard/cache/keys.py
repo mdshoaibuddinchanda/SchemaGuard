@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from pathlib import Path
 
-from ..utils.hashing import canonical_source_hash, sha256_canonical_json, sha256_file
+from ..utils.hashing import canonical_source_hash, sha256_canonical_json
 from .contracts import CacheIdentity
 
 
@@ -29,12 +29,12 @@ def implementation_hash(root: str | Path, source_paths: Iterable[str]) -> str:
 
 
 def dependency_lock_hash(path: str | Path) -> str:
-    """Stream-hash the exact resolved dependency lock."""
+    """Hash the resolved text lock with platform-independent line endings."""
 
     candidate = Path(path)
     if not candidate.is_file():
         raise ValueError("dependency lock file is missing")
-    return sha256_file(candidate)
+    return canonical_source_hash(candidate)
 
 
 def identity_with(identity: CacheIdentity, **changes: object) -> CacheIdentity:

@@ -10,7 +10,7 @@ import yaml
 
 from ..cache.contracts import CacheIdentity, CacheSchedulerConfig
 from ..cache.keys import dependency_lock_hash, implementation_hash
-from ..utils.hashing import sha256_canonical_json
+from ..utils.hashing import canonical_source_hash, sha256_canonical_json
 from .contracts import RunPlan, TaskSpec, build_plan, build_task
 
 IMPLEMENTATION_PATHS = (
@@ -45,6 +45,12 @@ def load_config(path: str | Path) -> CacheSchedulerConfig:
     if not isinstance(payload, dict):
         raise ValueError("cache/scheduler configuration must be a YAML mapping")
     return CacheSchedulerConfig.model_validate(payload)
+
+
+def runtime_configuration_hash(path: str | Path) -> str:
+    """Hash the strict YAML configuration independently of checkout line endings."""
+
+    return canonical_source_hash(path)
 
 
 def current_commit(root: str | Path) -> str:
@@ -96,4 +102,10 @@ def make_probe_plan(root: str | Path, config: CacheSchedulerConfig) -> tuple[Run
     return build_plan(tasks, random_seed=1729, cpu_workers=config.cpu_workers), code_hash, lock_hash
 
 
-__all__ = ["IMPLEMENTATION_PATHS", "current_commit", "load_config", "make_probe_plan"]
+__all__ = [
+    "IMPLEMENTATION_PATHS",
+    "current_commit",
+    "load_config",
+    "make_probe_plan",
+    "runtime_configuration_hash",
+]

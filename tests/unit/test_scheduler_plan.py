@@ -7,7 +7,7 @@ import yaml
 from pydantic import ValidationError
 
 from schemaguard.runner.contracts import RunPlan, TaskResult, build_plan, build_task
-from schemaguard.runner.plan import load_config
+from schemaguard.runner.plan import load_config, runtime_configuration_hash
 from tests.unit.cache_scheduler_helpers import cache_identity, task
 
 
@@ -54,6 +54,20 @@ def test_task_identity_binds_parameters_and_config_is_strict(tmp_path: Path) -> 
     with pytest.raises(ValidationError):
         load_config(unknown_config)
     assert config.gpu_workers == 1
+
+
+def test_runtime_configuration_hash_is_stable_across_checkout_line_endings(
+    tmp_path: Path,
+) -> None:
+    source_path = Path(__file__).resolve().parents[2] / "configs/runtime/cache_scheduler.yaml"
+    normalized = source_path.read_bytes().replace(b"\r\n", b"\n")
+    lf_path = tmp_path / "config-lf.yaml"
+    crlf_path = tmp_path / "config-crlf.yaml"
+    lf_path.write_bytes(normalized)
+    crlf_path.write_bytes(normalized.replace(b"\n", b"\r\n"))
+
+    assert load_config(lf_path) == load_config(crlf_path)
+    assert runtime_configuration_hash(lf_path) == runtime_configuration_hash(crlf_path)
 
 
 def test_worker_result_is_strict_and_requires_thread_limits() -> None:

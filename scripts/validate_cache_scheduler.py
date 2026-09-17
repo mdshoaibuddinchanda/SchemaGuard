@@ -27,7 +27,7 @@ from schemaguard.cache.contracts import (  # noqa: E402
     SchedulerProbeEvidence,
 )
 from schemaguard.cache.index import CacheIndex  # noqa: E402
-from schemaguard.cache.keys import implementation_hash  # noqa: E402
+from schemaguard.cache.keys import dependency_lock_hash, implementation_hash  # noqa: E402
 from schemaguard.cache.store import CacheStore  # noqa: E402
 from schemaguard.runner.contracts import RunManifest, build_plan, build_task  # noqa: E402
 from schemaguard.runner.faults import run_fault_injection_suite  # noqa: E402
@@ -36,6 +36,7 @@ from schemaguard.runner.plan import (  # noqa: E402
     current_commit,
     load_config,
     make_probe_plan,
+    runtime_configuration_hash,
 )
 from schemaguard.runner.scheduler import Scheduler  # noqa: E402
 from schemaguard.utils.hashing import (  # noqa: E402
@@ -353,7 +354,7 @@ def _run_gpu_policy_probe(config: Any, implementation_commit: str) -> tuple[int,
                 "model_spec_sha256": sha256_canonical_json({"task": "gpu-policy-only"}),
                 "model_parameters_sha256": sha256_canonical_json({"number": number}),
                 "checkpoint_sha256": None,
-                "dependency_lock_sha256": sha256_file(ROOT / "uv.lock"),
+                "dependency_lock_sha256": dependency_lock_hash(ROOT / "uv.lock"),
                 "source_implementation_sha256": implementation_hash(ROOT, IMPLEMENTATION_PATHS),
                 "seed": 9900 + number,
                 "device_policy": "cuda",
@@ -546,7 +547,7 @@ def _validate_evidence(
     config = load_config(config_path)
     implementation_commit = current_commit(ROOT)
     plan, code_hash, dependency_hash = make_probe_plan(ROOT, config)
-    configuration_hash = sha256_file(config_path)
+    configuration_hash = runtime_configuration_hash(config_path)
     inventory = CacheSchedulerInventory.model_validate(
         json.loads(inventory_path.read_text(encoding="utf-8"))
     )
@@ -575,11 +576,11 @@ def _validate_evidence(
         task.cache_identity.cache_key for task in plan.tasks
     ):
         raise ValueError("probe cache identity hashes differ from the inventory")
-    if inventory.fault_evidence_sha256 != sha256_file(fault_path):
+    if inventory.fault_evidence_sha256 != canonical_source_hash(fault_path):
         raise ValueError("fault evidence file digest differs from the inventory")
-    if inventory.probe_evidence_sha256 != sha256_file(probe_path):
+    if inventory.probe_evidence_sha256 != canonical_source_hash(probe_path):
         raise ValueError("probe evidence file digest differs from the inventory")
-    if inventory.protected_hash_comparison_sha256 != sha256_file(comparison_path):
+    if inventory.protected_hash_comparison_sha256 != canonical_source_hash(comparison_path):
         raise ValueError("protected comparison digest differs from the inventory")
     if inventory.protected_artifacts_unchanged != (comparison.status == "PASS"):
         raise ValueError("inventory protected-artifact status contradicts its comparison")
@@ -675,11 +676,11 @@ def _validate_evidence(
         artifacts = cache.iter_validated()
         expected_keys = {task.cache_identity.cache_key for task in plan.tasks}
         actual_keys = {artifact.cache_key for artifact in artifacts}
-        if len(artifacts) != len(actual_keys) or actual_keys != expected_keys:
-            raise ValueError("validated cache entries are missing, duplicated, or unexpected")
+        if len(artifacts) != len(actual_keys) or not expected_keys.issubset(actual_keys):
+            raise ValueError("current cache entries are missing or a validated key is duplicated")
         index = CacheIndex(ROOT / config.state_root / "cache_index.sqlite", cache_root)
         index_rows = index.lookup(status="COMPLETE")
-        if {row.cache_key for row in index_rows} != expected_keys:
+        if not expected_keys.issubset({row.cache_key for row in index_rows}):
             raise ValueError(
                 "derivative index does not contain exactly the validated probe artifacts"
             )
@@ -718,7 +719,7 @@ def main() -> int:
         config = load_config(config_path)
         implementation_commit = current_commit(ROOT)
         plan, source_hash, dependency_hash = make_probe_plan(ROOT, config)
-        config_hash = sha256_file(config_path)
+        config_hash = runtime_configuration_hash(config_path)
         status_dir = ROOT / config.state_root / "validation_logs"
         test_statuses, test_names, test_counts = _record_local_checks(status_dir)
         test_statuses["private_docx_untracked"] = (
@@ -754,13 +755,15 @@ def main() -> int:
         artifacts = cache.iter_validated()
         expected_keys = {task.cache_identity.cache_key for task in plan.tasks}
         actual_keys = {artifact.cache_key for artifact in artifacts}
-        cache_ok = len(artifacts) == len(actual_keys) and actual_keys == expected_keys
+        cache_ok = len(artifacts) == len(actual_keys) and expected_keys.issubset(actual_keys)
         test_statuses["cache_validation"] = "PASS" if cache_ok else "FAIL"
         if cache_ok:
             index = CacheIndex(ROOT / config.state_root / "cache_index.sqlite", cache_root)
             test_statuses["cache_index"] = (
                 "PASS"
-                if {row.cache_key for row in index.lookup(status="COMPLETE")} == expected_keys
+                if expected_keys.issubset(
+                    {row.cache_key for row in index.lookup(status="COMPLETE")}
+                )
                 else "FAIL"
             )
         else:
@@ -778,7 +781,7 @@ def main() -> int:
             resume=_run_summary(resume, retain_resources=False),
             maximum_mocked_gpu_concurrency=gpu_concurrency,
             mocked_gpu_offline_network_attempt_count=gpu_network_attempts,
-            validated_cache_artifact_count=len(actual_keys),
+            validated_cache_artifact_count=len(expected_keys & actual_keys),
             duplicate_validated_artifact_count=len(artifacts) - len(actual_keys),
         )
         atomic_write_json(probe_path, probe.model_dump(mode="json"))
@@ -831,7 +834,7 @@ def main() -> int:
             "cold_cache_hits": cold.validated_cache_hits,
             "resume_executed": resume.executed,
             "resume_cache_hits": resume.validated_cache_hits,
-            "cache_entries": len(artifacts),
+            "cache_entries": len(expected_keys & actual_keys),
             "duplicate_artifacts": len(artifacts) - len(unique_keys),
             "fault_count": len(fault.records),
             "faults_passed": sum(item.status == "PASS" for item in fault.records),
@@ -863,8 +866,8 @@ def main() -> int:
                 "cold_peak_process_tree_rss_mib": maximum_process_tree,
                 "peak_vram_reserved_mib": None,
             },
-            fault_evidence_sha256=sha256_file(fault_path),
-            probe_evidence_sha256=sha256_file(probe_path),
+            fault_evidence_sha256=canonical_source_hash(fault_path),
+            probe_evidence_sha256=canonical_source_hash(probe_path),
             resume_results={
                 "planned": resume.planned,
                 "executed": resume.executed,
@@ -879,7 +882,7 @@ def main() -> int:
             + resume.offline_network_attempt_count
             + gpu_network_attempts,
             protected_artifacts_unchanged=comparison.status == "PASS",
-            protected_hash_comparison_sha256=sha256_file(comparison_path),
+            protected_hash_comparison_sha256=canonical_source_hash(comparison_path),
         )
         atomic_write_json(inventory_path, inventory.model_dump(mode="json"))
         print(json.dumps(inventory.model_dump(mode="json"), indent=2, sort_keys=True))

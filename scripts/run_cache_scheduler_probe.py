@@ -14,9 +14,13 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from schemaguard.cache.index import CacheIndex  # noqa: E402
 from schemaguard.cache.store import CacheStore  # noqa: E402
-from schemaguard.runner.plan import current_commit, load_config, make_probe_plan  # noqa: E402
+from schemaguard.runner.plan import (  # noqa: E402
+    current_commit,
+    load_config,
+    make_probe_plan,
+    runtime_configuration_hash,
+)
 from schemaguard.runner.scheduler import Scheduler  # noqa: E402
-from schemaguard.utils.hashing import sha256_file  # noqa: E402
 from schemaguard.utils.io import atomic_write_json  # noqa: E402
 
 
@@ -64,7 +68,7 @@ def main() -> int:
         "source_implementation_commit": commit,
         "source_implementation_sha256": source_hash,
         "dependency_lock_sha256": lock_hash,
-        "configuration_sha256": sha256_file(config_path),
+        "configuration_sha256": runtime_configuration_hash(config_path),
         "plan_hash": plan.plan_hash,
         "mode": result.manifest.mode,
         "run_manifest": result.manifest.model_dump(mode="json"),

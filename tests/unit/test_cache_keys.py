@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from schemaguard.cache.contracts import CacheIdentity, CacheSchedulerConfig
-from schemaguard.cache.keys import implementation_hash
+from schemaguard.cache.keys import dependency_lock_hash, implementation_hash
 from tests.unit.cache_scheduler_helpers import cache_identity
 
 
@@ -91,3 +91,11 @@ def test_implementation_hash_is_order_independent_and_rejects_absolute_paths(
         implementation_hash(tmp_path, [str((tmp_path / "a.py").resolve())])
     with pytest.raises(ValueError):
         implementation_hash(tmp_path, ["../outside.py"])
+
+
+def test_dependency_lock_hash_is_stable_across_checkout_line_endings(tmp_path: Path) -> None:
+    lf_path = tmp_path / "uv-lf.lock"
+    crlf_path = tmp_path / "uv-crlf.lock"
+    lf_path.write_bytes(b"version = 1\npackage = 'example'\n")
+    crlf_path.write_bytes(b"version = 1\r\npackage = 'example'\r\n")
+    assert dependency_lock_hash(lf_path) == dependency_lock_hash(crlf_path)
