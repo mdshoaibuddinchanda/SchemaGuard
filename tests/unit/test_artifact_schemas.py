@@ -79,6 +79,8 @@ def test_every_named_contract_rejects_unknown_top_level_keys() -> None:
     assert set(SCHEMA_CONTRACTS) == {
         "condition_manifest.schema.json",
         "data_foundation_baseline.schema.json",
+        "model_adapter_inventory.schema.json",
+        "model_adapter_result.schema.json",
         "model_compatibility.schema.json",
         "dataset_inventory.schema.json",
         "gpu_capacity_report.schema.json",

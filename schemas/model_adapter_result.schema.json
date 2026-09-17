@@ -1,0 +1,324 @@
+{
+  "$defs": {
+    "FailureCategory": {
+      "enum": [
+        "PASS",
+        "NOT_APPLICABLE",
+        "BLOCKED_ENVIRONMENT",
+        "BLOCKED_CHECKPOINT",
+        "FAIL_CONTRACT",
+        "FAIL_INPUT",
+        "FAIL_LEAKAGE",
+        "FAIL_CLASS_ORDER",
+        "FAIL_PROBABILITY",
+        "FAIL_DETERMINISM",
+        "FAIL_SERIALIZATION",
+        "FAIL_CACHE_INTEGRITY",
+        "FAIL_RESOURCE_LIMIT",
+        "FAIL_TIMEOUT",
+        "FAIL_CUDA_OOM",
+        "FAIL_MODEL_RUNTIME",
+        "FAIL_TEST"
+      ],
+      "title": "FailureCategory",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Strict adapter output. Row IDs and probabilities remain in memory/local cache only.",
+  "properties": {
+    "adapter_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Adapter Sha256",
+      "type": "string"
+    },
+    "checkpoint_identifier": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Checkpoint Identifier"
+    },
+    "checkpoint_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Checkpoint Sha256"
+    },
+    "class_order": {
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 2,
+      "title": "Class Order",
+      "type": "array"
+    },
+    "cpu_time_seconds": {
+      "minimum": 0,
+      "title": "Cpu Time Seconds",
+      "type": "number"
+    },
+    "device": {
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "ended_at": {
+      "title": "Ended At",
+      "type": "string"
+    },
+    "execution_policy": {
+      "title": "Execution Policy",
+      "type": "string"
+    },
+    "failure_category": {
+      "$ref": "#/$defs/FailureCategory"
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Reason"
+    },
+    "fixture_id": {
+      "title": "Fixture Id",
+      "type": "string"
+    },
+    "fixture_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Fixture Sha256",
+      "type": "string"
+    },
+    "logical_identity_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Logical Identity Sha256",
+      "type": "string"
+    },
+    "model_id": {
+      "enum": [
+        "LR-1.9",
+        "CAT-1.2",
+        "XGB-3.4",
+        "TPFN3-8.5",
+        "TICL2-2.2"
+      ],
+      "title": "Model Id",
+      "type": "string"
+    },
+    "model_spec_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Model Spec Sha256",
+      "type": "string"
+    },
+    "package_name": {
+      "title": "Package Name",
+      "type": "string"
+    },
+    "package_version": {
+      "title": "Package Version",
+      "type": "string"
+    },
+    "parameter_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Parameter Sha256",
+      "type": "string"
+    },
+    "partition": {
+      "enum": [
+        "train",
+        "calibration",
+        "test"
+      ],
+      "title": "Partition",
+      "type": "string"
+    },
+    "peak_ram_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Ram Mib"
+    },
+    "peak_vram_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Vram Mib"
+    },
+    "preprocessing_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Preprocessing Sha256",
+      "type": "string"
+    },
+    "probabilities": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "minItems": 1,
+      "title": "Probabilities",
+      "type": "array"
+    },
+    "probabilities_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Probabilities Sha256",
+      "type": "string"
+    },
+    "row_ids": {
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "minItems": 1,
+      "title": "Row Ids",
+      "type": "array"
+    },
+    "row_ids_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Row Ids Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "source_data_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Data Sha256",
+      "type": "string"
+    },
+    "split_identity": {
+      "title": "Split Identity",
+      "type": "string"
+    },
+    "started_at": {
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "NOT_APPLICABLE",
+        "BLOCKED",
+        "FAIL"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "traceback_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Traceback Path"
+    },
+    "transformation_identity": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Transformation Identity"
+    },
+    "wall_time_seconds": {
+      "minimum": 0,
+      "title": "Wall Time Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "model_id",
+    "package_name",
+    "package_version",
+    "model_spec_sha256",
+    "source_commit",
+    "parameter_sha256",
+    "adapter_sha256",
+    "preprocessing_sha256",
+    "checkpoint_identifier",
+    "checkpoint_sha256",
+    "fixture_id",
+    "fixture_sha256",
+    "source_data_sha256",
+    "split_identity",
+    "transformation_identity",
+    "seed",
+    "device",
+    "execution_policy",
+    "partition",
+    "row_ids",
+    "row_ids_sha256",
+    "class_order",
+    "probabilities",
+    "probabilities_sha256",
+    "logical_identity_sha256",
+    "started_at",
+    "ended_at",
+    "wall_time_seconds",
+    "cpu_time_seconds",
+    "status",
+    "failure_category"
+  ],
+  "title": "PredictionResult",
+  "type": "object"
+}

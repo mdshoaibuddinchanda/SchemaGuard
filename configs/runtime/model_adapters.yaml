@@ -1,0 +1,32 @@
+schema_version: 1
+registry_config: model_compatibility.yaml
+experiment_registry: ../experiment_registry.yaml
+seed: 1729
+fixtures:
+  - binary_numerical
+  - multiclass_numerical
+  - missing_numerical
+  - categorical_only
+  - mixed_categorical
+  - unseen_category
+  - missing_categorical
+resources:
+  cpu_workers: 1
+  cpu_threads: 2
+  soft_ram_gib: 24
+  hard_ram_gib: 28
+  gpu_workers: 1
+  gpu_headroom_mib: 512
+  gpu_soft_limit_mib: 3600
+tolerances:
+  probability_sum_atol: 1.0e-6
+  cpu_repeat_max_abs_diff: 1.0e-10
+  gpu_repeat_max_abs_diff: 1.0e-5
+cache_directory: data/cache/model_adapters
+checkpoints:
+  TPFN3-8.5:
+    identifier: tabpfn-v3-classifier-v3_default.ckpt
+    sha256: d0d865d54dfbc524f5703104be90620182dca7e5fb2c16de72e9959ea18f3988
+  TICL2-2.2:
+    identifier: tabicl-classifier-v2-20260212.ckpt
+    sha256: bdc7dbd5e4ff21f8f0456fcf90c6b7cdf72dbea960f2d05b19bec19f9b3d4ed0

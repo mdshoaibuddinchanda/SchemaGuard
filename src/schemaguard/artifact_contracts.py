@@ -19,6 +19,7 @@ from .data.contracts import (
     DatasetInventoryContract,
     DatasetValidationRecordContract,
 )
+from .models.adapters.contracts import ModelAdapterInventory, PredictionResult
 from .splits.contracts import SplitGenerationInventoryContract
 from .transformations.contracts import (
     TransformationCacheManifest,
@@ -278,6 +279,8 @@ SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "condition_manifest.schema.json": ConditionManifestContract,
     "data_foundation_baseline.schema.json": DataFoundationBaselineContract,
     "model_compatibility.schema.json": ModelCompatibilityReportContract,
+    "model_adapter_inventory.schema.json": ModelAdapterInventory,
+    "model_adapter_result.schema.json": PredictionResult,
     "dataset_inventory.schema.json": DatasetRegistryReportContract,
     "gpu_capacity_report.schema.json": GpuCapacityReportContract,
     "repository_validation.schema.json": RepositoryValidationReportContract,
@@ -306,6 +309,8 @@ __all__ = [
     "DatasetRegistryReportContract",
     "GpuCapacityReportContract",
     "ModelCompatibilityReportContract",
+    "ModelAdapterInventory",
+    "PredictionResult",
     "RepositoryValidationReportContract",
     "SplitGenerationInventoryContract",
     "SCHEMA_CONTRACTS",

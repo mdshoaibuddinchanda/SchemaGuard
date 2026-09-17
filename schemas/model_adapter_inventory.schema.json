@@ -1,0 +1,273 @@
+{
+  "$defs": {
+    "AdapterInventoryRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Adapter Sha256",
+          "type": "string"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "class_order": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "title": "Class Order",
+          "type": "array"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "failure_category": {
+          "$ref": "#/$defs/FailureCategory"
+        },
+        "fixture_id": {
+          "title": "Fixture Id",
+          "type": "string"
+        },
+        "fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Fixture Sha256",
+          "type": "string"
+        },
+        "leakage_test_passed": {
+          "title": "Leakage Test Passed",
+          "type": "boolean"
+        },
+        "logical_case_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Logical Case Id",
+          "type": "string"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "model_spec_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Spec Sha256",
+          "type": "string"
+        },
+        "offline_network_attempts": {
+          "minimum": 0,
+          "title": "Offline Network Attempts",
+          "type": "integer"
+        },
+        "parameter_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Parameter Sha256",
+          "type": "string"
+        },
+        "peak_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Ram Mib"
+        },
+        "peak_vram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Vram Mib"
+        },
+        "prediction_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Prediction Identity Sha256",
+          "type": "string"
+        },
+        "preprocessing_cache_hit_seconds": {
+          "minimum": 0,
+          "title": "Preprocessing Cache Hit Seconds",
+          "type": "number"
+        },
+        "preprocessing_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing Sha256",
+          "type": "string"
+        },
+        "preprocessing_uncached_seconds": {
+          "minimum": 0,
+          "title": "Preprocessing Uncached Seconds",
+          "type": "number"
+        },
+        "probabilities_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Probabilities Sha256",
+          "type": "string"
+        },
+        "probability_sum_error": {
+          "minimum": 0,
+          "title": "Probability Sum Error",
+          "type": "number"
+        },
+        "repeat_max_abs_difference": {
+          "minimum": 0,
+          "title": "Repeat Max Abs Difference",
+          "type": "number"
+        },
+        "roundtrip": {
+          "enum": [
+            "model_serialization",
+            "prediction_cache"
+          ],
+          "title": "Roundtrip",
+          "type": "string"
+        },
+        "roundtrip_passed": {
+          "title": "Roundtrip Passed",
+          "type": "boolean"
+        },
+        "row_ids_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Row Ids Sha256",
+          "type": "string"
+        },
+        "runtime_seconds": {
+          "minimum": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "source_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Source Commit",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "NOT_APPLICABLE",
+            "BLOCKED",
+            "FAIL"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "logical_case_id",
+        "prediction_identity_sha256",
+        "probabilities_sha256",
+        "model_id",
+        "fixture_id",
+        "fixture_sha256",
+        "device",
+        "roundtrip",
+        "model_spec_sha256",
+        "parameter_sha256",
+        "adapter_sha256",
+        "preprocessing_sha256",
+        "checkpoint_sha256",
+        "row_ids_sha256",
+        "class_order",
+        "probability_sum_error",
+        "repeat_max_abs_difference",
+        "preprocessing_uncached_seconds",
+        "preprocessing_cache_hit_seconds",
+        "offline_network_attempts",
+        "roundtrip_passed",
+        "leakage_test_passed",
+        "status",
+        "failure_category",
+        "runtime_seconds",
+        "source_commit"
+      ],
+      "title": "AdapterInventoryRecord",
+      "type": "object"
+    },
+    "FailureCategory": {
+      "enum": [
+        "PASS",
+        "NOT_APPLICABLE",
+        "BLOCKED_ENVIRONMENT",
+        "BLOCKED_CHECKPOINT",
+        "FAIL_CONTRACT",
+        "FAIL_INPUT",
+        "FAIL_LEAKAGE",
+        "FAIL_CLASS_ORDER",
+        "FAIL_PROBABILITY",
+        "FAIL_DETERMINISM",
+        "FAIL_SERIALIZATION",
+        "FAIL_CACHE_INTEGRITY",
+        "FAIL_RESOURCE_LIMIT",
+        "FAIL_TIMEOUT",
+        "FAIL_CUDA_OOM",
+        "FAIL_MODEL_RUNTIME",
+        "FAIL_TEST"
+      ],
+      "title": "FailureCategory",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "records": {
+      "items": {
+        "$ref": "#/$defs/AdapterInventoryRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "stage": {
+      "const": "model_adapter_inventory",
+      "default": "model_adapter_inventory",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_commit",
+    "records"
+  ],
+  "title": "ModelAdapterInventory",
+  "type": "object"
+}
