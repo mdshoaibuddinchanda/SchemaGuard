@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "enum": [
+        "FAIL_RESOURCE_LIMIT",
+        "FAIL_TIMEOUT",
+        "FAIL_CUDA_OOM",
+        "FAIL_RESOURCE_MONITOR",
+        "FAIL_MODEL_RUNTIME",
+        "BLOCKED_GPU_UNAVAILABLE",
+        "BLOCKED_INSUFFICIENT_VRAM",
+        "FAIL_CACHE_INTEGRITY"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "task_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "traceback_relative_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Traceback Relative Path"
+    }
+  },
+  "required": [
+    "task_id",
+    "category",
+    "reason"
+  ],
+  "title": "FailureRecord",
+  "type": "object"
+}

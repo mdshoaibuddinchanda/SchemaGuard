@@ -1,0 +1,315 @@
+{
+  "$defs": {
+    "ResourceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanup_passed": {
+          "title": "Cleanup Passed",
+          "type": "boolean"
+        },
+        "cpu_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Seconds"
+        },
+        "ended_at": {
+          "format": "date-time",
+          "title": "Ended At",
+          "type": "string"
+        },
+        "exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exit Code"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "enum": [
+                "FAIL_RESOURCE_LIMIT",
+                "FAIL_TIMEOUT",
+                "FAIL_CUDA_OOM",
+                "FAIL_RESOURCE_MONITOR",
+                "FAIL_MODEL_RUNTIME",
+                "BLOCKED_GPU_UNAVAILABLE",
+                "BLOCKED_INSUFFICIENT_VRAM",
+                "FAIL_CACHE_INTEGRITY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Category"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        },
+        "gpu_allocated_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Allocated Mib"
+        },
+        "gpu_free_before_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Free Before Mib"
+        },
+        "gpu_reserved_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Reserved Mib"
+        },
+        "hard_limit_passed": {
+          "title": "Hard Limit Passed",
+          "type": "boolean"
+        },
+        "peak_process_tree_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Process Tree Rss Mib"
+        },
+        "peak_worker_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Worker Rss Mib"
+        },
+        "soft_limit_warning": {
+          "title": "Soft Limit Warning",
+          "type": "boolean"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "telemetry_complete": {
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        },
+        "timed_out": {
+          "title": "Timed Out",
+          "type": "boolean"
+        },
+        "wall_seconds": {
+          "minimum": 0,
+          "title": "Wall Seconds",
+          "type": "number"
+        },
+        "worker_pid": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worker Pid"
+        }
+      },
+      "required": [
+        "started_at",
+        "ended_at",
+        "wall_seconds",
+        "timed_out",
+        "soft_limit_warning",
+        "hard_limit_passed",
+        "cleanup_passed",
+        "telemetry_complete"
+      ],
+      "title": "ResourceRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_number": {
+      "minimum": 1,
+      "title": "Attempt Number",
+      "type": "integer"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "failure_category": {
+      "anyOf": [
+        {
+          "enum": [
+            "FAIL_RESOURCE_LIMIT",
+            "FAIL_TIMEOUT",
+            "FAIL_CUDA_OOM",
+            "FAIL_RESOURCE_MONITOR",
+            "FAIL_MODEL_RUNTIME",
+            "BLOCKED_GPU_UNAVAILABLE",
+            "BLOCKED_INSUFFICIENT_VRAM",
+            "FAIL_CACHE_INTEGRITY"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Category"
+    },
+    "heartbeat_at": {
+      "format": "date-time",
+      "title": "Heartbeat At",
+      "type": "string"
+    },
+    "owner_pid": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Owner Pid"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "resource": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResourceRecord"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "COMPLETE",
+        "FAILED",
+        "BLOCKED",
+        "CANCELLED"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "worker_pid": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Worker Pid"
+    }
+  },
+  "required": [
+    "attempt_number",
+    "state",
+    "started_at",
+    "heartbeat_at"
+  ],
+  "title": "TaskAttempt",
+  "type": "object"
+}

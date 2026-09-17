@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "payload_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Payload Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "manifest_sha256",
+    "payload_sha256"
+  ],
+  "title": "CompletionMarker",
+  "type": "object"
+}

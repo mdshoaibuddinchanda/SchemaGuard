@@ -1,0 +1,205 @@
+{
+  "$defs": {
+    "CacheIdentity": {
+      "additionalProperties": false,
+      "description": "All causal scientific and implementation inputs for one cached artifact.",
+      "properties": {
+        "artifact_kind": {
+          "enum": [
+            "model",
+            "prediction",
+            "metric",
+            "condition",
+            "probe"
+          ],
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "dataset_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "dependency_lock_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dependency Lock Sha256",
+          "type": "string"
+        },
+        "device_policy": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device Policy",
+          "type": "string"
+        },
+        "model_parameters_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Parameters Sha256",
+          "type": "string"
+        },
+        "model_spec_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Spec Sha256",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Implementation Sha256",
+          "type": "string"
+        },
+        "split_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Split Sha256",
+          "type": "string"
+        },
+        "view_certificate_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "View Certificate Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset_sha256",
+        "split_sha256",
+        "view_certificate_sha256",
+        "model_spec_sha256",
+        "model_parameters_sha256",
+        "checkpoint_sha256",
+        "dependency_lock_sha256",
+        "source_implementation_sha256",
+        "seed",
+        "device_policy",
+        "artifact_kind"
+      ],
+      "title": "CacheIdentity",
+      "type": "object"
+    },
+    "TaskSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_identity": {
+          "$ref": "#/$defs/CacheIdentity"
+        },
+        "delay_seconds": {
+          "default": 0.0,
+          "maximum": 3600,
+          "minimum": 0,
+          "title": "Delay Seconds",
+          "type": "number"
+        },
+        "operation": {
+          "enum": [
+            "synthetic_payload",
+            "sleep",
+            "raise_error",
+            "exit_without_result",
+            "partial_exit",
+            "network_attempt"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "payload_token": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Payload Token",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Task Name",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 300.0,
+          "exclusiveMinimum": 0,
+          "maximum": 86400,
+          "title": "Timeout Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "task_id",
+        "task_name",
+        "cache_identity",
+        "operation",
+        "payload_token"
+      ],
+      "title": "TaskSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cpu_workers": {
+      "enum": [
+        1,
+        2
+      ],
+      "title": "Cpu Workers",
+      "type": "integer"
+    },
+    "gpu_workers": {
+      "const": 1,
+      "title": "Gpu Workers",
+      "type": "integer"
+    },
+    "random_seed": {
+      "minimum": 0,
+      "title": "Random Seed",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tasks": {
+      "items": {
+        "$ref": "#/$defs/TaskSpec"
+      },
+      "title": "Tasks",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "tasks",
+    "random_seed",
+    "cpu_workers",
+    "gpu_workers"
+  ],
+  "title": "RunPlan",
+  "type": "object"
+}

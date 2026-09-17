@@ -1,0 +1,90 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "abandoned_lease_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Abandoned Lease Seconds",
+      "type": "number"
+    },
+    "cache_root": {
+      "minLength": 1,
+      "title": "Cache Root",
+      "type": "string"
+    },
+    "cpu_threads_per_worker": {
+      "const": 2,
+      "title": "Cpu Threads Per Worker",
+      "type": "integer"
+    },
+    "cpu_workers": {
+      "const": 2,
+      "title": "Cpu Workers",
+      "type": "integer"
+    },
+    "gpu_headroom_mib": {
+      "minimum": 512,
+      "title": "Gpu Headroom Mib",
+      "type": "integer"
+    },
+    "gpu_workers": {
+      "const": 1,
+      "title": "Gpu Workers",
+      "type": "integer"
+    },
+    "heartbeat_interval_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Heartbeat Interval Seconds",
+      "type": "number"
+    },
+    "lock_timeout_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Lock Timeout Seconds",
+      "type": "number"
+    },
+    "ram_hard_limit_mib": {
+      "exclusiveMinimum": 0,
+      "maximum": 28672,
+      "title": "Ram Hard Limit Mib",
+      "type": "integer"
+    },
+    "ram_soft_limit_mib": {
+      "exclusiveMinimum": 0,
+      "maximum": 24576,
+      "title": "Ram Soft Limit Mib",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "state_root": {
+      "minLength": 1,
+      "title": "State Root",
+      "type": "string"
+    },
+    "vram_soft_limit_mib": {
+      "exclusiveMinimum": 0,
+      "maximum": 3600,
+      "title": "Vram Soft Limit Mib",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "cpu_workers",
+    "cpu_threads_per_worker",
+    "gpu_workers",
+    "ram_soft_limit_mib",
+    "ram_hard_limit_mib",
+    "vram_soft_limit_mib",
+    "gpu_headroom_mib",
+    "lock_timeout_seconds",
+    "heartbeat_interval_seconds",
+    "abandoned_lease_seconds",
+    "cache_root",
+    "state_root"
+  ],
+  "title": "CacheSchedulerConfig",
+  "type": "object"
+}

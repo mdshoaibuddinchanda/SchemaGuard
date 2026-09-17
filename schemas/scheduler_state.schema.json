@@ -1,0 +1,665 @@
+{
+  "$defs": {
+    "CacheIdentity": {
+      "additionalProperties": false,
+      "description": "All causal scientific and implementation inputs for one cached artifact.",
+      "properties": {
+        "artifact_kind": {
+          "enum": [
+            "model",
+            "prediction",
+            "metric",
+            "condition",
+            "probe"
+          ],
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "dataset_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "dependency_lock_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dependency Lock Sha256",
+          "type": "string"
+        },
+        "device_policy": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device Policy",
+          "type": "string"
+        },
+        "model_parameters_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Parameters Sha256",
+          "type": "string"
+        },
+        "model_spec_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Spec Sha256",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Implementation Sha256",
+          "type": "string"
+        },
+        "split_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Split Sha256",
+          "type": "string"
+        },
+        "view_certificate_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "View Certificate Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset_sha256",
+        "split_sha256",
+        "view_certificate_sha256",
+        "model_spec_sha256",
+        "model_parameters_sha256",
+        "checkpoint_sha256",
+        "dependency_lock_sha256",
+        "source_implementation_sha256",
+        "seed",
+        "device_policy",
+        "artifact_kind"
+      ],
+      "title": "CacheIdentity",
+      "type": "object"
+    },
+    "ResourceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanup_passed": {
+          "title": "Cleanup Passed",
+          "type": "boolean"
+        },
+        "cpu_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Seconds"
+        },
+        "ended_at": {
+          "format": "date-time",
+          "title": "Ended At",
+          "type": "string"
+        },
+        "exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exit Code"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "enum": [
+                "FAIL_RESOURCE_LIMIT",
+                "FAIL_TIMEOUT",
+                "FAIL_CUDA_OOM",
+                "FAIL_RESOURCE_MONITOR",
+                "FAIL_MODEL_RUNTIME",
+                "BLOCKED_GPU_UNAVAILABLE",
+                "BLOCKED_INSUFFICIENT_VRAM",
+                "FAIL_CACHE_INTEGRITY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Category"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        },
+        "gpu_allocated_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Allocated Mib"
+        },
+        "gpu_free_before_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Free Before Mib"
+        },
+        "gpu_reserved_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gpu Reserved Mib"
+        },
+        "hard_limit_passed": {
+          "title": "Hard Limit Passed",
+          "type": "boolean"
+        },
+        "peak_process_tree_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Process Tree Rss Mib"
+        },
+        "peak_worker_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Worker Rss Mib"
+        },
+        "soft_limit_warning": {
+          "title": "Soft Limit Warning",
+          "type": "boolean"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "telemetry_complete": {
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        },
+        "timed_out": {
+          "title": "Timed Out",
+          "type": "boolean"
+        },
+        "wall_seconds": {
+          "minimum": 0,
+          "title": "Wall Seconds",
+          "type": "number"
+        },
+        "worker_pid": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worker Pid"
+        }
+      },
+      "required": [
+        "started_at",
+        "ended_at",
+        "wall_seconds",
+        "timed_out",
+        "soft_limit_warning",
+        "hard_limit_passed",
+        "cleanup_passed",
+        "telemetry_complete"
+      ],
+      "title": "ResourceRecord",
+      "type": "object"
+    },
+    "TaskAttempt": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_number": {
+          "minimum": 1,
+          "title": "Attempt Number",
+          "type": "integer"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "enum": [
+                "FAIL_RESOURCE_LIMIT",
+                "FAIL_TIMEOUT",
+                "FAIL_CUDA_OOM",
+                "FAIL_RESOURCE_MONITOR",
+                "FAIL_MODEL_RUNTIME",
+                "BLOCKED_GPU_UNAVAILABLE",
+                "BLOCKED_INSUFFICIENT_VRAM",
+                "FAIL_CACHE_INTEGRITY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Category"
+        },
+        "heartbeat_at": {
+          "format": "date-time",
+          "title": "Heartbeat At",
+          "type": "string"
+        },
+        "owner_pid": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner Pid"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "resource": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "PENDING",
+            "RUNNING",
+            "COMPLETE",
+            "FAILED",
+            "BLOCKED",
+            "CANCELLED"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "worker_pid": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worker Pid"
+        }
+      },
+      "required": [
+        "attempt_number",
+        "state",
+        "started_at",
+        "heartbeat_at"
+      ],
+      "title": "TaskAttempt",
+      "type": "object"
+    },
+    "TaskSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_identity": {
+          "$ref": "#/$defs/CacheIdentity"
+        },
+        "delay_seconds": {
+          "default": 0.0,
+          "maximum": 3600,
+          "minimum": 0,
+          "title": "Delay Seconds",
+          "type": "number"
+        },
+        "operation": {
+          "enum": [
+            "synthetic_payload",
+            "sleep",
+            "raise_error",
+            "exit_without_result",
+            "partial_exit",
+            "network_attempt"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "payload_token": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Payload Token",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "task_name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Task Name",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 300.0,
+          "exclusiveMinimum": 0,
+          "maximum": 86400,
+          "title": "Timeout Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "task_id",
+        "task_name",
+        "cache_identity",
+        "operation",
+        "payload_token"
+      ],
+      "title": "TaskSpec",
+      "type": "object"
+    },
+    "TaskStateRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Path"
+        },
+        "artifact_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Sha256"
+        },
+        "attempts": {
+          "items": {
+            "$ref": "#/$defs/TaskAttempt"
+          },
+          "title": "Attempts",
+          "type": "array"
+        },
+        "cache_hit": {
+          "default": false,
+          "title": "Cache Hit",
+          "type": "boolean"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "enum": [
+                "FAIL_RESOURCE_LIMIT",
+                "FAIL_TIMEOUT",
+                "FAIL_CUDA_OOM",
+                "FAIL_RESOURCE_MONITOR",
+                "FAIL_MODEL_RUNTIME",
+                "BLOCKED_GPU_UNAVAILABLE",
+                "BLOCKED_INSUFFICIENT_VRAM",
+                "FAIL_CACHE_INTEGRITY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Category"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        },
+        "state": {
+          "default": "PENDING",
+          "enum": [
+            "PENDING",
+            "RUNNING",
+            "COMPLETE",
+            "FAILED",
+            "BLOCKED",
+            "CANCELLED"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskSpec"
+        },
+        "transitions": {
+          "items": {
+            "$ref": "#/$defs/TaskTransition"
+          },
+          "title": "Transitions",
+          "type": "array"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task"
+      ],
+      "title": "TaskStateRecord",
+      "type": "object"
+    },
+    "TaskTransition": {
+      "additionalProperties": false,
+      "properties": {
+        "from_state": {
+          "enum": [
+            "PENDING",
+            "RUNNING",
+            "COMPLETE",
+            "FAILED",
+            "BLOCKED",
+            "CANCELLED"
+          ],
+          "title": "From State",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "to_state": {
+          "enum": [
+            "PENDING",
+            "RUNNING",
+            "COMPLETE",
+            "FAILED",
+            "BLOCKED",
+            "CANCELLED"
+          ],
+          "title": "To State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from_state",
+        "to_state",
+        "timestamp"
+      ],
+      "title": "TaskTransition",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "plan_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tasks": {
+      "additionalProperties": {
+        "$ref": "#/$defs/TaskStateRecord"
+      },
+      "title": "Tasks",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "plan_hash",
+    "tasks"
+  ],
+  "title": "SchedulerState",
+  "type": "object"
+}

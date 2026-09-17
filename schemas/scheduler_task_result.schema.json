@@ -1,0 +1,128 @@
+{
+  "additionalProperties": false,
+  "description": "Strict worker envelope; payloads travel by file path, never through queues.",
+  "properties": {
+    "cpu_seconds": {
+      "minimum": 0,
+      "title": "Cpu Seconds",
+      "type": "number"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "network_attempt_count": {
+      "minimum": 0,
+      "title": "Network Attempt Count",
+      "type": "integer"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "payload_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Payload Sha256"
+    },
+    "payload_size_bytes": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Payload Size Bytes"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "task_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "thread_environment": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Thread Environment",
+      "type": "object"
+    },
+    "traceback": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Traceback"
+    },
+    "worker_pid": {
+      "exclusiveMinimum": 0,
+      "title": "Worker Pid",
+      "type": "integer"
+    },
+    "worker_rss_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Worker Rss Mib"
+    },
+    "worker_seconds": {
+      "minimum": 0,
+      "title": "Worker Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "schema_version",
+    "ok",
+    "task_id",
+    "worker_pid",
+    "cpu_seconds",
+    "worker_seconds",
+    "network_attempt_count"
+  ],
+  "title": "TaskResult",
+  "type": "object"
+}

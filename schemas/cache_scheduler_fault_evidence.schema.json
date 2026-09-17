@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "FaultInjectionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_accepted": {
+          "title": "Artifact Accepted",
+          "type": "boolean"
+        },
+        "evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Sha256",
+          "type": "string"
+        },
+        "expected_failure_category": {
+          "title": "Expected Failure Category",
+          "type": "string"
+        },
+        "fault_name": {
+          "title": "Fault Name",
+          "type": "string"
+        },
+        "injection_point": {
+          "title": "Injection Point",
+          "type": "string"
+        },
+        "lock_released": {
+          "title": "Lock Released",
+          "type": "boolean"
+        },
+        "observed_failure_category": {
+          "title": "Observed Failure Category",
+          "type": "string"
+        },
+        "resume_behavior": {
+          "title": "Resume Behavior",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fault_name",
+        "injection_point",
+        "expected_failure_category",
+        "observed_failure_category",
+        "artifact_accepted",
+        "lock_released",
+        "resume_behavior",
+        "evidence_sha256",
+        "status"
+      ],
+      "title": "FaultInjectionRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_fault_count": {
+      "exclusiveMinimum": 0,
+      "title": "Expected Fault Count",
+      "type": "integer"
+    },
+    "offline_network_attempt_count": {
+      "minimum": 0,
+      "title": "Offline Network Attempt Count",
+      "type": "integer"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/FaultInjectionRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_implementation_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Implementation Commit",
+      "type": "string"
+    },
+    "stage": {
+      "const": "cache_scheduler_faults",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "source_implementation_commit",
+    "records",
+    "expected_fault_count",
+    "offline_network_attempt_count"
+  ],
+  "title": "FaultInjectionEvidence",
+  "type": "object"
+}

@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "from_state": {
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "COMPLETE",
+        "FAILED",
+        "BLOCKED",
+        "CANCELLED"
+      ],
+      "title": "From State",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "to_state": {
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "COMPLETE",
+        "FAILED",
+        "BLOCKED",
+        "CANCELLED"
+      ],
+      "title": "To State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "from_state",
+    "to_state",
+    "timestamp"
+  ],
+  "title": "TaskTransition",
+  "type": "object"
+}

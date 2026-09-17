@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "ProbeResourceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanup_passed": {
+          "title": "Cleanup Passed",
+          "type": "boolean"
+        },
+        "cpu_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpu Seconds"
+        },
+        "failure_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Category"
+        },
+        "hard_limit_passed": {
+          "title": "Hard Limit Passed",
+          "type": "boolean"
+        },
+        "peak_process_tree_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Process Tree Rss Mib"
+        },
+        "peak_worker_rss_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Worker Rss Mib"
+        },
+        "telemetry_complete": {
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        },
+        "wall_seconds": {
+          "minimum": 0,
+          "title": "Wall Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "wall_seconds",
+        "telemetry_complete",
+        "hard_limit_passed",
+        "cleanup_passed"
+      ],
+      "title": "ProbeResourceSummary",
+      "type": "object"
+    },
+    "ProbeRunSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked": {
+          "minimum": 0,
+          "title": "Blocked",
+          "type": "integer"
+        },
+        "cancelled": {
+          "minimum": 0,
+          "title": "Cancelled",
+          "type": "integer"
+        },
+        "executed": {
+          "minimum": 0,
+          "title": "Executed",
+          "type": "integer"
+        },
+        "failed": {
+          "minimum": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "max_cpu_concurrency": {
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Max Cpu Concurrency",
+          "type": "integer"
+        },
+        "max_gpu_concurrency": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Max Gpu Concurrency",
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "cold",
+            "resume"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "offline_network_attempt_count": {
+          "minimum": 0,
+          "title": "Offline Network Attempt Count",
+          "type": "integer"
+        },
+        "planned": {
+          "minimum": 0,
+          "title": "Planned",
+          "type": "integer"
+        },
+        "recovered_abandoned": {
+          "minimum": 0,
+          "title": "Recovered Abandoned",
+          "type": "integer"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/ProbeResourceSummary"
+          },
+          "title": "Resources",
+          "type": "array"
+        },
+        "retried": {
+          "minimum": 0,
+          "title": "Retried",
+          "type": "integer"
+        },
+        "validated_cache_hits": {
+          "minimum": 0,
+          "title": "Validated Cache Hits",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mode",
+        "planned",
+        "executed",
+        "validated_cache_hits",
+        "recovered_abandoned",
+        "failed",
+        "blocked",
+        "retried",
+        "cancelled",
+        "max_cpu_concurrency",
+        "max_gpu_concurrency",
+        "offline_network_attempt_count",
+        "resources"
+      ],
+      "title": "ProbeRunSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cache_identity_hashes": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Cache Identity Hashes",
+      "type": "array"
+    },
+    "cold": {
+      "$ref": "#/$defs/ProbeRunSummary"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "dependency_lock_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dependency Lock Sha256",
+      "type": "string"
+    },
+    "duplicate_validated_artifact_count": {
+      "minimum": 0,
+      "title": "Duplicate Validated Artifact Count",
+      "type": "integer"
+    },
+    "maximum_mocked_gpu_concurrency": {
+      "const": 1,
+      "title": "Maximum Mocked Gpu Concurrency",
+      "type": "integer"
+    },
+    "mocked_gpu_offline_network_attempt_count": {
+      "const": 0,
+      "title": "Mocked Gpu Offline Network Attempt Count",
+      "type": "integer"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "resume": {
+      "$ref": "#/$defs/ProbeRunSummary"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_implementation_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Implementation Commit",
+      "type": "string"
+    },
+    "source_implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Implementation Sha256",
+      "type": "string"
+    },
+    "stage": {
+      "const": "cache_scheduler_probe",
+      "title": "Stage",
+      "type": "string"
+    },
+    "validated_cache_artifact_count": {
+      "minimum": 0,
+      "title": "Validated Cache Artifact Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "source_implementation_commit",
+    "source_implementation_sha256",
+    "dependency_lock_sha256",
+    "configuration_sha256",
+    "plan_sha256",
+    "cache_identity_hashes",
+    "cold",
+    "resume",
+    "maximum_mocked_gpu_concurrency",
+    "mocked_gpu_offline_network_attempt_count",
+    "validated_cache_artifact_count",
+    "duplicate_validated_artifact_count"
+  ],
+  "title": "SchedulerProbeEvidence",
+  "type": "object"
+}

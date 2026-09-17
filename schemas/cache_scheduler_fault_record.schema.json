@@ -1,0 +1,59 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_accepted": {
+      "title": "Artifact Accepted",
+      "type": "boolean"
+    },
+    "evidence_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Evidence Sha256",
+      "type": "string"
+    },
+    "expected_failure_category": {
+      "title": "Expected Failure Category",
+      "type": "string"
+    },
+    "fault_name": {
+      "title": "Fault Name",
+      "type": "string"
+    },
+    "injection_point": {
+      "title": "Injection Point",
+      "type": "string"
+    },
+    "lock_released": {
+      "title": "Lock Released",
+      "type": "boolean"
+    },
+    "observed_failure_category": {
+      "title": "Observed Failure Category",
+      "type": "string"
+    },
+    "resume_behavior": {
+      "title": "Resume Behavior",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fault_name",
+    "injection_point",
+    "expected_failure_category",
+    "observed_failure_category",
+    "artifact_accepted",
+    "lock_released",
+    "resume_behavior",
+    "evidence_sha256",
+    "status"
+  ],
+  "title": "FaultInjectionRecord",
+  "type": "object"
+}

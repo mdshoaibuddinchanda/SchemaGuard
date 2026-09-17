@@ -1,0 +1,165 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cache_identity_hashes": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Cache Identity Hashes",
+      "type": "array"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "counters": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Counters",
+      "type": "object"
+    },
+    "fault_evidence_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Fault Evidence Sha256",
+      "type": "string"
+    },
+    "implementation_hashes": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Implementation Hashes",
+      "type": "object"
+    },
+    "maximum_observed_cpu_concurrency": {
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Maximum Observed Cpu Concurrency",
+      "type": "integer"
+    },
+    "maximum_observed_gpu_concurrency": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Maximum Observed Gpu Concurrency",
+      "type": "integer"
+    },
+    "offline_network_attempt_count": {
+      "minimum": 0,
+      "title": "Offline Network Attempt Count",
+      "type": "integer"
+    },
+    "plan_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Plan Sha256",
+      "type": "string"
+    },
+    "probe_evidence_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Probe Evidence Sha256",
+      "type": "string"
+    },
+    "protected_artifacts_unchanged": {
+      "title": "Protected Artifacts Unchanged",
+      "type": "boolean"
+    },
+    "protected_hash_comparison_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Protected Hash Comparison Sha256",
+      "type": "string"
+    },
+    "resource_summaries": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Resource Summaries",
+      "type": "object"
+    },
+    "resume_results": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Resume Results",
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_implementation_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Implementation Commit",
+      "type": "string"
+    },
+    "stage": {
+      "const": "cache_scheduler",
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS_PENDING_REVIEW",
+        "REPAIR_REQUIRED",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "test_case_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Test Case Names",
+      "type": "array"
+    },
+    "test_statuses": {
+      "additionalProperties": {
+        "enum": [
+          "PASS",
+          "FAIL",
+          "NOT_VERIFIED"
+        ],
+        "type": "string"
+      },
+      "title": "Test Statuses",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "status",
+    "source_implementation_commit",
+    "implementation_hashes",
+    "configuration_sha256",
+    "plan_sha256",
+    "cache_identity_hashes",
+    "test_case_names",
+    "test_statuses",
+    "counters",
+    "maximum_observed_cpu_concurrency",
+    "maximum_observed_gpu_concurrency",
+    "resource_summaries",
+    "fault_evidence_sha256",
+    "probe_evidence_sha256",
+    "resume_results",
+    "offline_network_attempt_count",
+    "protected_artifacts_unchanged",
+    "protected_hash_comparison_sha256"
+  ],
+  "title": "CacheSchedulerInventory",
+  "type": "object"
+}

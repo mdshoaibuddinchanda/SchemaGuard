@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "after_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "After Sha256",
+      "type": "string"
+    },
+    "after_size_bytes": {
+      "minimum": 0,
+      "title": "After Size Bytes",
+      "type": "integer"
+    },
+    "baseline_git_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Baseline Git Sha256",
+      "type": "string"
+    },
+    "before_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Before Sha256",
+      "type": "string"
+    },
+    "before_size_bytes": {
+      "minimum": 0,
+      "title": "Before Size Bytes",
+      "type": "integer"
+    },
+    "implementation_git_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Git Sha256",
+      "type": "string"
+    },
+    "path": {
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    },
+    "unchanged": {
+      "title": "Unchanged",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "path",
+    "before_sha256",
+    "after_sha256",
+    "baseline_git_sha256",
+    "implementation_git_sha256",
+    "before_size_bytes",
+    "after_size_bytes",
+    "unchanged"
+  ],
+  "title": "ProtectedHashRecord",
+  "type": "object"
+}

@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cleanup_passed": {
+      "title": "Cleanup Passed",
+      "type": "boolean"
+    },
+    "cpu_seconds": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cpu Seconds"
+    },
+    "failure_category": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Category"
+    },
+    "hard_limit_passed": {
+      "title": "Hard Limit Passed",
+      "type": "boolean"
+    },
+    "peak_process_tree_rss_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Process Tree Rss Mib"
+    },
+    "peak_worker_rss_mib": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Peak Worker Rss Mib"
+    },
+    "telemetry_complete": {
+      "title": "Telemetry Complete",
+      "type": "boolean"
+    },
+    "wall_seconds": {
+      "minimum": 0,
+      "title": "Wall Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "wall_seconds",
+    "telemetry_complete",
+    "hard_limit_passed",
+    "cleanup_passed"
+  ],
+  "title": "ProbeResourceSummary",
+  "type": "object"
+}
