@@ -6,6 +6,20 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
+from .cache.contracts import (
+    CacheArtifactManifest,
+    CacheIdentity,
+    CacheSchedulerConfig,
+    CacheSchedulerInventory,
+    CompletionMarker,
+    FaultInjectionEvidence,
+    FaultInjectionRecord,
+    ProbeResourceSummary,
+    ProbeRunSummary,
+    ProtectedHashComparison,
+    ProtectedHashRecord,
+    SchedulerProbeEvidence,
+)
 from .compatibility.contracts import (
     CheckpointRecord,
     EnvironmentReport,
@@ -23,6 +37,22 @@ from .models.adapters.contracts import (
     AdapterLeakageEvidenceManifest,
     ModelAdapterInventory,
     PredictionResult,
+)
+from .runner.contracts import (
+    FailureRecord as SchedulerFailureRecord,
+)
+from .runner.contracts import (
+    ResourceRecord as SchedulerResourceRecord,
+)
+from .runner.contracts import (
+    RunManifest,
+    RunPlan,
+    SchedulerState,
+    TaskAttempt,
+    TaskResult,
+    TaskSpec,
+    TaskStateRecord,
+    TaskTransition,
 )
 from .splits.contracts import SplitGenerationInventoryContract
 from .transformations.contracts import (
@@ -281,6 +311,18 @@ class RepositoryValidationReportContract(ArtifactContract):
 
 SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "condition_manifest.schema.json": ConditionManifestContract,
+    "cache_artifact_manifest.schema.json": CacheArtifactManifest,
+    "cache_completion_marker.schema.json": CompletionMarker,
+    "cache_identity.schema.json": CacheIdentity,
+    "cache_scheduler_config.schema.json": CacheSchedulerConfig,
+    "cache_scheduler_inventory.schema.json": CacheSchedulerInventory,
+    "cache_scheduler_fault_evidence.schema.json": FaultInjectionEvidence,
+    "cache_scheduler_fault_record.schema.json": FaultInjectionRecord,
+    "cache_scheduler_protected_hash_comparison.schema.json": ProtectedHashComparison,
+    "cache_scheduler_protected_hash_record.schema.json": ProtectedHashRecord,
+    "cache_scheduler_probe_evidence.schema.json": SchedulerProbeEvidence,
+    "cache_scheduler_probe_run.schema.json": ProbeRunSummary,
+    "cache_scheduler_probe_resource.schema.json": ProbeResourceSummary,
     "data_foundation_baseline.schema.json": DataFoundationBaselineContract,
     "model_compatibility.schema.json": ModelCompatibilityReportContract,
     "model_adapter_inventory.schema.json": ModelAdapterInventory,
@@ -290,6 +332,16 @@ SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "gpu_capacity_report.schema.json": GpuCapacityReportContract,
     "repository_validation.schema.json": RepositoryValidationReportContract,
     "split_generation_inventory.schema.json": SplitGenerationInventoryContract,
+    "scheduler_run_manifest.schema.json": RunManifest,
+    "scheduler_run_plan.schema.json": RunPlan,
+    "scheduler_state.schema.json": SchedulerState,
+    "scheduler_failure_record.schema.json": SchedulerFailureRecord,
+    "scheduler_resource_record.schema.json": SchedulerResourceRecord,
+    "scheduler_task_attempt.schema.json": TaskAttempt,
+    "scheduler_task_result.schema.json": TaskResult,
+    "scheduler_task_spec.schema.json": TaskSpec,
+    "scheduler_task_transition.schema.json": TaskTransition,
+    "scheduler_task_record.schema.json": TaskStateRecord,
     "transformation_certificate.schema.json": TransformationCertificate,
     "transformation_cache_manifest.schema.json": TransformationCacheManifest,
     "transformation_manifest.schema.json": TransformationManifest,

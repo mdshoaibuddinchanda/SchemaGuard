@@ -21,12 +21,16 @@ they are not benchmark results and do not test the research hypothesis.
 | GPU capacity and execution policy | `VERIFIED_PASS` | `artifacts/handoff/gpu_capacity_review.md` |
 | Grouped split generation | `VERIFIED_PASS` | `artifacts/handoff/split_generation_review.md` |
 | Transformation engine | `VERIFIED_PASS` | `artifacts/handoff/transformation_evidence_finalization.md` |
-| Model adapters | `PASS_PENDING_REVIEW` | `artifacts/handoff/model_adapters_review.md` |
-| Smoke, pilot, and main experiments | `NOT_STARTED` | Not authorized by adapter validation |
+| Model adapters | `VERIFIED_PASS` | Accepted by the current workstream authorization; implementation evidence is indexed in `artifacts/handoff/README.md` |
+| Cache and scheduler | `PASS_PENDING_REVIEW` | `artifacts/handoff/cache_scheduler_review.md` |
+| Ten-condition smoke test | `NOT_STARTED` | Requires independent acceptance of the cache and scheduler workstream |
+| Pilot and main experiments | `NOT_STARTED` | Not authorized |
 
 `PASS_PENDING_REVIEW` means the local implementation and evidence gates passed and independent
-review is still required. No full dataset-seed-view matrix or smoke, pilot, or main experiment has
-been run. SCNF, COSA, statistical analysis, paper figures, and paper claims remain unstarted.
+review is still required for the cache and scheduler workstream. The Model Adapters workstream is
+accepted as `VERIFIED_PASS` under the current workstream authorization. No full dataset-seed-view
+matrix or ten-condition smoke, pilot, or main experiment has been run. SCNF, COSA, statistical
+analysis, paper figures, and paper claims remain unstarted.
 
 ## Reproducibility and resource limits
 
@@ -43,11 +47,20 @@ Use the existing `P12` Conda environment (Python 3.12):
 conda activate P12
 python -m pytest -q tests/unit -m "not network and not gpu and not foundation_model and not evidence"
 python scripts/validate_model_adapters.py --device cpu
+python scripts/run_cache_scheduler_probe.py --config configs/runtime/cache_scheduler.yaml --offline
+python scripts/run_cache_scheduler_probe.py --config configs/runtime/cache_scheduler.yaml --offline --resume
+python scripts/validate_cache_scheduler.py --config configs/runtime/cache_scheduler.yaml --inventory artifacts/handoff/cache_scheduler_inventory.json --fault-evidence artifacts/handoff/cache_scheduler_fault_evidence.json
 ```
 
 The adapter validator uses deterministic synthetic fixtures and the locally validated frozen
 checkpoints. It does not download datasets or launch research experiments. Generated predictions,
 caches, logs, and reports are local ignored outputs under `results/` and `data/cache/`.
+
+To regenerate the sanitized scheduler evidence after a source implementation commit, run
+`conda run -n P12 python scripts/validate_cache_scheduler.py --config configs/runtime/cache_scheduler.yaml --inventory artifacts/handoff/cache_scheduler_inventory.json --fault-evidence artifacts/handoff/cache_scheduler_fault_evidence.json --record`.
+The validator checks the committed inventory, probe summary, protected-file comparison, fault matrix,
+schemas, and source hashes. GPU scheduling evidence uses synthetic workers and mocked telemetry; it
+does not claim CUDA inference or measured VRAM use.
 
 See [project status](docs/project_status.md), the [repository guide](docs/repository_guide.md), and
 the [handoff index](artifacts/handoff/README.md) for current scope and review evidence. Browse

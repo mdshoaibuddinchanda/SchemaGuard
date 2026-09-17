@@ -48,3 +48,33 @@ jobs:
       - run: uv sync --extra dev --extra models-cpu --extra monitoring --no-managed-python
       - run: uv run python -m pytest -q tests/unit/test_model_adapter_evidence.py -m evidence
       - run: uv run python scripts/validate_model_adapter_evidence.py
+
+  cache-scheduler-validation:
+    name: Cache and scheduler validation
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install uv
+      - run: uv sync --frozen --extra dev --extra monitoring --no-managed-python
+      - name: Run bounded cache and scheduler unit tests
+        run: uv run python -m pytest -q tests/unit -m "not network and not gpu and not foundation_model and not evidence" -rA
+      - name: Run synthetic scheduler integration tests
+        run: uv run python -m pytest -q tests/integration/test_scheduler_resume.py tests/integration/test_scheduler_concurrency.py tests/integration/test_scheduler_process_isolation.py -m "integration and not network and not gpu and not foundation_model" -rA
+      - name: Check code quality
+        run: |
+          uv run python -m ruff check .
+          uv run python -m mypy src/schemaguard
+      - name: Verify generated schemas are current
+        run: |
+          uv run python scripts/generate_artifact_schemas.py
+          git diff --exit-code -- schemas
+      - run: uv run python scripts/validate_repository_naming.py
+      - run: uv run python scripts/validate_repository_repair.py
+      - name: Validate committed cache and scheduler evidence
+        if: ${{ hashFiles('artifacts/handoff/cache_scheduler_inventory.json') != '' }}
+        run: uv run python scripts/validate_cache_scheduler.py --config configs/runtime/cache_scheduler.yaml --inventory artifacts/handoff/cache_scheduler_inventory.json --fault-evidence artifacts/handoff/cache_scheduler_fault_evidence.json

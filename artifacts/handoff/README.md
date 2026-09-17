@@ -5,8 +5,24 @@ checkpoints, logs, and caches remain ignored local artifacts.
 
 ## Current workstream
 
-- [Model adapter review](model_adapters_review.md) — five frozen adapters, fixture validation,
-  resource checks, and evidence for independent review.
+- [Cache and scheduler review](cache_scheduler_review.md) — immutable content-addressed artifacts,
+  atomic publication, worker scheduling, resume validation, resource controls, and fault evidence;
+  status is `PASS_PENDING_REVIEW`.
+- [Cache and scheduler inventory](cache_scheduler_inventory.json) — source-bound sanitized gates,
+  counters, and protected-file comparison digest.
+- [Cache and scheduler probe evidence](cache_scheduler_probe_evidence.json) — sanitized cold/resume
+  summaries and measured resource bounds.
+- [Cache and scheduler fault evidence](cache_scheduler_fault_evidence.json) — observed outcomes for
+  all 30 required fault cases.
+- [Protected-file comparison](cache_scheduler_protected_hash_comparison.json) — SHA-256 comparison
+  of protected local files plus Git-tree identities from the starting and implementation commits.
+
+## Accepted workstreams
+
+- Model adapters — accepted as `VERIFIED_PASS` by the current workstream authorization. The existing
+  [adapter review](model_adapters_review.md), [inventory](model_adapter_inventory.json), and
+  [integrity handoff](model_adapter_integrity_repair.md) are retained as implementation evidence;
+  their earlier pending-review wording is historical and superseded by that acceptance.
 - [Sanitized model adapter inventory](model_adapter_inventory.json) — strict per-case hashes and
   validation summaries; no probability matrices or row-level predictions.
 
@@ -18,5 +34,6 @@ checkpoints, logs, and caches remain ignored local artifacts.
 - [Split generation](split_generation_review.md)
 - [Transformation evidence finalization](transformation_evidence_finalization.md)
 
-Historical review files are retained for provenance. The current project status and the newest
-accepted handoff identify which earlier findings have been superseded.
+Historical review files are retained for provenance. Current acceptance is distinct from the
+cache/scheduler status: the smoke test remains unstarted until an independent reviewer accepts that
+workstream. The current commands are documented in the root README and cache/scheduler handoff.

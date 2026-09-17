@@ -15,7 +15,7 @@ data/cache/models/
 data/transformed/
 data/tmp/
 logs/
-cache/
+/cache/
 *.joblib
 
 artifacts/*

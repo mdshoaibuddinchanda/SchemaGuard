@@ -22,4 +22,8 @@ def test_generated_path_gitignore_policy() -> None:
     assert is_ignored("data/raw/example.csv")
     assert is_ignored("data/processed/example.parquet")
     assert is_ignored("results/example.csv")
+    assert is_ignored("data/cache/conditions/aa/artifact/payload.bin")
+    assert is_ignored("cache/conditions/aa/artifact/payload.bin")
+    assert is_ignored("artifacts/cache_scheduler/runtime/task_state.json")
+    assert not is_ignored("src/schemaguard/cache/store.py")
     assert not is_ignored("artifacts/handoff/example.md")

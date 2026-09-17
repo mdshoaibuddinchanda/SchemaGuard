@@ -1,0 +1,17 @@
+schema_version: 1
+
+cpu_workers: 2
+cpu_threads_per_worker: 2
+gpu_workers: 1
+
+ram_soft_limit_mib: 24576
+ram_hard_limit_mib: 28672
+vram_soft_limit_mib: 3600
+gpu_headroom_mib: 512
+
+lock_timeout_seconds: 120
+heartbeat_interval_seconds: 5
+abandoned_lease_seconds: 60
+
+cache_root: data/cache/conditions
+state_root: artifacts/cache_scheduler/runtime
