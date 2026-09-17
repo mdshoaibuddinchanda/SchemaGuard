@@ -15,8 +15,10 @@ smoke test or later research work was started.
 
 - Required starting branch: `main`
 - Required starting commit: `cc8e2a53ceb73e833d54917dd195eb99bf01719c`
-- Source implementation commit: `b3fb397507851f49772edee7d6e2e0fde319c449`
+- Source implementation commit: `6e1f90c0fc598dac70c1479ccae1f15aaed764c5`
 - CI dependency correction commit: `428ff41fac0f7a1cf9c11f9c50b352c334a4e07a`
+- Superseded evidence draft: `8189320f788c1ee20ff0e04c8f7bcb202134d275`; the corrected evidence below
+  is regenerated against the source implementation commit above.
 - Runtime: existing Conda environment `P12`, Python 3.12, Windows
 - The only pre-existing untracked root item was `SchemaGuard_Complete_Research_and_Engineering_Plan.docx`.
   It was not opened, read, hashed, copied, moved, edited, staged, or deleted; it remains untracked.
@@ -50,21 +52,23 @@ the scheduler GPU test uses synthetic work and mocked telemetry only.
 
 The offline cold probe planned 4 tasks, executed 4, had 0 cache hits and 0 failures, and published
 4 validated artifacts. The resume probe planned 4, executed 0, reused 4 validated artifacts, and
-had 0 failures. No duplicate artifact was found. Ordinary cold/resume probes and the mocked GPU
+had 0 failures. No duplicate artifact was found. Four older, still-valid artifacts from the prior
+implementation identity were retained separately; the cache contains 8 unique entries total and
+uses 16,284 bytes. Ordinary cold/resume probes and the mocked GPU
 policy probe recorded 0 network attempts. The fault suite intentionally attempted one offline
 network request and verified that it was denied.
 
 - Maximum observed CPU concurrency: 2
 - Maximum observed GPU queue concurrency: 1 (mocked scheduler-policy probe; no CUDA inference)
-- Peak worker/process-tree RSS: 92.5 MiB
-- Aggregate cold worker time: 4.524 seconds; individual worker wall times were about 1.07–1.17 seconds
+- Peak worker/process-tree RSS: 91.6 MiB
+- Aggregate cold worker time: 4.331 seconds; individual worker wall times were about 1.03–1.15 seconds
 - Resume executed no workers; all four results were validated cache hits
 - Peak VRAM: not measured; CUDA was not used in this synthetic scheduler workstream
 - Four cache payloads occupied 8,142 bytes; dependency installation/storage change: none
 
 ## Validation results
 
-- Unit tests: 377 passed, 0 failed
+- Unit tests: 379 passed, 0 failed
 - Scheduler integration tests: 9 passed, 0 failed
 - Fault injection: 30/30 passed, with explicit observed outcomes and lock-release checks
 - Ruff: passed
@@ -77,6 +81,8 @@ network request and verified that it was denied.
 - Existing raw/processed/split artifacts: 281 files rehashed against the last validated
   transformation repair snapshot, 0 mismatches
 - Sanitized evidence validator: passed with status `PASS_PENDING_REVIEW`
+- LF/CRLF configuration and dependency-lock identity tests: passed; clean-clone portability repair
+  prevents Windows checkout line endings from invalidating evidence hashes
 
 The 93-record comparison binds protected local SHA-256/size records to the required baseline and
 implementation Git trees. A separate read-only rehash compared all 281 existing raw, processed, and
@@ -150,6 +156,10 @@ git diff --check
 ## Deviations and failures
 
 - No implementation or required cache/scheduler gate failed.
+- An initial clean clone of the superseded evidence draft exposed raw line-ending-sensitive hashes
+  for YAML and lock files. The current implementation normalizes those identities, hashes text
+  evidence consistently, and the new LF/CRLF tests pass. The superseded draft remains only in local
+  history; the corrected evidence set is the one in the current handoff.
 - The legacy transformation-engine subset CLI reports a nonzero protected-snapshot result when
   it sees the newly added scheduler schemas, because its historical allowlist does not include
   this workstream's schema additions. Its 11 computed representative view records were all PASS
