@@ -1010,6 +1010,11 @@ class ModelAdapterBase:
                 FailureCategory.FAIL_RESOURCE_LIMIT, "resource tracker was not initialized"
             )
         tracker.capture()
+        for _ in range(5):
+            if tracker.execution_telemetry_complete:
+                break
+            time.sleep(0.1)
+            tracker.capture()
         if not tracker.execution_telemetry_complete:
             raise AdapterFailure(
                 FailureCategory.FAIL_RESOURCE_LIMIT,

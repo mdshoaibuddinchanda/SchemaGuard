@@ -43,9 +43,19 @@ def process_tree_memory_mib() -> float | None:
 
         parent = psutil.Process(os.getpid())
         processes = [parent, *parent.children(recursive=True)]
-        return sum(float(proc.memory_info().rss) for proc in processes if proc.is_running()) / (
-            1024**2
-        )
+        total_bytes = 0
+        observed = 0
+        for process in processes:
+            try:
+                if process.is_running():
+                    total_bytes += int(process.memory_info().rss)
+                    observed += 1
+            except psutil.NoSuchProcess:
+                # A child may exit between enumeration and RSS sampling.
+                continue
+            except psutil.AccessDenied:
+                return None
+        return total_bytes / (1024**2) if observed else None
     except Exception:
         return None
 
@@ -237,11 +247,13 @@ class AdapterResourceTracker:
                     f"{self.hard_ram_limit_mib:.1f} MiB"
                 )
         else:
-            self._note_error(RuntimeError("process-tree RAM telemetry is unavailable"))
+            # A transient child-process race must not make a later complete
+            # telemetry sample permanently fail the probe.
+            pass
         if memory is not None:
             self.peak_ram_mib = max(memory, self.peak_ram_mib or 0.0)
         else:
-            self._note_error(RuntimeError("process RSS telemetry is unavailable"))
+            pass
 
     def capture(self) -> None:
         self._capture_ram()
