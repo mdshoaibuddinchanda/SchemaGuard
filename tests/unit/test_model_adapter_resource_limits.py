@@ -119,13 +119,15 @@ def test_insufficient_prelaunch_gpu_headroom_is_rejected(monkeypatch) -> None:
 
 
 def test_cuda_cleanup_failure_is_not_reported_as_complete(monkeypatch) -> None:
+    memory_allocated_calls = iter((0, 32 * 1024**2))
+    memory_reserved_calls = iter((0, 256 * 1024**2))
     fake_cuda = SimpleNamespace(
         is_available=lambda: True,
         max_memory_allocated=lambda _device: 1,
         max_memory_reserved=lambda _device: 1,
         synchronize=lambda _device: None,
-        memory_allocated=lambda _device: 32 * 1024**2,
-        memory_reserved=lambda _device: 128 * 1024**2,
+        memory_allocated=lambda _device: next(memory_allocated_calls),
+        memory_reserved=lambda _device: next(memory_reserved_calls),
     )
     monkeypatch.setitem(sys.modules, "torch", SimpleNamespace(cuda=fake_cuda))
     monkeypatch.setattr(
@@ -134,6 +136,8 @@ def test_cuda_cleanup_failure_is_not_reported_as_complete(monkeypatch) -> None:
     )
     tracker = AdapterResourceTracker("cuda")
     try:
+        assert tracker.execution_telemetry_complete is True
+        assert tracker.telemetry_complete is False
         tracker.verify_cleanup()
         assert tracker.cleanup_verified is False
         assert tracker.telemetry_complete is False

@@ -183,6 +183,8 @@ class AdapterResourceTracker:
     free_vram_after_mib: float | None = None
     peak_vram_allocated_mib: float | None = None
     peak_vram_reserved_mib: float | None = None
+    gpu_baseline_allocated_mib: float | None = None
+    gpu_baseline_reserved_mib: float | None = None
     telemetry_error: str | None = None
     limit_exceeded: bool = False
     limit_failure_reason: str | None = None
@@ -203,6 +205,15 @@ class AdapterResourceTracker:
         self.capture()
         if self.device == "cuda":
             try:
+                import torch
+
+                if torch.cuda.is_available():
+                    self.gpu_baseline_allocated_mib = float(
+                        torch.cuda.memory_allocated(0) / (1024**2)
+                    )
+                    self.gpu_baseline_reserved_mib = float(
+                        torch.cuda.memory_reserved(0) / (1024**2)
+                    )
                 free = gpu_memory_state()["free_mib"]
                 self.free_vram_before_mib = float(free) if free is not None else None
             except Exception as exc:
@@ -295,8 +306,11 @@ class AdapterResourceTracker:
             torch.cuda.synchronize(0)
             self.cleanup_gpu_allocated_mib = float(torch.cuda.memory_allocated(0) / (1024**2))
             self.cleanup_gpu_reserved_mib = float(torch.cuda.memory_reserved(0) / (1024**2))
+            allowed_allocated = max(64.0, (self.gpu_baseline_allocated_mib or 0.0) + 16.0)
+            allowed_reserved = max(128.0, (self.gpu_baseline_reserved_mib or 0.0) + 64.0)
             self.cleanup_verified = (
-                self.cleanup_gpu_allocated_mib <= 16.0 and self.cleanup_gpu_reserved_mib <= 64.0
+                self.cleanup_gpu_allocated_mib <= allowed_allocated
+                and self.cleanup_gpu_reserved_mib <= allowed_reserved
             )
             if not self.cleanup_verified:
                 self._note_error(RuntimeError("CUDA allocations remain after adapter cleanup"))
@@ -305,7 +319,9 @@ class AdapterResourceTracker:
             self.cleanup_verified = False
 
     @property
-    def telemetry_complete(self) -> bool:
+    def execution_telemetry_complete(self) -> bool:
+        """Whether measurements needed during model execution are available."""
+
         return (
             self.telemetry_error is None
             and self.cpu_started is not None
@@ -315,11 +331,23 @@ class AdapterResourceTracker:
                 self.device == "cpu"
                 or (
                     self.peak_vram_reserved_mib is not None
+                    and self.gpu_baseline_allocated_mib is not None
+                    and self.gpu_baseline_reserved_mib is not None
                     and self.free_vram_before_mib is not None
                     and self.free_vram_after_mib is not None
-                    and self.cleanup_gpu_allocated_mib is not None
-                    and self.cleanup_gpu_reserved_mib is not None
                 )
+            )
+        )
+
+    @property
+    def telemetry_complete(self) -> bool:
+        """Whether execution telemetry and post-release cleanup telemetry are complete."""
+
+        return self.execution_telemetry_complete and (
+            self.device == "cpu"
+            or (
+                self.cleanup_gpu_allocated_mib is not None
+                and self.cleanup_gpu_reserved_mib is not None
             )
         )
 

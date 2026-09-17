@@ -889,6 +889,8 @@ class ModelAdapterBase:
             peak_process_tree_ram_mib=tracker.peak_tree_ram_mib if tracker else None,
             peak_vram_allocated_mib=tracker.peak_vram_allocated_mib if tracker else None,
             peak_vram_reserved_mib=tracker.peak_vram_reserved_mib if tracker else None,
+            gpu_baseline_allocated_mib=tracker.gpu_baseline_allocated_mib if tracker else None,
+            gpu_baseline_reserved_mib=tracker.gpu_baseline_reserved_mib if tracker else None,
             free_vram_before_mib=tracker.free_vram_before_mib if tracker else None,
             free_vram_after_mib=tracker.free_vram_after_mib if tracker else None,
             telemetry_complete=tracker.telemetry_complete if tracker else False,
@@ -1008,7 +1010,7 @@ class ModelAdapterBase:
                 FailureCategory.FAIL_RESOURCE_LIMIT, "resource tracker was not initialized"
             )
         tracker.capture()
-        if not tracker.telemetry_complete:
+        if not tracker.execution_telemetry_complete:
             raise AdapterFailure(
                 FailureCategory.FAIL_RESOURCE_LIMIT,
                 "resource telemetry incomplete: "

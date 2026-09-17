@@ -133,6 +133,8 @@ class AdapterResourceRecord(StrictModel):
     peak_process_tree_ram_mib: float | None = Field(default=None, ge=0)
     peak_vram_allocated_mib: float | None = Field(default=None, ge=0)
     peak_vram_reserved_mib: float | None = Field(default=None, ge=0)
+    gpu_baseline_allocated_mib: float | None = Field(default=None, ge=0)
+    gpu_baseline_reserved_mib: float | None = Field(default=None, ge=0)
     free_vram_before_mib: float | None = Field(default=None, ge=0)
     free_vram_after_mib: float | None = Field(default=None, ge=0)
     telemetry_complete: bool
