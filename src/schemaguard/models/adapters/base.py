@@ -35,12 +35,14 @@ from ...constants import ROW_ID_COLUMN  # noqa: E402
 from ...utils.hashing import hash_dataframe_logically, sha256_canonical_json  # noqa: E402
 from .cache import AdapterArtifactCache, CacheIntegrityError  # noqa: E402
 from .contracts import (  # noqa: E402
+    FOUNDATION_CHECKPOINTS,
     AdapterCacheIdentity,
     AdapterFailure,
     AdapterResourceRecord,
     FailureCategory,
     ModelAdapterConfig,
     PredictionResult,
+    SemanticEquivalenceCertificate,
     implementation_digest,
 )
 from .preprocessing import TrainingPreprocessor  # noqa: E402
@@ -63,6 +65,46 @@ def _now() -> str:
 
 def _row_ids_sha256(row_ids: list[str | int]) -> str:
     return sha256_canonical_json(row_ids)
+
+
+def canonical_parameter_payload(
+    parameters: dict[str, Any],
+    *,
+    model_id: str,
+    package_name: str,
+    package_version: str,
+    seed: int,
+    device: str,
+    checkpoint_identifier: str | None,
+    checkpoint_sha256: str | None,
+    python_major_minor: str,
+    pytorch_version: str,
+) -> dict[str, Any]:
+    """Return the complete portable constructor/runtime identity, without local paths."""
+
+    normalized_parameters = dict(parameters)
+    if checkpoint_identifier is not None:
+        if not checkpoint_sha256 or "model_path" not in normalized_parameters:
+            raise ValueError("checkpoint parameters require a path, identifier, and checksum")
+        normalized_parameters["model_path"] = {
+            "checkpoint_identifier": checkpoint_identifier,
+            "checkpoint_sha256": checkpoint_sha256,
+        }
+    elif "model_path" in normalized_parameters:
+        raise ValueError("a model path without a frozen checkpoint identity is not portable")
+    return {
+        "schema_version": 1,
+        "model_id": model_id,
+        "package_name": package_name,
+        "package_version": package_version,
+        "python_major_minor": python_major_minor,
+        "pytorch_version": pytorch_version,
+        "seed": seed,
+        "device": device,
+        "checkpoint_identifier": checkpoint_identifier,
+        "checkpoint_sha256": checkpoint_sha256,
+        "parameters": normalized_parameters,
+    }
 
 
 def _probability_sha256(probabilities: np.ndarray) -> str:
@@ -138,6 +180,7 @@ def _canonical_row_order(row_ids: list[str | int]) -> tuple[list[int], list[int]
 
 def _implementation_hash(adapter_type: type[Any]) -> str:
     from . import base as base_module
+    from . import evidence as evidence_module
     from . import preprocessing as preprocessing_module
     from . import probability as probability_module
 
@@ -146,9 +189,22 @@ def _implementation_hash(adapter_type: type[Any]) -> str:
         "adapter": inspect.getsource(adapter_type),
         "preprocessing": inspect.getsource(preprocessing_module),
         "probability": inspect.getsource(probability_module),
+        "leakage_evidence": inspect.getsource(evidence_module),
     }
     return sha256_canonical_json(
         {name: implementation_digest(source) for name, source in sorted(sources.items())}
+    )
+
+
+def _preprocessing_implementation_hash() -> str:
+    from ...utils import hashing as hashing_module
+    from . import preprocessing as preprocessing_module
+
+    return sha256_canonical_json(
+        {
+            "preprocessing": implementation_digest(inspect.getsource(preprocessing_module)),
+            "hashing": implementation_digest(inspect.getsource(hashing_module)),
+        }
     )
 
 
@@ -191,13 +247,16 @@ class ModelAdapterBase:
         self.fitted = False
         self.class_order: list[int] = []
         self.parameters: dict[str, Any] = {}
+        self.parameter_identity: dict[str, Any] = {}
         self.package_version = ""
         self.parameter_sha256 = ""
         self.model_spec_sha256 = sha256_canonical_json(spec.model_dump(mode="json"))
         self.adapter_sha256 = _implementation_hash(type(self))
+        self.preprocessing_implementation_sha256 = _preprocessing_implementation_hash()
         self.checkpoint_identifier: str | None = None
         self.checkpoint_sha256: str | None = None
         self.checkpoint_path: Path | None = None
+        self.gpu_headroom_passed: bool | None = None
         self.fixture_id = ""
         self.fixture_sha256 = ""
         self.split_identity = ""
@@ -216,6 +275,9 @@ class ModelAdapterBase:
         self.cache_seconds = 0.0
         self.resource_tracker: AdapterResourceTracker | None = None
         self.gpu_lock: GpuExecutionLock | None = None
+        self._last_prediction_reference: tuple[
+            pd.DataFrame, list[str | int], PredictionResult
+        ] | None = None
         self.cache = AdapterArtifactCache(self.root / self.config.cache_directory)
 
     def capability(self) -> dict[str, object]:
@@ -282,12 +344,17 @@ class ModelAdapterBase:
         self.training_row_ids_sha256 = _row_identifiers_sha256(row_ids)
         self.training_data_sha256 = hash_dataframe_logically(predictors)
         self.parameters = self._build_parameters(len(self.class_order))
-        self.parameter_sha256 = sha256_canonical_json(self.parameters)
 
         try:
             self._prepare_device()
+            self.parameter_identity = self._canonical_parameter_identity()
+            self.parameter_sha256 = sha256_canonical_json(self.parameter_identity)
             ensure_ram_budget(hard_ram_gib=self.config.resources.hard_ram_gib)
-            self.resource_tracker = AdapterResourceTracker(self.device)
+            self.resource_tracker = AdapterResourceTracker(
+                self.device,
+                hard_ram_limit_mib=self.config.resources.hard_ram_gib * 1024.0,
+                gpu_soft_limit_mib=self.config.resources.gpu_soft_limit_mib,
+            )
             started = time.perf_counter()
             self.preprocessor.fit(predictors)
             self.preprocessing_fit_seconds = time.perf_counter() - started
@@ -303,6 +370,7 @@ class ModelAdapterBase:
             with self._seeded_model_runtime():
                 self._fit_estimator(train_matrix, y.astype(np.int64, copy=False))
             self.fit_seconds = time.perf_counter() - started
+            self._enforce_resource_limits()
             self.fitted = True
             return self
         except AdapterFailure:
@@ -369,6 +437,7 @@ class ModelAdapterBase:
             probabilities = probabilities[inverse_row_order, :]
             if self.resource_tracker is not None:
                 self.resource_tracker.capture()
+                self._enforce_resource_limits()
             prob_sha = _probability_sha256(probabilities)
             row_sha = _row_identifiers_sha256(row_ids)
             logical_identity = sha256_canonical_json(
@@ -376,6 +445,7 @@ class ModelAdapterBase:
                     "model_spec_sha256": self.model_spec_sha256,
                     "source_commit": self.source_commit,
                     "parameter_sha256": self.parameter_sha256,
+                    "parameter_identity": self.parameter_identity,
                     "adapter_sha256": self.adapter_sha256,
                     "preprocessing_sha256": self.preprocessor.fitted_state_sha256,
                     "checkpoint_sha256": self.checkpoint_sha256,
@@ -391,11 +461,11 @@ class ModelAdapterBase:
                 }
             )
             tracker = self.resource_tracker
-            cpu_time = tracker.cpu_time_seconds() if tracker else 0.0
+            cpu_time = tracker.cpu_time_seconds() if tracker else None
             peak_ram = tracker.peak_ram_mib if tracker else None
             peak_vram = tracker.peak_vram_reserved_mib if tracker else None
             ended_at = _now()
-            return PredictionResult(
+            result = PredictionResult(
                 model_id=self.model_id,
                 package_name=self.package_name,
                 package_version=self.package_version,
@@ -434,6 +504,8 @@ class ModelAdapterBase:
                 status="PASS",
                 failure_category=FailureCategory.PASS,
             )
+            self._last_prediction_reference = (predictors.copy(deep=True), list(row_ids), result)
+            return result
         except AdapterFailure:
             raise
         except Exception as exc:
@@ -461,6 +533,7 @@ class ModelAdapterBase:
                     "model_spec_sha256": self.model_spec_sha256,
                     "source_commit": self.source_commit,
                     "parameter_sha256": self.parameter_sha256,
+                    "parameter_identity": self.parameter_identity,
                     "adapter_sha256": self.adapter_sha256,
                     "preprocessing_sha256": self.preprocessor.fitted_state_sha256,
                     "checkpoint_sha256": self.checkpoint_sha256,
@@ -478,13 +551,180 @@ class ModelAdapterBase:
                 },
                 protocol=pickle.HIGHEST_PROTOCOL,
             )
-            self.cache.store_bytes("model", identity, payload, reuse_validated_existing=True)
+            try:
+                self.cache.store_bytes("model", identity, payload)
+            except CacheIntegrityError as exc:
+                if "different payload bytes" not in str(exc):
+                    raise
+                certificate = self._semantic_equivalence_certificate(
+                    identity, self.cache.load_bytes("model", identity), payload
+                )
+                self.cache.store_bytes(
+                    "model",
+                    identity,
+                    payload,
+                    semantic_equivalence=certificate,
+                )
             self.serialization_seconds += time.perf_counter() - started
             return identity
+        except CacheIntegrityError as exc:
+            raise AdapterFailure(FailureCategory.FAIL_CACHE_INTEGRITY, str(exc)) from exc
         except AdapterFailure:
             raise
         except Exception as exc:
             raise AdapterFailure(FailureCategory.FAIL_SERIALIZATION, str(exc)) from exc
+
+    def _semantic_equivalence_certificate(
+        self,
+        identity: AdapterCacheIdentity,
+        existing_payload: bytes,
+        candidate_payload: bytes,
+    ) -> SemanticEquivalenceCertificate:
+        """Certify differing model bytes only after fixture-bound prediction comparison."""
+
+        try:
+            existing_bundle = pickle.loads(existing_payload)
+        except Exception as exc:
+            raise CacheIntegrityError(
+                "cached model cannot be deserialized for semantic proof"
+            ) from exc
+        required_metadata = {
+            "model_id": self.model_id,
+            "model_spec_sha256": self.model_spec_sha256,
+            "source_commit": self.source_commit,
+            "parameter_sha256": self.parameter_sha256,
+            "parameter_identity": self.parameter_identity,
+            "adapter_sha256": self.adapter_sha256,
+            "preprocessing_sha256": identity.preprocessing_sha256,
+            "checkpoint_sha256": identity.checkpoint_sha256,
+            "package_version": self.expected_version,
+            "fixture_id": self.fixture_id,
+            "fixture_sha256": identity.fixture_sha256,
+            "split_identity": identity.split_identity,
+            "transformation_identity": identity.transformation_identity,
+            "training_data_sha256": identity.source_data_sha256,
+            "training_row_ids_sha256": identity.row_ids_sha256,
+        }
+        if any(
+            existing_bundle.get(name) != expected
+            for name, expected in required_metadata.items()
+        ):
+            raise CacheIntegrityError(
+                "cached model scientific metadata differs from its identity"
+            )
+        if existing_bundle.get("class_order") != self.class_order:
+            raise CacheIntegrityError("cached model class order differs from the candidate")
+        reference = self._last_prediction_reference
+        if reference is None:
+            raise CacheIntegrityError("semantic proof requires an executed reference prediction")
+        reference_features, row_ids, candidate_prediction = reference
+        if (
+            candidate_prediction.fixture_sha256 != identity.fixture_sha256
+            or candidate_prediction.row_ids_sha256 != _row_identifiers_sha256(row_ids)
+            or candidate_prediction.source_data_sha256
+            != hash_dataframe_logically(reference_features)
+        ):
+            raise CacheIntegrityError("semantic reference fixture is not bound to this model cache")
+        existing_preprocessor = existing_bundle.get("preprocessor")
+        existing_model = existing_bundle.get("model")
+        if (
+            existing_preprocessor is None
+            or existing_model is None
+            or existing_preprocessor.fitted_state_sha256 != identity.preprocessing_sha256
+        ):
+            raise CacheIntegrityError("cached model preprocessing state is invalid")
+        order, inverse = _canonical_row_order(row_ids)
+        ordered_ids = [row_ids[index] for index in order]
+        ordered_features = reference_features.iloc[order].reset_index(drop=True)
+        def predict_reference(
+            model: Any, preprocessor: TrainingPreprocessor
+        ) -> tuple[np.ndarray, list[Any]]:
+            matrix = preprocessor.transform(
+                ordered_features,
+                row_ids=ordered_ids,
+                partition=candidate_prediction.partition,
+                use_cache=False,
+            )
+            active_model = self.model
+            try:
+                self.model = model
+                with self._seeded_model_runtime():
+                    raw = self._predict_estimator(matrix)
+            finally:
+                self.model = active_model
+            observed = getattr(model, "classes_", None)
+            if observed is None:
+                raise CacheIntegrityError("serialized model exposes no reference class order")
+            probabilities, class_order, _ = align_adapter_probabilities(
+                raw,
+                observed,
+                self.class_order,
+                row_count=len(ordered_ids),
+                sum_atol=self.config.tolerances.probability_sum_atol,
+            )
+            return probabilities[inverse, :], class_order
+
+        existing_probabilities, existing_classes = predict_reference(
+            existing_model, existing_preprocessor
+        )
+        candidate_probabilities, candidate_classes = predict_reference(
+            self.model, self.preprocessor
+        )
+        if (
+            existing_classes != candidate_prediction.class_order
+            or candidate_classes != candidate_prediction.class_order
+        ):
+            raise CacheIntegrityError("semantic reference class orders differ")
+        recorded_probabilities = np.asarray(candidate_prediction.probabilities, dtype="float64")
+        recorded_difference = float(
+            np.max(np.abs(candidate_probabilities - recorded_probabilities))
+        )
+        tolerance = self.config.tolerances.cpu_repeat_max_abs_diff
+        if recorded_difference > tolerance:
+            raise CacheIntegrityError(
+                "candidate model no longer matches its executed reference prediction"
+            )
+        if existing_probabilities.shape != candidate_probabilities.shape:
+            raise CacheIntegrityError("semantic reference prediction shapes differ")
+        maximum_difference = float(
+            np.max(np.abs(existing_probabilities - candidate_probabilities))
+        )
+        if maximum_difference > tolerance:
+            raise CacheIntegrityError(
+                "serialized models disagree on identity-bound reference predictions: "
+                f"{maximum_difference} > {tolerance}"
+            )
+        certificate_payload: dict[str, Any] = {
+            "schema_version": 1,
+            "existing_payload_sha256": hashlib.sha256(existing_payload).hexdigest(),
+            "candidate_payload_sha256": hashlib.sha256(candidate_payload).hexdigest(),
+            "model_spec_sha256": identity.model_spec_sha256,
+            "parameter_sha256": identity.parameter_sha256,
+            "preprocessing_sha256": identity.preprocessing_sha256,
+            "training_data_sha256": identity.source_data_sha256,
+            "checkpoint_sha256": identity.checkpoint_sha256,
+            "reference_fixture_sha256": identity.fixture_sha256,
+            "reference_row_ids_sha256": _row_identifiers_sha256(row_ids),
+            "reference_features_sha256": hash_dataframe_logically(reference_features),
+            "reference_class_order": candidate_classes,
+            "reference_prediction_sha256_existing": _probability_sha256(
+                existing_probabilities
+            ),
+            "reference_prediction_sha256_candidate": _probability_sha256(
+                candidate_probabilities
+            ),
+            "maximum_probability_difference": maximum_difference,
+            "tolerance": tolerance,
+            "equivalent": True,
+        }
+        certificate_payload["certificate_sha256"] = sha256_canonical_json(certificate_payload)
+        certificate = SemanticEquivalenceCertificate.model_validate(certificate_payload)
+        certificate.validate_identity(
+            identity,
+            existing_payload_sha256=certificate.existing_payload_sha256,
+            candidate_payload_sha256=certificate.candidate_payload_sha256,
+        )
+        return certificate
 
     def load_fitted(self, identity: AdapterCacheIdentity) -> ModelAdapterBase:
         """Restore a validated classical fitted pipeline into a fresh adapter instance."""
@@ -496,6 +736,7 @@ class ModelAdapterBase:
         started = time.perf_counter()
         try:
             self._verify_package()
+            self.package_version = self.expected_version
             payload = self.cache.load_bytes("model", identity)
             bundle = pickle.loads(payload)
             for name, expected in (
@@ -512,10 +753,13 @@ class ModelAdapterBase:
             if bundle["preprocessing_sha256"] != identity.preprocessing_sha256:
                 raise CacheIntegrityError("serialized preprocessing identity mismatch")
             self.parameters = dict(self._build_parameters(len(bundle["class_order"])))
-            if sha256_canonical_json(self.parameters) != identity.parameter_sha256:
+            self.parameter_identity = self._canonical_parameter_identity()
+            if sha256_canonical_json(self.parameter_identity) != identity.parameter_sha256:
                 raise CacheIntegrityError(
                     "serialized model parameters differ from the cache identity"
                 )
+            if bundle.get("parameter_identity") != self.parameter_identity:
+                raise CacheIntegrityError("serialized canonical parameter identity mismatch")
             self.parameter_sha256 = identity.parameter_sha256
             self.package_version = bundle["package_version"]
             self.preprocessor = bundle["preprocessor"]
@@ -539,7 +783,11 @@ class ModelAdapterBase:
                 raise CacheIntegrityError("serialized training source identity mismatch")
             self.fitted = True
             self.training_start = time.perf_counter()
-            self.resource_tracker = AdapterResourceTracker(self.device)
+            self.resource_tracker = AdapterResourceTracker(
+                self.device,
+                hard_ram_limit_mib=self.config.resources.hard_ram_gib * 1024.0,
+                gpu_soft_limit_mib=self.config.resources.gpu_soft_limit_mib,
+            )
             self.serialization_seconds += time.perf_counter() - started
             return self
         except CacheIntegrityError as exc:
@@ -571,9 +819,10 @@ class ModelAdapterBase:
                 "traceback_path",
             ):
                 payload.pop(volatile, None)
-            cached_path = self.cache.path_for("prediction", identity)
-            if not cached_path.exists():
-                self.cache.store_json("prediction", identity, payload)
+            # Always compare the candidate bytes with a validated existing cache
+            # entry; merely finding a path must never authorize reusing different
+            # model output under the same scientific identity.
+            self.cache.store_json("prediction", identity, payload)
             restored = self.cache.load_json("prediction", identity)
             self.cache_seconds += time.perf_counter() - started
             if (
@@ -626,7 +875,6 @@ class ModelAdapterBase:
         tracker = self.resource_tracker
         if tracker is not None:
             tracker.capture()
-            tracker.stop()
         return AdapterResourceRecord(
             model_load_seconds=max(0.0, self.model_load_seconds),
             preprocessing_fit_seconds=max(0.0, self.preprocessing_fit_seconds),
@@ -636,7 +884,7 @@ class ModelAdapterBase:
             serialization_seconds=max(0.0, self.serialization_seconds),
             cache_seconds=max(0.0, self.cache_seconds),
             wall_time_seconds=tracker.wall_time_seconds() if tracker else 0.0,
-            cpu_time_seconds=tracker.cpu_time_seconds() if tracker else 0.0,
+            cpu_time_seconds=tracker.cpu_time_seconds() if tracker else None,
             peak_ram_mib=tracker.peak_ram_mib if tracker else None,
             peak_process_tree_ram_mib=tracker.peak_tree_ram_mib if tracker else None,
             peak_vram_allocated_mib=tracker.peak_vram_allocated_mib if tracker else None,
@@ -645,6 +893,12 @@ class ModelAdapterBase:
             free_vram_after_mib=tracker.free_vram_after_mib if tracker else None,
             telemetry_complete=tracker.telemetry_complete if tracker else False,
             telemetry_error=tracker.telemetry_error if tracker else "adapter is not fitted",
+            gpu_headroom_passed=self.gpu_headroom_passed,
+            resource_limits_passed=tracker.resource_limits_passed if tracker else False,
+            resource_limit_failure=tracker.limit_failure_reason if tracker else None,
+            cleanup_verified=tracker.cleanup_verified if tracker else False,
+            cleanup_gpu_allocated_mib=tracker.cleanup_gpu_allocated_mib if tracker else None,
+            cleanup_gpu_reserved_mib=tracker.cleanup_gpu_reserved_mib if tracker else None,
         )
 
     def release(self) -> None:
@@ -658,11 +912,14 @@ class ModelAdapterBase:
                 import torch
 
                 if torch.cuda.is_available():
+                    torch.cuda.synchronize(0)
                     torch.cuda.empty_cache()
-            except Exception:
-                pass
+            except Exception as exc:
+                if self.resource_tracker is not None:
+                    self.resource_tracker._note_error(exc)
         if self.resource_tracker is not None:
             self.resource_tracker.capture()
+            self.resource_tracker.verify_cleanup()
             self.resource_tracker.stop()
         if self.gpu_lock is not None:
             self.gpu_lock.release()
@@ -725,6 +982,44 @@ class ModelAdapterBase:
             self.spec, seed=self.seed, device=self.device, target_classes=target_classes
         )
 
+    def _canonical_parameter_identity(self) -> dict[str, Any]:
+        torch_version = "none"
+        if self.model_id in FOUNDATION_IDS:
+            import torch
+
+            torch_version = str(torch.__version__)
+        return canonical_parameter_payload(
+            self.parameters,
+            model_id=self.model_id,
+            package_name=self.package_name,
+            package_version=self.package_version,
+            seed=self.seed,
+            device=self.device,
+            checkpoint_identifier=self.checkpoint_identifier,
+            checkpoint_sha256=self.checkpoint_sha256,
+            python_major_minor=f"{sys.version_info.major}.{sys.version_info.minor}",
+            pytorch_version=torch_version,
+        )
+
+    def _enforce_resource_limits(self) -> None:
+        tracker = self.resource_tracker
+        if tracker is None:
+            raise AdapterFailure(
+                FailureCategory.FAIL_RESOURCE_LIMIT, "resource tracker was not initialized"
+            )
+        tracker.capture()
+        if not tracker.telemetry_complete:
+            raise AdapterFailure(
+                FailureCategory.FAIL_RESOURCE_LIMIT,
+                "resource telemetry incomplete: "
+                f"{tracker.telemetry_error or 'required value missing'}",
+            )
+        if tracker.limit_exceeded:
+            raise AdapterFailure(
+                FailureCategory.FAIL_RESOURCE_LIMIT,
+                tracker.limit_failure_reason or "configured resource limit was exceeded",
+            )
+
     def _prepare_device(self) -> None:
         if self.model_id not in FOUNDATION_IDS:
             return
@@ -738,6 +1033,7 @@ class ModelAdapterBase:
                 headroom_mib=self.config.resources.gpu_headroom_mib,
                 expected_peak_mib=self.expected_peak_vram_mib,
             )
+            self.gpu_headroom_passed = True
             import torch
 
             torch.set_num_threads(self.config.resources.cpu_threads)
@@ -759,6 +1055,12 @@ class ModelAdapterBase:
             raise AdapterFailure(
                 FailureCategory.FAIL_CONTRACT, "adapter checkpoint identity differs from registry"
             )
+        frozen_checkpoint = FOUNDATION_CHECKPOINTS.get(self.model_id)
+        if frozen_checkpoint != (expected.identifier, expected.sha256):
+            raise AdapterFailure(
+                FailureCategory.FAIL_CONTRACT,
+                "runtime checkpoint configuration differs from the frozen identity",
+            )
         candidates = (
             self.root / expected.identifier,
             self.root / "data" / "cache" / "models" / "tabicl" / expected.identifier,
@@ -770,11 +1072,27 @@ class ModelAdapterBase:
                 FailureCategory.BLOCKED_CHECKPOINT,
                 f"validated offline checkpoint is unavailable: {expected.identifier}",
             )
+        if self.model_id == "TICL2-2.2":
+            self.parameters["allow_auto_download"] = False
         try:
             import torch
 
             torch_version = str(torch.__version__)
             code_commit = self.source_commit
+            checkpoint_parameters = dict(self.parameters)
+            checkpoint_parameters["model_path"] = expected.identifier
+            canonical_parameters = canonical_parameter_payload(
+                checkpoint_parameters,
+                model_id=self.model_id,
+                package_name=self.package_name,
+                package_version=self.expected_version,
+                seed=self.seed,
+                device=self.device,
+                checkpoint_identifier=expected.identifier,
+                checkpoint_sha256=expected.sha256,
+                python_major_minor=f"{sys.version_info.major}.{sys.version_info.minor}",
+                pytorch_version=torch_version,
+            )
             metadata = register_checkpoint(
                 path,
                 cache_dir=self.root / "data" / "cache" / "model_adapters" / "checkpoints",
@@ -782,7 +1100,7 @@ class ModelAdapterBase:
                 package_version=self.expected_version,
                 checkpoint_identifier=expected.identifier,
                 device_policy=self.device,
-                model_parameters=self.parameters,
+                model_parameters=canonical_parameters,
                 python_major_minor=f"{sys.version_info.major}.{sys.version_info.minor}",
                 pytorch_version=torch_version,
                 code_commit=code_commit,

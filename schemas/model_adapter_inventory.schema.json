@@ -4,9 +4,27 @@
       "additionalProperties": false,
       "properties": {
         "adapter_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Adapter Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Adapter Sha256"
+        },
+        "checkpoint_identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Identifier"
         },
         "checkpoint_sha256": {
           "anyOf": [
@@ -24,9 +42,12 @@
           "items": {
             "type": "integer"
           },
-          "minItems": 2,
           "title": "Class Order",
           "type": "array"
+        },
+        "cleanup_verified": {
+          "title": "Cleanup Verified",
+          "type": "boolean"
         },
         "device": {
           "enum": [
@@ -39,6 +60,18 @@
         "failure_category": {
           "$ref": "#/$defs/FailureCategory"
         },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        },
         "fixture_id": {
           "title": "Fixture Id",
           "type": "string"
@@ -48,9 +81,52 @@
           "title": "Fixture Sha256",
           "type": "string"
         },
+        "free_vram_before_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Free Vram Before Mib"
+        },
+        "gpu_headroom_passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Gpu Headroom Passed"
+        },
+        "leakage_evidence_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Leakage Evidence Sha256"
+        },
         "leakage_test_passed": {
-          "title": "Leakage Test Passed",
-          "type": "boolean"
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Leakage Test Passed"
         },
         "logical_case_id": {
           "pattern": "^[0-9a-f]{64}$",
@@ -69,19 +145,76 @@
           "type": "string"
         },
         "model_spec_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Model Spec Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Spec Sha256"
         },
         "offline_network_attempts": {
           "minimum": 0,
           "title": "Offline Network Attempts",
           "type": "integer"
         },
-        "parameter_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Parameter Sha256",
+        "package_name": {
+          "title": "Package Name",
           "type": "string"
+        },
+        "package_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Package Version"
+        },
+        "parameter_identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CanonicalParameterIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parameter_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parameter Sha256"
+        },
+        "partition": {
+          "const": "test",
+          "title": "Partition",
+          "type": "string"
+        },
+        "peak_process_tree_ram_mib": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Process Tree Ram Mib"
         },
         "peak_ram_mib": {
           "anyOf": [
@@ -110,39 +243,108 @@
           "title": "Peak Vram Mib"
         },
         "prediction_identity_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Prediction Identity Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Prediction Identity Sha256"
         },
         "preprocessing_cache_hit_seconds": {
-          "minimum": 0,
-          "title": "Preprocessing Cache Hit Seconds",
-          "type": "number"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preprocessing Cache Hit Seconds"
+        },
+        "preprocessing_implementation_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Preprocessing Implementation Sha256"
         },
         "preprocessing_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Preprocessing Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Preprocessing Sha256"
         },
         "preprocessing_uncached_seconds": {
-          "minimum": 0,
-          "title": "Preprocessing Uncached Seconds",
-          "type": "number"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preprocessing Uncached Seconds"
         },
         "probabilities_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Probabilities Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probabilities Sha256"
         },
         "probability_sum_error": {
-          "minimum": 0,
-          "title": "Probability Sum Error",
-          "type": "number"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probability Sum Error"
         },
         "repeat_max_abs_difference": {
-          "minimum": 0,
-          "title": "Repeat Max Abs Difference",
-          "type": "number"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repeat Max Abs Difference"
+        },
+        "resource_limits_passed": {
+          "title": "Resource Limits Passed",
+          "type": "boolean"
         },
         "roundtrip": {
           "enum": [
@@ -157,14 +359,34 @@
           "type": "boolean"
         },
         "row_ids_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Row Ids Sha256",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Row Ids Sha256"
         },
         "runtime_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime Seconds"
+        },
+        "seed": {
           "minimum": 0,
-          "title": "Runtime Seconds",
-          "type": "number"
+          "title": "Seed",
+          "type": "integer"
         },
         "source_commit": {
           "pattern": "^[0-9a-f]{40}$",
@@ -180,6 +402,29 @@
           ],
           "title": "Status",
           "type": "string"
+        },
+        "telemetry_complete": {
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        },
+        "worker_exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Worker Exit Code"
+        },
+        "worker_isolation": {
+          "enum": [
+            "sequential_parent",
+            "subprocess"
+          ],
+          "title": "Worker Isolation",
+          "type": "string"
         }
       },
       "required": [
@@ -187,30 +432,132 @@
         "prediction_identity_sha256",
         "probabilities_sha256",
         "model_id",
+        "package_name",
+        "package_version",
         "fixture_id",
         "fixture_sha256",
         "device",
+        "partition",
+        "seed",
         "roundtrip",
         "model_spec_sha256",
         "parameter_sha256",
+        "parameter_identity",
         "adapter_sha256",
+        "preprocessing_implementation_sha256",
         "preprocessing_sha256",
+        "checkpoint_identifier",
         "checkpoint_sha256",
         "row_ids_sha256",
-        "class_order",
-        "probability_sum_error",
-        "repeat_max_abs_difference",
-        "preprocessing_uncached_seconds",
-        "preprocessing_cache_hit_seconds",
         "offline_network_attempts",
         "roundtrip_passed",
         "leakage_test_passed",
+        "leakage_evidence_sha256",
         "status",
         "failure_category",
-        "runtime_seconds",
+        "telemetry_complete",
+        "resource_limits_passed",
+        "cleanup_verified",
+        "gpu_headroom_passed",
+        "worker_isolation",
+        "worker_exit_code",
         "source_commit"
       ],
       "title": "AdapterInventoryRecord",
+      "type": "object"
+    },
+    "CanonicalParameterIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Identifier"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "package_name": {
+          "title": "Package Name",
+          "type": "string"
+        },
+        "package_version": {
+          "title": "Package Version",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "python_major_minor": {
+          "const": "3.12",
+          "title": "Python Major Minor",
+          "type": "string"
+        },
+        "pytorch_version": {
+          "title": "Pytorch Version",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "model_id",
+        "package_name",
+        "package_version",
+        "python_major_minor",
+        "pytorch_version",
+        "seed",
+        "device",
+        "checkpoint_identifier",
+        "checkpoint_sha256",
+        "parameters"
+      ],
+      "title": "CanonicalParameterIdentity",
       "type": "object"
     },
     "FailureCategory": {

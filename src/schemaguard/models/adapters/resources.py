@@ -50,6 +50,17 @@ def process_tree_memory_mib() -> float | None:
         return None
 
 
+def process_memory_mib() -> float | None:
+    """Return current-process RSS when psutil telemetry is available."""
+
+    try:
+        import psutil
+
+        return float(psutil.Process(os.getpid()).memory_info().rss) / (1024**2)
+    except Exception:
+        return None
+
+
 def ensure_ram_budget(*, hard_ram_gib: float, anticipated_additional_gib: float = 2.0) -> float:
     """Refuse a fit when measured process/system headroom cannot honor the hard cap."""
 
@@ -162,8 +173,10 @@ class GpuExecutionLock:
 @dataclass
 class AdapterResourceTracker:
     device: str
+    hard_ram_limit_mib: float | None = None
+    gpu_soft_limit_mib: float | None = None
     started: float = field(default_factory=time.perf_counter)
-    cpu_started: float = 0.0
+    cpu_started: float | None = None
     peak_ram_mib: float | None = None
     peak_tree_ram_mib: float | None = None
     free_vram_before_mib: float | None = None
@@ -171,6 +184,11 @@ class AdapterResourceTracker:
     peak_vram_allocated_mib: float | None = None
     peak_vram_reserved_mib: float | None = None
     telemetry_error: str | None = None
+    limit_exceeded: bool = False
+    limit_failure_reason: str | None = None
+    cleanup_verified: bool = False
+    cleanup_gpu_allocated_mib: float | None = None
+    cleanup_gpu_reserved_mib: float | None = None
     _stop_event: threading.Event = field(default_factory=threading.Event, repr=False)
     _monitor_thread: threading.Thread | None = field(default=None, init=False, repr=False)
 
@@ -178,10 +196,8 @@ class AdapterResourceTracker:
         try:
             import psutil
 
-            self.cpu_started = float(
-                psutil.Process(os.getpid()).cpu_times().user
-                + psutil.Process(os.getpid()).cpu_times().system
-            )
+            process_times = psutil.Process(os.getpid()).cpu_times()
+            self.cpu_started = float(process_times.user + process_times.system)
         except Exception as exc:
             self.telemetry_error = f"CPU/RAM telemetry unavailable: {type(exc).__name__}"
         self.capture()
@@ -199,10 +215,22 @@ class AdapterResourceTracker:
             self._capture_ram()
 
     def _capture_ram(self) -> None:
-        memory = process_tree_memory_mib()
+        tree_memory = process_tree_memory_mib()
+        memory = process_memory_mib()
+        if tree_memory is not None:
+            self.peak_tree_ram_mib = max(tree_memory, self.peak_tree_ram_mib or 0.0)
+            if self.hard_ram_limit_mib is not None and tree_memory > self.hard_ram_limit_mib:
+                self.limit_exceeded = True
+                self.limit_failure_reason = (
+                    f"process-tree RAM {tree_memory:.1f} MiB exceeded hard limit "
+                    f"{self.hard_ram_limit_mib:.1f} MiB"
+                )
+        else:
+            self._note_error(RuntimeError("process-tree RAM telemetry is unavailable"))
         if memory is not None:
-            self.peak_tree_ram_mib = max(memory, self.peak_tree_ram_mib or 0.0)
             self.peak_ram_mib = max(memory, self.peak_ram_mib or 0.0)
+        else:
+            self._note_error(RuntimeError("process RSS telemetry is unavailable"))
 
     def capture(self) -> None:
         self._capture_ram()
@@ -217,12 +245,22 @@ class AdapterResourceTracker:
                         allocated, self.peak_vram_allocated_mib or 0.0
                     )
                     self.peak_vram_reserved_mib = max(reserved, self.peak_vram_reserved_mib or 0.0)
+                    if self.gpu_soft_limit_mib is not None and reserved > self.gpu_soft_limit_mib:
+                        self.limit_exceeded = True
+                        self.limit_failure_reason = (
+                            f"reserved VRAM {reserved:.1f} MiB exceeded soft limit "
+                            f"{self.gpu_soft_limit_mib:.1f} MiB"
+                        )
                     free = gpu_memory_state()["free_mib"]
                     self.free_vram_after_mib = float(free) if free is not None else None
+                    if free is None:
+                        self._note_error(RuntimeError("CUDA free-memory telemetry is unavailable"))
             except Exception as exc:
                 self._note_error(exc)
 
-    def cpu_time_seconds(self) -> float:
+    def cpu_time_seconds(self) -> float | None:
+        if self.cpu_started is None:
+            return None
         try:
             import psutil
 
@@ -231,7 +269,7 @@ class AdapterResourceTracker:
             return max(0.0, float(current.user + current.system - self.cpu_started))
         except Exception as exc:
             self._note_error(exc)
-            return 0.0
+            return None
 
     def wall_time_seconds(self) -> float:
         return max(0.0, time.perf_counter() - self.started)
@@ -241,12 +279,53 @@ class AdapterResourceTracker:
         if self._monitor_thread is not None:
             self._monitor_thread.join(timeout=2)
 
+    def verify_cleanup(self) -> None:
+        """Record cleanup state without inventing missing telemetry."""
+
+        if self.device == "cpu":
+            self.cleanup_verified = True
+            return
+        try:
+            import torch
+
+            if not torch.cuda.is_available():
+                self._note_error(RuntimeError("CUDA disappeared before cleanup verification"))
+                self.cleanup_verified = False
+                return
+            torch.cuda.synchronize(0)
+            self.cleanup_gpu_allocated_mib = float(torch.cuda.memory_allocated(0) / (1024**2))
+            self.cleanup_gpu_reserved_mib = float(torch.cuda.memory_reserved(0) / (1024**2))
+            self.cleanup_verified = (
+                self.cleanup_gpu_allocated_mib <= 16.0 and self.cleanup_gpu_reserved_mib <= 64.0
+            )
+            if not self.cleanup_verified:
+                self._note_error(RuntimeError("CUDA allocations remain after adapter cleanup"))
+        except Exception as exc:
+            self._note_error(exc)
+            self.cleanup_verified = False
+
     @property
     def telemetry_complete(self) -> bool:
-        return self.peak_ram_mib is not None and (
-            self.device == "cpu"
-            or (self.peak_vram_reserved_mib is not None and self.free_vram_before_mib is not None)
+        return (
+            self.telemetry_error is None
+            and self.cpu_started is not None
+            and self.peak_ram_mib is not None
+            and self.peak_tree_ram_mib is not None
+            and (
+                self.device == "cpu"
+                or (
+                    self.peak_vram_reserved_mib is not None
+                    and self.free_vram_before_mib is not None
+                    and self.free_vram_after_mib is not None
+                    and self.cleanup_gpu_allocated_mib is not None
+                    and self.cleanup_gpu_reserved_mib is not None
+                )
+            )
         )
+
+    @property
+    def resource_limits_passed(self) -> bool:
+        return not self.limit_exceeded and self.telemetry_complete
 
     def _note_error(self, error: Exception) -> None:
         self.telemetry_error = f"{type(error).__name__}: {error}"

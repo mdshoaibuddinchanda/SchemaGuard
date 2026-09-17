@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from ...compatibility.checkpoint_cache import quarantine
 from ...utils.io import atomic_write_json
 from ...utils.process_lock import ProcessLock
-from .contracts import AdapterCacheIdentity
+from .contracts import AdapterCacheIdentity, SemanticEquivalenceCertificate
 
 
 class CacheIntegrityError(RuntimeError):
@@ -30,6 +30,7 @@ class _CacheEnvelope(BaseModel):
     payload_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     payload_size_bytes: int = Field(ge=0)
     payload_base64: str
+    semantic_equivalence: SemanticEquivalenceCertificate | None = None
 
 
 class AdapterArtifactCache:
@@ -67,14 +68,9 @@ class AdapterArtifactCache:
         identity: AdapterCacheIdentity,
         payload: bytes,
         *,
-        reuse_validated_existing: bool = False,
+        semantic_equivalence: SemanticEquivalenceCertificate | None = None,
     ) -> Path:
-        return self._store(
-            kind,
-            identity,
-            payload,
-            reuse_validated_existing=reuse_validated_existing,
-        )
+        return self._store(kind, identity, payload, semantic_equivalence=semantic_equivalence)
 
     def _store(
         self,
@@ -82,7 +78,7 @@ class AdapterArtifactCache:
         identity: AdapterCacheIdentity,
         payload: bytes,
         *,
-        reuse_validated_existing: bool = False,
+        semantic_equivalence: SemanticEquivalenceCertificate | None = None,
     ) -> Path:
         destination = self.path_for(kind, identity)
         lock_path = self.directory / "locks" / f"{identity.cache_key}.lock"
@@ -90,17 +86,40 @@ class AdapterArtifactCache:
         with ProcessLock(lock_path, timeout=60):
             if destination.exists():
                 try:
-                    existing = self._load_bytes(kind, identity)
-                except CacheIntegrityError:
+                    envelope, existing = self._load_validated(kind, identity)
+                except CacheIntegrityError as exc:
                     quarantine(destination)
+                    raise CacheIntegrityError(
+                        "an invalid existing cache artifact was quarantined"
+                    ) from exc
                 else:
                     if existing == payload:
                         return destination
-                    if kind == "model" and reuse_validated_existing:
-                        return destination
-                    raise CacheIntegrityError(
-                        "a validated cache key maps to different payload bytes"
+                    if semantic_equivalence is None:
+                        raise CacheIntegrityError(
+                            "a validated cache key maps to different payload bytes"
+                        )
+                    try:
+                        semantic_equivalence.validate_identity(
+                            identity,
+                            existing_payload_sha256=envelope.payload_sha256,
+                            candidate_payload_sha256=hashlib.sha256(payload).hexdigest(),
+                        )
+                    except ValueError as exc:
+                        raise CacheIntegrityError(
+                            f"invalid semantic equivalence certificate: {exc}"
+                        ) from exc
+                    atomic_write_json(
+                        destination,
+                        envelope.model_copy(
+                            update={"semantic_equivalence": semantic_equivalence}
+                        ).model_dump(mode="json"),
                     )
+                    return destination
+            elif semantic_equivalence is not None:
+                raise CacheIntegrityError(
+                    "semantic equivalence cannot authorize a cache miss"
+                )
             envelope = _CacheEnvelope(
                 artifact_kind=kind,
                 cache_key=identity.cache_key,
@@ -135,6 +154,14 @@ class AdapterArtifactCache:
         kind: Literal["model", "prediction"],
         identity: AdapterCacheIdentity,
     ) -> bytes:
+        _, payload = self._load_validated(kind, identity)
+        return payload
+
+    def _load_validated(
+        self,
+        kind: Literal["model", "prediction"],
+        identity: AdapterCacheIdentity,
+    ) -> tuple[_CacheEnvelope, bytes]:
         source = self.path_for(kind, identity)
         try:
             with source.open("r", encoding="utf-8") as handle:
@@ -149,7 +176,12 @@ class AdapterArtifactCache:
                 raise CacheIntegrityError("cache payload is partial")
             if hashlib.sha256(payload).hexdigest() != envelope.payload_sha256:
                 raise CacheIntegrityError("cache payload checksum mismatch")
-            return payload
+            if envelope.semantic_equivalence is not None:
+                envelope.semantic_equivalence.validate_identity(
+                    identity,
+                    existing_payload_sha256=envelope.payload_sha256,
+                )
+            return envelope, payload
         except CacheIntegrityError:
             raise
         except (OSError, json.JSONDecodeError, ValidationError, ValueError) as exc:

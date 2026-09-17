@@ -34,11 +34,20 @@ from schemaguard.models.adapters.base import (  # noqa: E402
     _row_identifiers,
 )
 from schemaguard.models.adapters.contracts import (  # noqa: E402
+    MODEL_PACKAGE_VERSIONS,
     AdapterFailure,
+    AdapterInventoryBatch,
     AdapterInventoryRecord,
+    AdapterLeakageEvidenceBatch,
+    AdapterLeakageEvidenceManifest,
     FailureCategory,
     ModelAdapterInventory,
     PredictionResult,
+    adapter_logical_case_id,
+)
+from schemaguard.models.adapters.evidence import (  # noqa: E402
+    build_leakage_evidence,
+    validate_inventory_evidence,
 )
 from schemaguard.models.adapters.factory import create_adapter, load_adapter_config  # noqa: E402
 from schemaguard.models.adapters.fixtures import (  # noqa: E402
@@ -146,6 +155,8 @@ def _worker_payload(
         )
         if model_id in FOUNDATION_IDS:
             adapter.roundtrip_prediction(prediction)
+        roundtrip = "prediction_cache" if model_id in FOUNDATION_IDS else "model_serialization"
+        leakage_evidence = build_leakage_evidence(adapter, fixture, prediction, roundtrip)
         resources = adapter.resource_record().model_dump(mode="json")
         output = {
             "status": "PASS",
@@ -155,15 +166,31 @@ def _worker_payload(
             "device": device,
             "order": order,
             "prediction": prediction.model_dump(mode="json"),
+            "parameter_identity": adapter.parameter_identity,
+            "leakage_evidence": leakage_evidence,
             "resources": resources,
             "preprocessing_uncached_seconds": uncached,
             "preprocessing_cache_hit_seconds": cached,
             "preprocessing_max_difference": matrix_difference,
             "offline_network_attempts": base_module.NETWORK_ATTEMPT_COUNT,
             "model_spec_sha256": adapter.model_spec_sha256,
+            "preprocessing_implementation_sha256": adapter.preprocessing_implementation_sha256,
+            "roundtrip": roundtrip,
+            "worker_isolation": "subprocess",
         }
         adapter.release()
         resources = adapter.resource_record().model_dump(mode="json")
+        if (
+            not resources["telemetry_complete"]
+            or not resources["resource_limits_passed"]
+            or not resources["cleanup_verified"]
+        ):
+            raise AdapterFailure(
+                FailureCategory.FAIL_RESOURCE_LIMIT,
+                resources["resource_limit_failure"]
+                or resources["telemetry_error"]
+                or "resource limits or cleanup could not be verified",
+            )
         output["resources"] = resources
         output["cleanup_gpu"] = gpu_memory_state() if device == "cuda" else None
         output["cleanup_ram_mib"] = process_tree_memory_mib()
@@ -175,6 +202,10 @@ def _worker_payload(
         )
         trace_path = output_path.with_suffix(".traceback.txt")
         trace_path.write_text(traceback.format_exc(), encoding="utf-8")
+        failed_resources = None
+        if adapter is not None:
+            adapter.release()
+            failed_resources = adapter.resource_record().model_dump(mode="json")
         atomic_write_json(
             output_path,
             {
@@ -187,6 +218,15 @@ def _worker_payload(
                 "failure_reason": f"{type(exc).__name__}: {exc}",
                 "traceback_path": str(trace_path.relative_to(ROOT)),
                 "offline_network_attempts": base_module.NETWORK_ATTEMPT_COUNT,
+                "observed_package_version": adapter.package_version if adapter else None,
+                "model_spec_sha256": adapter.model_spec_sha256 if adapter else None,
+                "adapter_sha256": adapter.adapter_sha256 if adapter else None,
+                "preprocessing_implementation_sha256": (
+                    adapter.preprocessing_implementation_sha256 if adapter else None
+                ),
+                "checkpoint_identifier": adapter.checkpoint_identifier if adapter else None,
+                "checkpoint_sha256": adapter.checkpoint_sha256 if adapter else None,
+                "resources": failed_resources,
             },
         )
         return 2
@@ -235,26 +275,36 @@ def _worker_subprocess(
     timeout = 900 if device == "cuda" else 1800
     with log_path.open("w", encoding="utf-8") as log:
         try:
-            completed = subprocess.run(
+            process = subprocess.Popen(
                 command,
                 cwd=ROOT,
                 env=env,
                 stdout=log,
                 stderr=subprocess.STDOUT,
-                timeout=timeout,
-                check=False,
             )
-        except subprocess.TimeoutExpired:
+        except OSError as exc:
             return {
                 "status": "FAIL",
                 "model_id": model_id,
                 "fixture_id": fixture_id,
                 "device": device,
                 "order": order,
-                "failure_category": FailureCategory.FAIL_TIMEOUT.value,
-                "failure_reason": f"worker exceeded {timeout} seconds",
+                "failure_category": FailureCategory.FAIL_MODEL_RUNTIME.value,
+                "failure_reason": f"worker could not start: {type(exc).__name__}: {exc}",
                 "traceback_path": str(log_path.relative_to(ROOT)),
             }
+        watchdog_failure = _monitor_worker(process, timeout=timeout)
+        if watchdog_failure is not None:
+            return {
+                "status": "FAIL",
+                "model_id": model_id,
+                "fixture_id": fixture_id,
+                "device": device,
+                "order": order,
+                **watchdog_failure,
+                "traceback_path": str(log_path.relative_to(ROOT)),
+            }
+        return_code = process.wait()
     try:
         with result_path.open("r", encoding="utf-8") as source:
             result = json.load(source)
@@ -266,14 +316,101 @@ def _worker_subprocess(
             "device": device,
             "order": order,
             "failure_category": FailureCategory.FAIL_MODEL_RUNTIME.value,
-            "failure_reason": f"worker exited {completed.returncode} without a valid result",
+            "failure_reason": f"worker exited {return_code} without a valid result",
             "traceback_path": str(log_path.relative_to(ROOT)),
         }
-    if completed.returncode != 0 and result.get("status") == "PASS":
+    if return_code != 0 and result.get("status") == "PASS":
         result["status"] = "FAIL"
         result["failure_category"] = FailureCategory.FAIL_MODEL_RUNTIME.value
-        result["failure_reason"] = f"worker exited with status {completed.returncode}"
+        result["failure_reason"] = f"worker exited with status {return_code}"
+    result["worker_isolation"] = "subprocess"
+    result["worker_exit_code"] = return_code
     return result
+
+
+def _worker_memory_mib(pid: int) -> float | None:
+    """Measure a model worker and all descendants; missing telemetry is not zero."""
+
+    try:
+        import psutil
+
+        parent = psutil.Process(pid)
+        processes = [parent, *parent.children(recursive=True)]
+        total_bytes = 0
+        observed = 0
+        for process in processes:
+            try:
+                total_bytes += int(process.memory_info().rss)
+                observed += 1
+            except psutil.NoSuchProcess:
+                continue
+            except psutil.AccessDenied:
+                return None
+        return total_bytes / (1024**2) if observed else None
+    except Exception:
+        return None
+
+
+def _terminate_worker_tree(process: subprocess.Popen[Any]) -> None:
+    """Terminate descendants before the worker and wait for confirmed exit."""
+
+    try:
+        import psutil
+
+        root_process = psutil.Process(process.pid)
+        descendants = root_process.children(recursive=True)
+        for child in descendants:
+            try:
+                child.terminate()
+            except psutil.NoSuchProcess:
+                continue
+        _, alive = psutil.wait_procs(descendants, timeout=2.0)
+        for child in alive:
+            try:
+                child.kill()
+            except psutil.NoSuchProcess:
+                continue
+    except Exception:
+        pass
+    if process.poll() is None:
+        process.terminate()
+    try:
+        process.wait(timeout=3.0)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=3.0)
+
+
+def _monitor_worker(
+    process: subprocess.Popen[Any], *, timeout: float
+) -> dict[str, str] | None:
+    """Enforce worker timeout and process-tree RAM cap while model code runs."""
+
+    deadline = time.monotonic() + timeout
+    while process.poll() is None:
+        memory_mib = _worker_memory_mib(process.pid)
+        if memory_mib is None:
+            _terminate_worker_tree(process)
+            return {
+                "failure_category": FailureCategory.FAIL_RESOURCE_LIMIT.value,
+                "failure_reason": "worker process-tree RAM telemetry is unavailable",
+            }
+        if memory_mib > 28672.0:
+            _terminate_worker_tree(process)
+            return {
+                "failure_category": FailureCategory.FAIL_RESOURCE_LIMIT.value,
+                "failure_reason": (
+                    f"worker process-tree RAM {memory_mib:.1f} MiB exceeded 28672 MiB"
+                ),
+            }
+        if time.monotonic() >= deadline:
+            _terminate_worker_tree(process)
+            return {
+                "failure_category": FailureCategory.FAIL_TIMEOUT.value,
+                "failure_reason": f"worker exceeded {timeout:g} seconds",
+            }
+        time.sleep(0.25)
+    return None
 
 
 def _compare_result_rows(first: dict[str, Any], second: dict[str, Any]) -> float:
@@ -351,11 +488,32 @@ def _classical_case(
             raise AdapterFailure(
                 FailureCategory.FAIL_SERIALIZATION, "model restore changed predictions"
             )
+        prediction = PredictionResult.model_validate(first)
+        leakage_evidence = build_leakage_evidence(
+            adapter, fixture, prediction, "model_serialization"
+        )
+        if restored is not None:
+            restored.release()
+            restored = None
+        adapter.release()
         resources = adapter.resource_record().model_dump(mode="json")
+        if (
+            not resources["telemetry_complete"]
+            or not resources["resource_limits_passed"]
+            or not resources["cleanup_verified"]
+        ):
+            raise AdapterFailure(
+                FailureCategory.FAIL_RESOURCE_LIMIT,
+                resources["resource_limit_failure"]
+                or resources["telemetry_error"]
+                or "resource limits or cleanup could not be verified",
+            )
         return (
             {
                 "status": "PASS",
                 "prediction": first,
+                "parameter_identity": adapter.parameter_identity,
+                "leakage_evidence": leakage_evidence,
                 "resources": resources,
                 "repeat_max_abs_difference": max(repeat_difference, roundtrip_difference),
                 "preprocessing_uncached_seconds": uncached,
@@ -363,6 +521,11 @@ def _classical_case(
                 "preprocessing_max_difference": matrix_difference,
                 "offline_network_attempts": 0,
                 "roundtrip": "model_serialization",
+                "worker_isolation": "sequential_parent",
+                "worker_exit_code": None,
+                "preprocessing_implementation_sha256": (
+                    adapter.preprocessing_implementation_sha256
+                ),
             },
             repeat_difference,
         )
@@ -379,9 +542,11 @@ def _stable_record(record: AdapterInventoryRecord) -> tuple[Any, ...]:
         record.fixture_sha256,
         record.model_spec_sha256,
         record.parameter_sha256,
+        record.parameter_identity.model_dump(mode="json") if record.parameter_identity else None,
         record.adapter_sha256,
         record.preprocessing_sha256,
         record.checkpoint_sha256,
+        record.leakage_evidence_sha256,
         tuple(record.class_order),
         record.status,
     )
@@ -393,6 +558,23 @@ def _load_inventory(path: Path) -> ModelAdapterInventory:
     except (OSError, ValidationError) as exc:
         raise AdapterFailure(
             FailureCategory.FAIL_CACHE_INTEGRITY, f"invalid baseline inventory: {exc}"
+        ) from exc
+
+
+def _load_inventory_batch(path: Path) -> AdapterInventoryBatch:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw.get("stage") == "model_adapter_inventory":
+            final_inventory = ModelAdapterInventory.model_validate(raw)
+            return AdapterInventoryBatch(
+                source_commit=final_inventory.source_commit,
+                records=final_inventory.records,
+            )
+        return AdapterInventoryBatch.model_validate(raw)
+    except (OSError, json.JSONDecodeError, ValidationError, AttributeError) as exc:
+        raise AdapterFailure(
+            FailureCategory.FAIL_CACHE_INTEGRITY,
+            f"invalid adapter inventory batch: {exc}",
         ) from exc
 
 
@@ -449,61 +631,93 @@ def _case_record(
     repeat_difference: float,
     source_commit: str,
 ) -> AdapterInventoryRecord:
+    package_name, package_version = MODEL_PACKAGE_VERSIONS[model_id]
+    roundtrip = "prediction_cache" if model_id in FOUNDATION_IDS else "model_serialization"
     if outcome.get("status") != "PASS":
         category_text = outcome.get("failure_category", FailureCategory.FAIL_MODEL_RUNTIME.value)
         try:
             category = FailureCategory(category_text)
         except ValueError:
             category = FailureCategory.FAIL_MODEL_RUNTIME
+        resources = outcome.get("resources") or {}
         return AdapterInventoryRecord(
             logical_case_id=sha256_canonical_json(
-                {"model": model_id, "fixture": fixture.sha256, "device": device}
+                {
+                    "model_id": model_id,
+                    "fixture_id": fixture.name,
+                    "fixture_sha256": fixture.sha256,
+                    "device": device,
+                    "source_commit": source_commit,
+                    "failure_category": category.value,
+                }
             ),
-            prediction_identity_sha256="0" * 64,
-            probabilities_sha256="0" * 64,
+            prediction_identity_sha256=None,
+            probabilities_sha256=None,
             model_id=model_id,
+            package_name=package_name,
+            package_version=outcome.get("observed_package_version"),
             fixture_id=fixture.name,
             fixture_sha256=fixture.sha256,
             device=device,
-            roundtrip="prediction_cache" if model_id in FOUNDATION_IDS else "model_serialization",
-            model_spec_sha256="0" * 64,
-            parameter_sha256="0" * 64,
-            adapter_sha256="0" * 64,
-            preprocessing_sha256="0" * 64,
-            checkpoint_sha256=None,
-            row_ids_sha256="0" * 64,
-            class_order=list(fixture.classes),
-            probability_sum_error=0.0,
-            repeat_max_abs_difference=0.0,
-            preprocessing_uncached_seconds=0.0,
-            preprocessing_cache_hit_seconds=0.0,
+            partition="test",
+            seed=1729,
+            roundtrip=roundtrip,
+            model_spec_sha256=None,
+            parameter_sha256=None,
+            parameter_identity=None,
+            adapter_sha256=None,
+            preprocessing_implementation_sha256=None,
+            preprocessing_sha256=None,
+            checkpoint_identifier=outcome.get("checkpoint_identifier"),
+            checkpoint_sha256=outcome.get("checkpoint_sha256"),
+            row_ids_sha256=None,
+            class_order=[],
+            probability_sum_error=None,
+            repeat_max_abs_difference=None,
+            preprocessing_uncached_seconds=None,
+            preprocessing_cache_hit_seconds=None,
             offline_network_attempts=int(outcome.get("offline_network_attempts", 0)),
             roundtrip_passed=False,
-            leakage_test_passed=False,
+            leakage_test_passed=None,
+            leakage_evidence_sha256=None,
             status="BLOCKED"
             if category in {FailureCategory.BLOCKED_ENVIRONMENT, FailureCategory.BLOCKED_CHECKPOINT}
             else "FAIL",
             failure_category=category,
-            runtime_seconds=0.0,
-            peak_ram_mib=None,
-            peak_vram_mib=None,
+            failure_reason=str(outcome.get("failure_reason", category.value)),
+            runtime_seconds=resources.get("wall_time_seconds"),
+            peak_ram_mib=resources.get("peak_ram_mib"),
+            peak_process_tree_ram_mib=resources.get("peak_process_tree_ram_mib"),
+            peak_vram_mib=resources.get("peak_vram_reserved_mib"),
+            free_vram_before_mib=resources.get("free_vram_before_mib"),
+            telemetry_complete=bool(resources.get("telemetry_complete", False)),
+            resource_limits_passed=bool(resources.get("resource_limits_passed", False)),
+            cleanup_verified=bool(resources.get("cleanup_verified", False)),
+            gpu_headroom_passed=resources.get("gpu_headroom_passed"),
+            worker_isolation=str(
+                outcome.get(
+                    "worker_isolation",
+                    "subprocess" if model_id in FOUNDATION_IDS else "sequential_parent",
+                )
+            ),
+            worker_exit_code=outcome.get("worker_exit_code"),
             source_commit=source_commit,
         )
     prediction = PredictionResult.model_validate(outcome["prediction"])
     resources = outcome["resources"]
     parameters = outcome.get("parameter_sha256") or prediction.parameter_sha256
-    logical_case = sha256_canonical_json(
-        {
-            "model_id": model_id,
-            "fixture_sha256": fixture.sha256,
-            "device": device,
-            "partition": prediction.partition,
-            "seed": prediction.seed,
-            "parameter_sha256": parameters,
-            "preprocessing_sha256": prediction.preprocessing_sha256,
-            "checkpoint_sha256": prediction.checkpoint_sha256,
-            "roundtrip": outcome["roundtrip"],
-        }
+    parameter_identity = outcome["parameter_identity"]
+    leakage_evidence = outcome["leakage_evidence"]
+    logical_case = adapter_logical_case_id(
+        model_id=model_id,
+        fixture_sha256=fixture.sha256,
+        device=device,
+        partition=prediction.partition,
+        seed=prediction.seed,
+        parameter_sha256=parameters,
+        preprocessing_sha256=prediction.preprocessing_sha256,
+        checkpoint_sha256=prediction.checkpoint_sha256,
+        roundtrip=outcome["roundtrip"],
     )
     matrix = np.asarray(prediction.probabilities, dtype="float64")
     sum_error = float(np.max(np.abs(matrix.sum(axis=1) - 1.0)))
@@ -512,14 +726,23 @@ def _case_record(
         prediction_identity_sha256=prediction.logical_identity_sha256,
         probabilities_sha256=prediction.probabilities_sha256,
         model_id=model_id,
+        package_name=prediction.package_name,
+        package_version=prediction.package_version,
         fixture_id=fixture.name,
         fixture_sha256=fixture.sha256,
         device=device,
+        partition=prediction.partition,
+        seed=prediction.seed,
         roundtrip=outcome["roundtrip"],
         model_spec_sha256=outcome.get("model_spec_sha256", prediction.model_spec_sha256),
         parameter_sha256=parameters,
+        parameter_identity=parameter_identity,
         adapter_sha256=prediction.adapter_sha256,
+        preprocessing_implementation_sha256=outcome[
+            "preprocessing_implementation_sha256"
+        ],
         preprocessing_sha256=prediction.preprocessing_sha256,
+        checkpoint_identifier=prediction.checkpoint_identifier,
         checkpoint_sha256=prediction.checkpoint_sha256,
         row_ids_sha256=prediction.row_ids_sha256,
         class_order=prediction.class_order,
@@ -529,12 +752,22 @@ def _case_record(
         preprocessing_cache_hit_seconds=outcome["preprocessing_cache_hit_seconds"],
         offline_network_attempts=int(outcome.get("offline_network_attempts", 0)),
         roundtrip_passed=True,
-        leakage_test_passed=True,
+        leakage_test_passed=leakage_evidence["passed"],
+        leakage_evidence_sha256=leakage_evidence["evidence_hash"],
         status="PASS",
         failure_category=FailureCategory.PASS,
+        failure_reason=None,
         runtime_seconds=float(resources["wall_time_seconds"]),
         peak_ram_mib=resources.get("peak_ram_mib"),
+        peak_process_tree_ram_mib=resources.get("peak_process_tree_ram_mib"),
         peak_vram_mib=resources.get("peak_vram_reserved_mib"),
+        free_vram_before_mib=resources.get("free_vram_before_mib"),
+        telemetry_complete=bool(resources["telemetry_complete"]),
+        resource_limits_passed=bool(resources["resource_limits_passed"]),
+        cleanup_verified=bool(resources["cleanup_verified"]),
+        gpu_headroom_passed=resources.get("gpu_headroom_passed"),
+        worker_isolation=outcome.get("worker_isolation", "sequential_parent"),
+        worker_exit_code=outcome.get("worker_exit_code"),
         source_commit=source_commit,
     )
 
@@ -629,6 +862,7 @@ def _run_parent(args: argparse.Namespace) -> int:
     monitor_thread = threading.Thread(target=heartbeat, daemon=True)
     monitor_thread.start()
     records: list[AdapterInventoryRecord] = []
+    leakage_records: list[dict[str, Any]] = []
     prediction_artifact_records: list[dict[str, Any]] = []
     failure_details: list[dict[str, str]] = []
     run_failures = False
@@ -728,6 +962,7 @@ def _run_parent(args: argparse.Namespace) -> int:
                     )
                     records.append(record)
                     if record.status == "PASS":
+                        leakage_records.append(outcome["leakage_evidence"])
                         prediction = PredictionResult.model_validate(outcome["prediction"])
                         prediction_artifact_records.append(
                             {
@@ -862,18 +1097,74 @@ def _run_parent(args: argparse.Namespace) -> int:
     commit = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, check=True, capture_output=True, text=True
     ).stdout.strip()
-    inventory = ModelAdapterInventory(source_commit=commit, records=records)
+    batch = AdapterInventoryBatch(source_commit=commit, records=records)
+    leakage_batch = (
+        AdapterLeakageEvidenceBatch(source_commit=commit, records=leakage_records)
+        if leakage_records
+        else None
+    )
     if args.merge_inventory:
-        target_inventory = Path(args.merge_inventory).resolve()
-        if target_inventory.exists():
-            inventory = _load_inventory(target_inventory).merge(inventory)
-    else:
-        target_inventory = (
-            Path(args.inventory).resolve()
-            if args.inventory
-            else output / "model_adapter_inventory.json"
+        batch = _load_inventory_batch(Path(args.merge_inventory).resolve()).merge(batch)
+        previous_evidence_path = (
+            Path(args.merge_inventory).resolve().with_name("model_adapter_leakage_batch.json")
         )
-    atomic_write_json(target_inventory, inventory.model_dump(mode="json"))
+        if leakage_batch is not None:
+            if previous_evidence_path.is_file():
+                previous = AdapterLeakageEvidenceBatch.model_validate_json(
+                    previous_evidence_path.read_text(encoding="utf-8")
+                )
+                leakage_batch = previous.merge(leakage_batch)
+            elif len(batch.records) != len(records):
+                raise AdapterFailure(
+                    FailureCategory.FAIL_CACHE_INTEGRITY,
+                    "merged inventory batch has no companion leakage evidence batch",
+                )
+    batch_path = Path(args.batch_output or output / "model_adapter_inventory_batch.json").resolve()
+    atomic_write_json(batch_path, batch.model_dump(mode="json"))
+    evidence_batch_path = batch_path.with_name("model_adapter_leakage_batch.json")
+    if leakage_batch is not None:
+        atomic_write_json(evidence_batch_path, leakage_batch.model_dump(mode="json"))
+
+    final_inventory: ModelAdapterInventory | None = None
+    final_evidence: AdapterLeakageEvidenceManifest | None = None
+    expected_cases = {(row.model_id, row.fixture_id, row.device) for row in batch.records}
+    inventory_complete = len(expected_cases) == 37
+    if inventory_complete:
+        try:
+            final_inventory = ModelAdapterInventory(
+                source_commit=commit,
+                records=batch.records,
+            )
+            if leakage_batch is None or len(leakage_batch.records) != 37:
+                raise ValueError("complete inventory requires 37 linked leakage proofs")
+            final_evidence = AdapterLeakageEvidenceManifest(
+                source_commit=commit,
+                records=leakage_batch.records,
+            )
+            validate_inventory_evidence(final_inventory, final_evidence, root=ROOT)
+        except (ValidationError, ValueError) as exc:
+            run_failures = True
+            final_inventory = None
+            final_evidence = None
+            failure_details.append(
+                {
+                    "model_id": "inventory",
+                    "fixture_id": "all",
+                    "failure_category": FailureCategory.FAIL_LEAKAGE.value,
+                    "reason": f"final evidence validation failed: {exc}",
+                    "traceback_path": "",
+                }
+            )
+    target_inventory = Path(args.inventory).resolve()
+    target_evidence = Path(args.leakage_evidence).resolve()
+    if final_inventory is not None and final_evidence is not None:
+        atomic_write_json(target_inventory, final_inventory.model_dump(mode="json"))
+        atomic_write_json(target_evidence, final_evidence.model_dump(mode="json"))
+    inventory_bytes = (
+        target_inventory.read_bytes()
+        if final_inventory is not None and target_inventory.is_file()
+        else batch_path.read_bytes()
+    )
     prediction_artifact_path = output / "adapter_predictions.json"
     atomic_write_json(
         prediction_artifact_path,
@@ -894,10 +1185,19 @@ def _run_parent(args: argparse.Namespace) -> int:
         "record_count": len(records),
         "pass_count": sum(record.status == "PASS" for record in records),
         "failure_count": sum(record.status != "PASS" for record in records),
+        "batch_count_after_merge": len(batch.records),
+        "inventory_complete": final_inventory is not None,
         "inventory_path": str(target_inventory.relative_to(ROOT))
-        if target_inventory.is_relative_to(ROOT)
-        else target_inventory.name,
-        "inventory_sha256": __import__("hashlib").sha256(target_inventory.read_bytes()).hexdigest(),
+        if final_inventory is not None and target_inventory.is_relative_to(ROOT)
+        else str(batch_path.relative_to(ROOT))
+        if batch_path.is_relative_to(ROOT)
+        else batch_path.name,
+        "inventory_sha256": __import__("hashlib").sha256(inventory_bytes).hexdigest(),
+        "leakage_evidence_path": str(target_evidence.relative_to(ROOT))
+        if final_evidence is not None and target_evidence.is_relative_to(ROOT)
+        else str(evidence_batch_path.relative_to(ROOT))
+        if evidence_batch_path.is_relative_to(ROOT)
+        else evidence_batch_path.name,
         "estimated_seconds": estimated_seconds,
         "observed_seconds": max(0.0, time.monotonic() - start),
         "network_access": "disabled for foundation adapters",
@@ -909,12 +1209,13 @@ def _run_parent(args: argparse.Namespace) -> int:
     print(json.dumps(report, indent=2, sort_keys=True))
     if args.compare_inventory:
         baseline = _load_inventory(Path(args.compare_inventory).resolve())
-        if [_stable_record(row) for row in baseline.records] != [
-            _stable_record(row) for row in inventory.records
-        ]:
-            print("stable inventory comparison: FAIL", flush=True)
-            return 2
-        print("stable inventory comparison: PASS", flush=True)
+        if final_inventory is not None:
+            if [_stable_record(row) for row in baseline.records] != [
+                _stable_record(row) for row in final_inventory.records
+            ]:
+                print("stable inventory comparison: FAIL", flush=True)
+                return 2
+            print("stable inventory comparison: PASS", flush=True)
     return 2 if run_failures else 0
 
 
@@ -926,7 +1227,12 @@ def main() -> int:
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cpu")
     parser.add_argument("--fixture", dest="fixtures", action="append")
     parser.add_argument("--output-directory", default="results/validation/model_adapters")
-    parser.add_argument("--inventory")
+    parser.add_argument("--inventory", default="artifacts/handoff/model_adapter_inventory.json")
+    parser.add_argument(
+        "--leakage-evidence",
+        default="artifacts/handoff/model_adapter_leakage_evidence.json",
+    )
+    parser.add_argument("--batch-output")
     parser.add_argument("--merge-inventory")
     parser.add_argument("--compare-inventory")
     parser.add_argument("--compare-run")

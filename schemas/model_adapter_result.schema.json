@@ -64,9 +64,17 @@
       "type": "array"
     },
     "cpu_time_seconds": {
-      "minimum": 0,
-      "title": "Cpu Time Seconds",
-      "type": "number"
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cpu Time Seconds"
     },
     "device": {
       "enum": [
@@ -315,7 +323,6 @@
     "started_at",
     "ended_at",
     "wall_time_seconds",
-    "cpu_time_seconds",
     "status",
     "failure_category"
   ],

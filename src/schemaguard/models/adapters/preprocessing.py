@@ -66,6 +66,8 @@ class TrainingPreprocessor:
         self._transformer: ColumnTransformer | None = None
         self._fitted = False
         self._state_hash: str | None = None
+        self.fit_call_count = 0
+        self.fit_input_sha256: str | None = None
         self._matrix_cache: dict[str, Any] = {}
         self.cache_hits = 0
 
@@ -85,10 +87,12 @@ class TrainingPreprocessor:
     def fit(self, training_features: pd.DataFrame) -> TrainingPreprocessor:
         if self._fitted:
             raise RuntimeError("preprocessing state is immutable after its training fit")
+        self.fit_call_count += 1
         self._validate_frame(training_features)
         if training_features.empty or training_features.shape[1] == 0:
             raise ValueError("training features must contain rows and predictors")
         self.expected_columns = tuple(training_features.columns)
+        self.fit_input_sha256 = hash_dataframe_logically(training_features)
         self.numeric_columns = tuple(
             column
             for column in self.expected_columns

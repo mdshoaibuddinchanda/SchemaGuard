@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "AdapterLeakageEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Adapter Implementation Sha256",
+          "type": "string"
+        },
+        "calibration_label_access_attempts": {
+          "const": 1,
+          "title": "Calibration Label Access Attempts",
+          "type": "integer"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "duplicate_row_ids_rejected": {
+          "const": true,
+          "title": "Duplicate Row Ids Rejected",
+          "type": "boolean"
+        },
+        "empty_inputs_rejected": {
+          "const": true,
+          "title": "Empty Inputs Rejected",
+          "type": "boolean"
+        },
+        "evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Hash",
+          "type": "string"
+        },
+        "fit_call_count": {
+          "const": 1,
+          "title": "Fit Call Count",
+          "type": "integer"
+        },
+        "fit_row_ids_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Fit Row Ids Sha256",
+          "type": "string"
+        },
+        "fixture_id": {
+          "title": "Fixture Id",
+          "type": "string"
+        },
+        "fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Fixture Sha256",
+          "type": "string"
+        },
+        "forbidden_predictor_checks": {
+          "additionalProperties": {
+            "const": true,
+            "type": "boolean"
+          },
+          "propertyNames": {
+            "enum": [
+              "target_code",
+              "target_label",
+              "__sg_group_id"
+            ]
+          },
+          "title": "Forbidden Predictor Checks",
+          "type": "object"
+        },
+        "heldout_labels_available": {
+          "const": false,
+          "title": "Heldout Labels Available",
+          "type": "boolean"
+        },
+        "inference_feature_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Inference Feature Sha256",
+          "type": "string"
+        },
+        "inference_row_ids_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Inference Row Ids Sha256",
+          "type": "string"
+        },
+        "logical_case_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Logical Case Id",
+          "type": "string"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "model_spec_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Spec Sha256",
+          "type": "string"
+        },
+        "noncontiguous_target_codes_rejected": {
+          "const": true,
+          "title": "Noncontiguous Target Codes Rejected",
+          "type": "boolean"
+        },
+        "parameter_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Parameter Sha256",
+          "type": "string"
+        },
+        "passed": {
+          "const": true,
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "prediction_interface_rejects_label_arguments": {
+          "const": true,
+          "title": "Prediction Interface Rejects Label Arguments",
+          "type": "boolean"
+        },
+        "preprocessing_fit_receives_features_only": {
+          "const": true,
+          "title": "Preprocessing Fit Receives Features Only",
+          "type": "boolean"
+        },
+        "preprocessing_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing Implementation Sha256",
+          "type": "string"
+        },
+        "preprocessing_state_after_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing State After Sha256",
+          "type": "string"
+        },
+        "preprocessing_state_before_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing State Before Sha256",
+          "type": "string"
+        },
+        "preprocessing_state_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing State Sha256",
+          "type": "string"
+        },
+        "reordered_inference_preserves_state": {
+          "const": true,
+          "title": "Reordered Inference Preserves State",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "sentinel_excluded_from_fit": {
+          "const": true,
+          "title": "Sentinel Excluded From Fit",
+          "type": "boolean"
+        },
+        "single_class_targets_rejected": {
+          "const": true,
+          "title": "Single Class Targets Rejected",
+          "type": "boolean"
+        },
+        "source_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Source Commit",
+          "type": "string"
+        },
+        "state_unchanged": {
+          "const": true,
+          "title": "State Unchanged",
+          "type": "boolean"
+        },
+        "test_label_access_attempts": {
+          "const": 1,
+          "title": "Test Label Access Attempts",
+          "type": "integer"
+        },
+        "training_feature_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Training Feature Sha256",
+          "type": "string"
+        },
+        "training_target_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Training Target Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "fixture_id",
+        "fixture_sha256",
+        "device",
+        "seed",
+        "source_commit",
+        "model_spec_sha256",
+        "parameter_sha256",
+        "adapter_implementation_sha256",
+        "preprocessing_implementation_sha256",
+        "preprocessing_state_sha256",
+        "logical_case_id",
+        "training_feature_sha256",
+        "fit_row_ids_sha256",
+        "training_target_sha256",
+        "inference_feature_sha256",
+        "inference_row_ids_sha256",
+        "preprocessing_state_before_sha256",
+        "preprocessing_state_after_sha256",
+        "fit_call_count",
+        "test_label_access_attempts",
+        "calibration_label_access_attempts",
+        "heldout_labels_available",
+        "prediction_interface_rejects_label_arguments",
+        "state_unchanged",
+        "sentinel_excluded_from_fit",
+        "reordered_inference_preserves_state",
+        "duplicate_row_ids_rejected",
+        "empty_inputs_rejected",
+        "single_class_targets_rejected",
+        "noncontiguous_target_codes_rejected",
+        "preprocessing_fit_receives_features_only",
+        "forbidden_predictor_checks",
+        "passed",
+        "evidence_hash"
+      ],
+      "title": "AdapterLeakageEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "records": {
+      "items": {
+        "$ref": "#/$defs/AdapterLeakageEvidence"
+      },
+      "maxItems": 37,
+      "minItems": 37,
+      "title": "Records",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "stage": {
+      "const": "model_adapter_leakage_evidence",
+      "default": "model_adapter_leakage_evidence",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_commit",
+    "records"
+  ],
+  "title": "AdapterLeakageEvidenceManifest",
+  "type": "object"
+}
