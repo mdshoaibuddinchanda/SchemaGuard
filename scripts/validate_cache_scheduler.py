@@ -25,7 +25,9 @@ from schemaguard.cache.contracts import (  # noqa: E402
     ProtectedHashComparison,
     ProtectedHashRecord,
     SchedulerProbeEvidence,
+    validate_fault_evidence_binding,
 )
+from schemaguard.cache.fault_policy import FAULT_POLICY  # noqa: E402
 from schemaguard.cache.index import CacheIndex  # noqa: E402
 from schemaguard.cache.keys import dependency_lock_hash, implementation_hash  # noqa: E402
 from schemaguard.cache.store import CacheStore  # noqa: E402
@@ -48,40 +50,6 @@ from schemaguard.utils.io import atomic_write_json, atomic_write_text  # noqa: E
 
 STARTING_COMMIT = "cc8e2a53ceb73e833d54917dd195eb99bf01719c"
 PROTECTED_BEFORE = Path("artifacts/cache_scheduler/runtime/protected_hashes_before.json")
-FAULT_NAMES = {
-    "payload_write_interrupted",
-    "completion_interrupted",
-    "manifest_truncated",
-    "payload_truncated",
-    "completion_marker_missing",
-    "payload_checksum_wrong",
-    "manifest_identity_wrong",
-    "cache_key_wrong",
-    "artifact_schema_wrong",
-    "failed_artifact_candidate",
-    "model_configuration_change",
-    "implementation_change",
-    "dependency_lock_change",
-    "dataset_checksum_change",
-    "split_checksum_change",
-    "view_certificate_change",
-    "checkpoint_checksum_change",
-    "device_policy_change",
-    "two_process_same_identity_publication",
-    "same_key_different_payload",
-    "lock_holder_process_crash",
-    "stale_lock_file_without_owner",
-    "worker_exceeds_hard_ram",
-    "worker_timeout",
-    "worker_exit_without_result",
-    "restart_with_running_task",
-    "missing_cache_index",
-    "corrupt_cache_index",
-    "complete_state_without_valid_payload",
-    "network_attempt_during_offline_execution",
-}
-
-
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
@@ -557,11 +525,15 @@ def _validate_evidence(
     probe = SchedulerProbeEvidence.model_validate(
         json.loads(probe_path.read_text(encoding="utf-8"))
     )
+    validate_fault_evidence_binding(
+        fault,
+        inventory_source_implementation_commit=inventory.source_implementation_commit,
+        inventory_fault_evidence_sha256=inventory.fault_evidence_sha256,
+        observed_fault_evidence_sha256=canonical_source_hash(fault_path),
+    )
     comparison = _validate_protected_comparison(
         comparison_path, inventory.source_implementation_commit
     )
-    if inventory.source_implementation_commit != fault.source_implementation_commit:
-        raise ValueError("inventory and fault evidence refer to different implementation commits")
     if inventory.source_implementation_commit != implementation_commit and not _git_ancestor(
         inventory.source_implementation_commit, implementation_commit
     ):
@@ -576,8 +548,6 @@ def _validate_evidence(
         task.cache_identity.cache_key for task in plan.tasks
     ):
         raise ValueError("probe cache identity hashes differ from the inventory")
-    if inventory.fault_evidence_sha256 != canonical_source_hash(fault_path):
-        raise ValueError("fault evidence file digest differs from the inventory")
     if inventory.probe_evidence_sha256 != canonical_source_hash(probe_path):
         raise ValueError("probe evidence file digest differs from the inventory")
     if inventory.protected_hash_comparison_sha256 != canonical_source_hash(comparison_path):
@@ -795,8 +765,8 @@ def main() -> int:
         test_statuses["gpu_exclusive_policy"] = "PASS" if gpu_concurrency == 1 else "FAIL"
         test_statuses["fault_injection"] = (
             "PASS"
-            if len(fault.records) == len(FAULT_NAMES)
-            and {item.fault_name for item in fault.records} == FAULT_NAMES
+            if len(fault.records) == len(FAULT_POLICY)
+            and tuple(item.fault_name for item in fault.records) == tuple(FAULT_POLICY)
             and all(item.status == "PASS" for item in fault.records)
             else "FAIL"
         )
@@ -840,7 +810,7 @@ def main() -> int:
             "faults_passed": sum(item.status == "PASS" for item in fault.records),
             "protected_file_count": len(comparison.records),
         }
-        all_names = sorted(set(test_names) | FAULT_NAMES)
+        all_names = sorted(set(test_names) | set(FAULT_POLICY))
         inventory = CacheSchedulerInventory(
             schema_version=1,
             stage="cache_scheduler",

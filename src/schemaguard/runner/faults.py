@@ -19,6 +19,7 @@ from ..cache.contracts import (
     FaultInjectionEvidence,
     FaultInjectionRecord,
 )
+from ..cache.fault_policy import FAULT_POLICY, fault_evidence_sha256
 from ..cache.index import CacheIndex
 from ..cache.locks import CacheKeyLock
 from ..cache.store import CacheIntegrityError, CacheStore
@@ -27,7 +28,7 @@ from ..runner.plan import current_commit
 from ..runner.resources import classify_resource_limits, execute_isolated_worker
 from ..runner.scheduler import Scheduler
 from ..runner.state import TaskStateStore
-from ..utils.hashing import sha256_canonical_json, sha256_file
+from ..utils.hashing import sha256_file
 from ..utils.io import atomic_write_json
 
 
@@ -168,16 +169,13 @@ def _record(
     records: list[FaultInjectionRecord],
     *,
     name: str,
-    injection: str,
-    expected: str,
     observed: str,
     artifact_accepted: bool,
-    expected_acceptance: bool,
     resume: str,
-    expected_resume: str,
     lock_root: Path,
     cache_key: str,
 ) -> None:
+    expectation = FAULT_POLICY[name]
     try:
         with CacheKeyLock(lock_root, cache_key, timeout=2):
             lock_released = True
@@ -185,30 +183,28 @@ def _record(
         lock_released = False
     evidence = {
         "fault_name": name,
-        "injection_point": injection,
-        "expected_failure_category": expected,
+        "injection_point": expectation.injection_point,
+        "expected_failure_category": expectation.expected_failure_category,
         "observed_failure_category": observed,
+        "expected_artifact_accepted": expectation.expected_artifact_accepted,
         "artifact_accepted": artifact_accepted,
+        "expected_resume_behavior": expectation.expected_resume_behavior,
         "lock_released": lock_released,
         "resume_behavior": resume,
     }
     passed = (
-        expected == observed
-        and artifact_accepted == expected_acceptance
-        and resume == expected_resume
+        expectation.expected_failure_category == observed
+        and artifact_accepted is expectation.expected_artifact_accepted
+        and resume == expectation.expected_resume_behavior
         and lock_released
     )
     records.append(
-        FaultInjectionRecord(
-            fault_name=name,
-            injection_point=injection,
-            expected_failure_category=expected,
-            observed_failure_category=observed,
-            artifact_accepted=artifact_accepted,
-            lock_released=lock_released,
-            resume_behavior=resume,
-            evidence_sha256=sha256_canonical_json(evidence),
-            status="PASS" if passed else "FAIL",
+        FaultInjectionRecord.model_validate(
+            {
+                **evidence,
+                "evidence_sha256": fault_evidence_sha256(evidence),
+                "status": "PASS" if passed else "FAIL",
+            }
         )
     )
 
@@ -226,20 +222,20 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         root = Path(temporary)
         context = multiprocessing.get_context("spawn")
 
-        invalid_faults = [
-            ("payload_write_interrupted", "process stopped during payload write"),
-            ("completion_interrupted", "payload durable before completion marker"),
-            ("manifest_truncated", "manifest parser"),
-            ("payload_truncated", "payload checksum validation"),
-            ("completion_marker_missing", "completion marker validation"),
-            ("payload_checksum_wrong", "payload checksum validation"),
-            ("manifest_identity_wrong", "canonical identity validation"),
-            ("cache_key_wrong", "key recomputation"),
-            ("artifact_schema_wrong", "strict manifest schema validation"),
-            ("failed_artifact_candidate", "failed-state cache candidate"),
-        ]
+        invalid_faults = (
+            "payload_write_interrupted",
+            "completion_interrupted",
+            "manifest_truncated",
+            "payload_truncated",
+            "completion_marker_missing",
+            "payload_checksum_wrong",
+            "manifest_identity_wrong",
+            "cache_key_wrong",
+            "artifact_schema_wrong",
+            "failed_artifact_candidate",
+        )
 
-        for index, (name, injection) in enumerate(invalid_faults, 1):
+        for index, name in enumerate(invalid_faults, 1):
             case_root = root / name
             identity = _identity(index)
             store = CacheStore(case_root / "cache")
@@ -275,17 +271,13 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
                 _record(
                     records,
                     name=name,
-                    injection=injection,
-                    expected="CACHE_MISS",
                     observed=observed,
                     artifact_accepted=partial_candidate is not None,
-                    expected_acceptance=False,
                     resume=(
                         "RECOMPUTED_AFTER_INTERRUPTED_TRANSACTION"
                         if accepted_recomputed and not interrupted_republication.reused_existing
                         else "RECOMPUTATION_FAILED"
                     ),
-                    expected_resume="RECOMPUTED_AFTER_INTERRUPTED_TRANSACTION",
                     lock_root=store.root,
                     cache_key=identity.cache_key,
                 )
@@ -339,13 +331,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
             _record(
                 records,
                 name=name,
-                injection=injection,
-                expected="FAIL_CACHE_INTEGRITY",
                 observed=observed,
                 artifact_accepted=False,
-                expected_acceptance=False,
                 resume=resume,
-                expected_resume="RECOMPUTED_AFTER_QUARANTINE",
                 lock_root=store.root,
                 cache_key=identity.cache_key,
             )
@@ -372,17 +360,13 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
             _record(
                 records,
                 name=name,
-                injection="change one scientific or implementation identity field",
-                expected="CACHE_MISS",
                 observed=observed,
                 artifact_accepted=candidate_artifact is not None,
-                expected_acceptance=False,
                 resume=(
                     "NEW_IDENTITY_REQUIRES_COMPUTE"
                     if candidate_artifact is None
                     else "UNSAFE_REUSE"
                 ),
-                expected_resume="NEW_IDENTITY_REQUIRES_COMPUTE",
                 lock_root=store.root,
                 cache_key=changed_identity.cache_key,
             )
@@ -417,13 +401,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="two_process_same_identity_publication",
-            injection="two spawned writers publish identical bytes simultaneously",
-            expected="ONE_VALIDATED_ARTIFACT",
             observed="ONE_VALIDATED_ARTIFACT" if concurrent_ok else "DUPLICATE_OR_FAILED",
             artifact_accepted=concurrent_count == 1,
-            expected_acceptance=True,
             resume="WINNING_ARTIFACT_REUSED",
-            expected_resume="WINNING_ARTIFACT_REUSED",
             lock_root=concurrent_store.root,
             cache_key=concurrent_identity.cache_key,
         )
@@ -444,13 +424,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="same_key_different_payload",
-            injection="publish different bytes for an already validated identity",
-            expected="FAIL_CACHE_INTEGRITY",
             observed=observed,
             artifact_accepted=original_retained,
-            expected_acceptance=True,
             resume="ORIGINAL_IMMUTABLE_ENTRY_RETAINED",
-            expected_resume="ORIGINAL_IMMUTABLE_ENTRY_RETAINED",
             lock_root=conflict_store.root,
             cache_key=conflict_identity.cache_key,
         )
@@ -469,13 +445,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="lock_holder_process_crash",
-            injection="owner exits without executing lock-release cleanup",
-            expected="PASS",
             observed="PASS" if crashed_lock_recovered else "FAIL_LOCK_RELEASE",
             artifact_accepted=False,
-            expected_acceptance=False,
             resume="LOCK_REACQUIRED_AFTER_OWNER_EXIT",
-            expected_resume="LOCK_REACQUIRED_AFTER_OWNER_EXIT",
             lock_root=crash_store.root,
             cache_key=crash_identity.cache_key,
         )
@@ -493,13 +465,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="stale_lock_file_without_owner",
-            injection="leave old lock-file bytes without an active OS lock",
-            expected="PASS",
             observed=stale_result,
             artifact_accepted=False,
-            expected_acceptance=False,
             resume="LOCK_ACQUIRED_WITHOUT_DELETING_STALE_FILE",
-            expected_resume="LOCK_ACQUIRED_WITHOUT_DELETING_STALE_FILE",
             lock_root=stale_store.root,
             cache_key=stale_identity.cache_key,
         )
@@ -515,13 +483,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="worker_exceeds_hard_ram",
-            injection="inject a measured process-tree RSS sample above configured hard cap",
-            expected="FAIL_RESOURCE_LIMIT",
             observed=limit_category or "PASS",
             artifact_accepted=limit_store.read_validated(limit_identity) is not None,
-            expected_acceptance=False,
             resume="NO_ARTIFACT_PUBLISHED",
-            expected_resume="NO_ARTIFACT_PUBLISHED",
             lock_root=limit_store.root,
             cache_key=limit_identity.cache_key,
         )
@@ -546,13 +510,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="worker_timeout",
-            injection="sleep worker exceeds its strict wall-time deadline",
-            expected="FAIL_TIMEOUT",
             observed=timeout_execution.failure_category or "PASS",
             artifact_accepted=timeout_store.read_validated(timeout_identity) is not None,
-            expected_acceptance=False,
             resume="NO_ARTIFACT_PUBLISHED",
-            expected_resume="NO_ARTIFACT_PUBLISHED",
             lock_root=timeout_store.root,
             cache_key=timeout_identity.cache_key,
         )
@@ -575,13 +535,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="worker_exit_without_result",
-            injection="worker exits abruptly before writing a result envelope",
-            expected="FAIL_MODEL_RUNTIME",
             observed=crash_execution.failure_category or "PASS",
             artifact_accepted=crash_artifact_store.read_validated(crash_identity) is not None,
-            expected_acceptance=False,
             resume="NO_ARTIFACT_PUBLISHED",
-            expected_resume="NO_ARTIFACT_PUBLISHED",
             lock_root=crash_artifact_store.root,
             cache_key=crash_identity.cache_key,
         )
@@ -614,13 +570,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="restart_with_running_task",
-            injection="persist an expired lease whose worker and owner processes are gone",
-            expected="PASS",
             observed="PASS" if recovered_count == 1 else "FAIL_RECOVERY",
             artifact_accepted=restart_store.read_validated(restart_identity) is not None,
-            expected_acceptance=False,
             resume="PENDING_FOR_SAFE_RETRY" if recovered_state == "PENDING" else "NOT_RECOVERED",
-            expected_resume="PENDING_FOR_SAFE_RETRY",
             lock_root=restart_store.root,
             cache_key=restart_identity.cache_key,
         )
@@ -640,15 +592,9 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
             _record(
                 records,
                 name=f"{index_name}_cache_index",
-                injection="remove the derivative index"
-                if not corrupt
-                else "truncate the SQLite index",
-                expected="INDEX_REBUILT",
                 observed="INDEX_REBUILT" if rebuilt == 1 and found else "INDEX_INVALID",
                 artifact_accepted=index_store.read_validated(index_identity) is not None,
-                expected_acceptance=True,
                 resume="MANIFEST_REDISCOVERED",
-                expected_resume="MANIFEST_REDISCOVERED",
                 lock_root=index_store.root,
                 cache_key=index_identity.cache_key,
             )
@@ -674,17 +620,13 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="complete_state_without_valid_payload",
-            injection="persist COMPLETE state without the content-addressed payload",
-            expected="RECOMPUTE_INVALID_COMPLETE",
             observed="RECOMPUTE_INVALID_COMPLETE"
             if complete_resume_result.manifest.executed == 1 and complete_after
             else "UNSAFE_COMPLETE_SKIP",
             artifact_accepted=complete_after,
-            expected_acceptance=True,
             resume="TASK_REEXECUTED_AND_VALIDATED"
             if complete_resume_result.manifest.executed == 1
             else "TASK_NOT_REEXECUTED",
-            expected_resume="TASK_REEXECUTED_AND_VALIDATED",
             lock_root=complete_store.root,
             cache_key=complete_identity.cache_key,
         )
@@ -705,17 +647,13 @@ def run_fault_injection_suite(*, source_commit: str | None = None) -> FaultInjec
         _record(
             records,
             name="network_attempt_during_offline_execution",
-            injection="worker attempts loopback socket connection under Python audit deny hook",
-            expected="FAIL_MODEL_RUNTIME",
             observed=network_result.manifest.failures[0].category
             if network_result.manifest.failures
             else "PASS",
             artifact_accepted=not network_not_cached,
-            expected_acceptance=False,
             resume="NETWORK_DENIED_NO_ARTIFACT"
             if offline_attempts == 1 and network_not_cached
             else "NETWORK_GUARD_FAILED",
-            expected_resume="NETWORK_DENIED_NO_ARTIFACT",
             lock_root=network_store.root,
             cache_key=network_identity.cache_key,
         )

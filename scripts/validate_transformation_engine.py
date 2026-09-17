@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
-from pathlib import Path
+from collections.abc import Iterable
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -34,13 +36,106 @@ ALLOWED_REPAIR_SCHEMA_CHANGES = {
     "schemas/transformation_inventory.schema.json",
     "schemas/transformation_manifest.schema.json",
 }
+CACHE_SCHEDULER_SCHEMA_ADDITIONS = {
+    "schemas/scheduler_run_plan.schema.json",
+    "schemas/scheduler_run_manifest.schema.json",
+    "schemas/scheduler_resource_record.schema.json",
+    "schemas/cache_scheduler_protected_hash_record.schema.json",
+    "schemas/scheduler_failure_record.schema.json",
+    "schemas/cache_scheduler_protected_hash_comparison.schema.json",
+    "schemas/scheduler_task_attempt.schema.json",
+    "schemas/cache_scheduler_probe_run.schema.json",
+    "schemas/cache_scheduler_probe_resource.schema.json",
+    "schemas/scheduler_state.schema.json",
+    "schemas/cache_scheduler_probe_evidence.schema.json",
+    "schemas/scheduler_task_record.schema.json",
+    "schemas/cache_scheduler_inventory.schema.json",
+    "schemas/scheduler_task_result.schema.json",
+    "schemas/cache_scheduler_fault_record.schema.json",
+    "schemas/cache_scheduler_fault_evidence.schema.json",
+    "schemas/cache_scheduler_config.schema.json",
+    "schemas/cache_identity.schema.json",
+    "schemas/cache_artifact_manifest.schema.json",
+    "schemas/cache_completion_marker.schema.json",
+    "schemas/scheduler_task_transition.schema.json",
+    "schemas/scheduler_task_spec.schema.json",
+}
 ALLOWED_REPAIR_SCHEMA_ADDITIONS = {
     "schemas/model_adapter_inventory.schema.json",
     "schemas/model_adapter_leakage_evidence.schema.json",
     "schemas/model_adapter_result.schema.json",
     "schemas/transformation_cache_manifest.schema.json",
     "schemas/transformation_property_evidence.schema.json",
-}
+} | CACHE_SCHEDULER_SCHEMA_ADDITIONS
+FROZEN_TRANSFORMATION_BASELINE_COMMIT = "5a8d59b53baaee8de26314c3803f8260dab3df16"
+FROZEN_TRANSFORMATION_PATHS = (
+    "src/schemaguard/transformations",
+    "src/schemaguard/utils/hashing.py",
+    "scripts/run_transformation_properties.py",
+    "schemas/transformation_cache_manifest.schema.json",
+    "schemas/transformation_certificate.schema.json",
+    "schemas/transformation_inventory.schema.json",
+    "schemas/transformation_manifest.schema.json",
+    "schemas/transformation_property_evidence.schema.json",
+    "schemas/transformation_validation.schema.json",
+)
+
+
+def validate_schema_addition_paths(paths: Iterable[str]) -> frozenset[str]:
+    """Accept only exact, portable schema-file paths in an explicit allowlist."""
+
+    values = tuple(paths)
+    normalized: set[str] = set()
+    for value in values:
+        if not isinstance(value, str):
+            raise ValueError("schema additions must be repository-relative strings")
+        posix = PurePosixPath(value)
+        windows = PureWindowsPath(value)
+        if (
+            posix.is_absolute()
+            or windows.is_absolute()
+            or "\\" in value
+            or ".." in posix.parts
+            or any(character in value for character in "*?[]")
+            or posix.as_posix() != value
+            or len(posix.parts) != 2
+            or posix.parts[0] != "schemas"
+            or not posix.name.endswith(".schema.json")
+        ):
+            raise ValueError(f"invalid exact schema addition path: {value!r}")
+        normalized.add(value)
+    if len(normalized) != len(values):
+        raise ValueError("schema addition paths must be unique")
+    return frozenset(normalized)
+
+
+def assert_frozen_transformation_tree(
+    root: str | Path = ROOT,
+    *,
+    baseline_commit: str = FROZEN_TRANSFORMATION_BASELINE_COMMIT,
+    paths: Iterable[str] = FROZEN_TRANSFORMATION_PATHS,
+) -> None:
+    """Reject transformation code or protected schema changes since accepted evidence."""
+
+    project_root = Path(root)
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", baseline_commit, "HEAD"],
+        cwd=project_root,
+        check=False,
+        timeout=30,
+    )
+    if ancestor.returncode != 0:
+        raise ValueError("accepted transformation baseline is missing or not an ancestor")
+    differences = subprocess.run(
+        ["git", "diff", "--quiet", baseline_commit, "--", *paths],
+        cwd=project_root,
+        check=False,
+        timeout=30,
+    )
+    if differences.returncode == 1:
+        raise ValueError("transformation implementation or protected schema changed")
+    if differences.returncode != 0:
+        raise ValueError("could not compare the frozen transformation tree")
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -84,6 +179,10 @@ def main() -> int:
         # The implementation has no network-capable code path.  Keep this
         # explicit so an offline invocation is auditable in command logs.
         print("network_access=disabled")
+    assert_frozen_transformation_tree()
+    allowed_schema_additions = validate_schema_addition_paths(
+        ALLOWED_REPAIR_SCHEMA_ADDITIONS
+    )
     config = load_transformation_config(args.config)
     split_hash = _validate_split_inventory()
     repair_before = ROOT / "artifacts/transformation_engine/review/repair_hashes_before.json"
@@ -118,7 +217,7 @@ def main() -> int:
                 ROOT,
                 before,
                 allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES,
-                allowed_added_paths=ALLOWED_REPAIR_SCHEMA_ADDITIONS,
+                allowed_added_paths=set(allowed_schema_additions),
             )
             if protected["status"] == "PASS":
                 inventory = inventory.model_copy(
@@ -147,7 +246,7 @@ def main() -> int:
             ROOT,
             before,
             allowed_changed_paths=ALLOWED_REPAIR_SCHEMA_CHANGES,
-            allowed_added_paths=ALLOWED_REPAIR_SCHEMA_ADDITIONS,
+            allowed_added_paths=set(allowed_schema_additions),
         ),
     }
     if args.inventory_output and not args.validate_only:

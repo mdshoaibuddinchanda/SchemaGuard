@@ -11,6 +11,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from ..utils.hashing import sha256_canonical_json
+from .fault_policy import CANONICAL_FAULT_NAMES, FAULT_POLICY, fault_evidence_sha256
 
 Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 TaskId = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
@@ -324,11 +325,40 @@ class FaultInjectionRecord(StrictContract):
     injection_point: str
     expected_failure_category: str
     observed_failure_category: str
+    expected_artifact_accepted: bool
     artifact_accepted: bool
+    expected_resume_behavior: str
     lock_released: bool
     resume_behavior: str
     evidence_sha256: Sha256
     status: Literal["PASS", "FAIL"]
+
+    @model_validator(mode="after")
+    def validate_policy_hash_and_status(self) -> FaultInjectionRecord:
+        expectation = FAULT_POLICY.get(self.fault_name)
+        if expectation is None:
+            raise ValueError("fault name is not part of the frozen fault policy")
+        if (
+            self.injection_point != expectation.injection_point
+            or self.expected_failure_category != expectation.expected_failure_category
+            or self.expected_artifact_accepted is not expectation.expected_artifact_accepted
+            or self.expected_resume_behavior != expectation.expected_resume_behavior
+        ):
+            raise ValueError("fault record expected behavior differs from the frozen policy")
+        computed_hash = fault_evidence_sha256(self.model_dump(mode="python"))
+        if self.evidence_sha256 != computed_hash:
+            raise ValueError("fault evidence hash does not match its canonical payload")
+        derived_status = (
+            "PASS"
+            if self.observed_failure_category == self.expected_failure_category
+            and self.artifact_accepted is self.expected_artifact_accepted
+            and self.resume_behavior == self.expected_resume_behavior
+            and self.lock_released is True
+            else "FAIL"
+        )
+        if self.status != derived_status:
+            raise ValueError("fault record status contradicts its observed behavior")
+        return self
 
 
 class FaultInjectionEvidence(StrictContract):
@@ -336,49 +366,36 @@ class FaultInjectionEvidence(StrictContract):
     stage: Literal["cache_scheduler_faults"]
     source_implementation_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     records: list[FaultInjectionRecord]
-    expected_fault_count: int = Field(gt=0)
+    expected_fault_count: Literal[30]
     offline_network_attempt_count: int = Field(ge=0)
 
     @model_validator(mode="after")
     def complete_fault_matrix(self) -> FaultInjectionEvidence:
         names = [record.fault_name for record in self.records]
-        if len(names) != len(set(names)):
-            raise ValueError("fault names must be unique")
-        required_names = {
-            "payload_write_interrupted",
-            "completion_interrupted",
-            "manifest_truncated",
-            "payload_truncated",
-            "completion_marker_missing",
-            "payload_checksum_wrong",
-            "manifest_identity_wrong",
-            "cache_key_wrong",
-            "artifact_schema_wrong",
-            "failed_artifact_candidate",
-            "model_configuration_change",
-            "implementation_change",
-            "dependency_lock_change",
-            "dataset_checksum_change",
-            "split_checksum_change",
-            "view_certificate_change",
-            "checkpoint_checksum_change",
-            "device_policy_change",
-            "two_process_same_identity_publication",
-            "same_key_different_payload",
-            "lock_holder_process_crash",
-            "stale_lock_file_without_owner",
-            "worker_exceeds_hard_ram",
-            "worker_timeout",
-            "worker_exit_without_result",
-            "restart_with_running_task",
-            "missing_cache_index",
-            "corrupt_cache_index",
-            "complete_state_without_valid_payload",
-            "network_attempt_during_offline_execution",
-        }
-        if self.expected_fault_count != len(required_names) or set(names) != required_names:
-            raise ValueError("fault evidence matrix does not match the required 30 cases")
+        if names != list(CANONICAL_FAULT_NAMES):
+            raise ValueError("fault evidence must use the exact canonical 30-case matrix")
+        if any(record.status != "PASS" for record in self.records):
+            raise ValueError("fault evidence manifest requires every case to derive PASS")
+        if self.offline_network_attempt_count != 1:
+            raise ValueError(
+                "fault evidence requires exactly one intentionally denied network attempt"
+            )
         return self
+
+
+def validate_fault_evidence_binding(
+    evidence: FaultInjectionEvidence,
+    *,
+    inventory_source_implementation_commit: str,
+    inventory_fault_evidence_sha256: str,
+    observed_fault_evidence_sha256: str,
+) -> None:
+    """Bind a valid fault matrix to the inventory's source commit and whole-file digest."""
+
+    if evidence.source_implementation_commit != inventory_source_implementation_commit:
+        raise ValueError("fault evidence source commit differs from the inventory")
+    if inventory_fault_evidence_sha256 != observed_fault_evidence_sha256:
+        raise ValueError("fault evidence whole-file digest differs from the inventory")
 
 
 def finite_nonnegative(value: float) -> float:

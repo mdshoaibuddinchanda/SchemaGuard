@@ -63,6 +63,8 @@ jobs:
       - run: uv sync --frozen --extra dev --extra models-cpu --extra monitoring --no-managed-python
       - name: Run bounded cache and scheduler unit tests
         run: uv run python -m pytest -q tests/unit -m "not network and not gpu and not foundation_model and not evidence" -rA
+      - name: Check transformation schema allowlist remains exact
+        run: uv run python -m pytest -q tests/unit/test_transformation_validator_policy.py -rA
       - name: Run synthetic scheduler integration tests
         run: uv run python -m pytest -q tests/integration/test_scheduler_resume.py tests/integration/test_scheduler_concurrency.py tests/integration/test_scheduler_process_isolation.py -m "integration and not network and not gpu and not foundation_model" -rA
       - name: Check code quality

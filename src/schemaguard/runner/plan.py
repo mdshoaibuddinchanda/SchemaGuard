@@ -16,6 +16,7 @@ from .contracts import RunPlan, TaskSpec, build_plan, build_task
 IMPLEMENTATION_PATHS = (
     "src/schemaguard/cache/__init__.py",
     "src/schemaguard/cache/contracts.py",
+    "src/schemaguard/cache/fault_policy.py",
     "src/schemaguard/cache/keys.py",
     "src/schemaguard/cache/locks.py",
     "src/schemaguard/cache/store.py",
