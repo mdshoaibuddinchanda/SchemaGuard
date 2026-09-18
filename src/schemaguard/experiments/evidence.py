@@ -274,6 +274,13 @@ def build_run_report(
     )
 
 
+def _lineage_column_matches(frame: Any, column: str, expected: Any) -> bool:
+    observed = frame[column]
+    if expected is None:
+        return bool(observed.isna().all())
+    return bool(observed.notna().all() and observed.eq(expected).all())
+
+
 def validate_prediction_tables(root: str | Path, plan: SmokePlan, report: SmokeRunReport) -> int:
     """Independently check all row-level prediction artifacts without opening labels."""
     import numpy as np
@@ -349,7 +356,7 @@ def validate_prediction_tables(root: str | Path, plan: SmokePlan, report: SmokeR
             "cache_identity_sha256": run.cache_identity_sha256,
         }
         for column, value in lineage.items():
-            if frame[column].ne(value).any():
+            if not _lineage_column_matches(frame, column, value):
                 raise ValueError(f"prediction lineage differs from its plan in {column}")
         if frame["class_order"].ne("0,1").any():
             raise ValueError("prediction class order is not canonical binary order")
