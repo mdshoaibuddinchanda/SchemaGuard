@@ -1,13 +1,13 @@
 {
-  "condition_inventory_sha256": "29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565cb5780509d4e76",
-  "failed_count": 0,
+  "condition_inventory_sha256": "51e933d439dc59506c5b6120e4e94622980dff00200d2aaddb82f3f6f13c94d6",
+  "failed_count": 1,
   "gate_count": 40,
   "gates": [
     {
       "detail": "repository must remain on the authorized base commit before delivery",
-      "evidence_sha256": "91256050cec26262b25ed0631d4195eeab229ffe87621c93575064693955afd9",
+      "evidence_sha256": "fae02845780116e3340b259d14ee462dd14e36b31d1267ca83945be25e88b925",
       "gate_id": "PF01",
-      "result": "PASS"
+      "result": "FAIL"
     },
     {
       "detail": "accepted independent smoke identity and no-pilot flag are bound by source hash",
@@ -29,7 +29,7 @@
     },
     {
       "detail": "rebuilding from sanitized registry metadata produces identical selected IDs and hashes",
-      "evidence_sha256": "ad4e02d93bf3dae53c94e219694a7b5dcd81315f088a9cb73371530c2cbdfefd",
+      "evidence_sha256": "9a63b8b2ff9db90d53ad825e103dc2d9e7aa665960f9380290d88fd9d61963eb",
       "gate_id": "PF05",
       "result": "PASS"
     },
@@ -83,7 +83,7 @@
     },
     {
       "detail": "all condition IDs are unique canonical hashes of the complete identity payload",
-      "evidence_sha256": "872ed8b57e07ebe939241121f0ae8657fe9a3855f5a38ae06a2fedc9740b8643",
+      "evidence_sha256": "96e8972efa8c3a3b575e43389403e10f6f62f9cfbc1927eb6b091ba61bf68294",
       "gate_id": "PF14",
       "result": "PASS"
     },
@@ -137,7 +137,7 @@
     },
     {
       "detail": "runtime estimate and deterministic staged schedule cover every planned condition; each stage fits the hard wall limit",
-      "evidence_sha256": "5a6e64040b9425296b189be9987a0ad6423a335e4e0e2d644dbe1851b13f11b7",
+      "evidence_sha256": "bd26cc462bb9c267e9543dddb22b9cfc197379eb1578b41fe318b78dec69e301",
       "gate_id": "PF23",
       "result": "PASS"
     },
@@ -161,13 +161,13 @@
     },
     {
       "detail": "non-network, non-GPU, non-foundation-model unit tests passed (exit 0)",
-      "evidence_sha256": "95eab200114bb217d934e64f5d570537b224676e0aab92f3618b2b061cb57ceb",
+      "evidence_sha256": "237c6292115a7814d6740d5df487831e1dcf1377ed31f4ac73f449dd94809d0e",
       "gate_id": "PF27",
       "result": "PASS"
     },
     {
       "detail": "non-network integration tests; pilot plan test is metadata-only passed (exit 0)",
-      "evidence_sha256": "8448834db780643401163451ed2d2a00b4d460c0cff933c634db1d447d0aec4e",
+      "evidence_sha256": "213e368aebe8cd64f90d4ffae2cc15991af446bf6597844764a1a3762b8704ba",
       "gate_id": "PF28",
       "result": "PASS"
     },
@@ -191,7 +191,7 @@
     },
     {
       "detail": "repository structural and local-evidence validation passed (exit 0)",
-      "evidence_sha256": "b0780499748bc84401d9145b3b8963c227c5f52323cbffea09e89f6fc25e9d00",
+      "evidence_sha256": "2f5874c46482ac9f020c3f6902877a8afb572fa976694ff236f70957b4099d87",
       "gate_id": "PF32",
       "result": "PASS"
     },
@@ -227,7 +227,7 @@
     },
     {
       "detail": "source, schemas, and focused protocol tests pass in a temporary local clean clone without local datasets or private files",
-      "evidence_sha256": "105252ebe8cd977e9ac9c9eff0141ab803ccb45148d321de8bf9102a1381c6d2",
+      "evidence_sha256": "387a54eebe3ccec867faad894a38f920c629486820045832675181f034498f85",
       "gate_id": "PF38",
       "result": "PASS"
     },
@@ -245,11 +245,11 @@
     }
   ],
   "not_verified_count": 0,
-  "passed_count": 40,
+  "passed_count": 39,
   "pilot_execution_performed": false,
-  "protocol_sha256": "5dad78c35a332077c3790e0eac8fc355adf48d93bd8e9f815d23636c9d7f3fe9",
+  "protocol_sha256": "4021dd99a6f797f154acfa3bf90d38f93cddd0443b74fea3475c8ee590107e3d",
   "schema_version": 1,
   "source_commit": "9a59e5a5dda320ec00f1915c80fb82d2531cb442",
-  "status": "RESOURCE_REVIEW_REQUIRED",
+  "status": "REPAIR_REQUIRED",
   "test_labels_accessed": false
 }

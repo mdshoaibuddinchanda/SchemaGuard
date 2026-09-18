@@ -124,6 +124,42 @@ def _read_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _validate_pilot_raw_manifest(
+    payload: dict[str, Any], *, expected_dataset_name: str
+) -> tuple[RawSourceManifestContract, str | None]:
+    """Validate a raw manifest, adapting only the documented legacy identity field.
+
+    The shared Phase 01 contract remains strict. Some locally accepted manifests
+    include ``internal_dataset_id``; the pilot validates that value here, removes
+    it from a copy, and then delegates every remaining field to the frozen contract.
+    """
+    normalized = dict(payload)
+    internal_dataset_id = normalized.pop("internal_dataset_id", None)
+    if internal_dataset_id not in (None, expected_dataset_name):
+        raise ValueError("raw manifest internal dataset identity does not match registry")
+    return RawSourceManifestContract.model_validate(normalized), internal_dataset_id
+
+
+def _validate_pilot_processed_manifest(
+    payload: dict[str, Any], *, quality_report_sha256: str
+) -> ProcessedManifestContract:
+    """Validate the Phase 01 contract with a hash derived for a known legacy variant.
+
+    One accepted processed manifest omits ``quality_report.json`` from its hash
+    map. In that case the pilot derives the missing digest from the already-validated
+    local quality report; it does not weaken or modify the shared manifest contract.
+    """
+    normalized = dict(payload)
+    artifact_hashes = normalized.get("artifact_hashes")
+    if not isinstance(artifact_hashes, dict):
+        raise ValueError("processed manifest artifact_hashes must be an object")
+    hashes = dict(artifact_hashes)
+    if "quality_report.json" not in hashes:
+        hashes["quality_report.json"] = quality_report_sha256
+    normalized["artifact_hashes"] = hashes
+    return ProcessedManifestContract.model_validate(normalized)
+
+
 def _read_yaml(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -418,12 +454,15 @@ def _load_dataset_candidates(
         if not raw_manifest_path.is_file() or not processed_root.is_dir():
             continue
         try:
-            raw_manifest = RawSourceManifestContract.model_validate(_read_json(raw_manifest_path))
-            processed_manifest_path = processed_root / "data_manifest.json"
-            processed_manifest = ProcessedManifestContract.model_validate(
-                _read_json(processed_manifest_path)
+            raw_manifest, raw_internal_dataset_id = _validate_pilot_raw_manifest(
+                _read_json(raw_manifest_path), expected_dataset_name=spec.name
             )
+            processed_manifest_path = processed_root / "data_manifest.json"
             quality_path = processed_root / "quality_report.json"
+            processed_manifest = _validate_pilot_processed_manifest(
+                _read_json(processed_manifest_path),
+                quality_report_sha256=sha256_file(quality_path),
+            )
             quality_payload = _read_json(quality_path)
             try:
                 dataset_quality = DatasetQualityReportContract.model_validate(quality_payload)
@@ -450,7 +489,7 @@ def _load_dataset_candidates(
             or raw_manifest.openml_data_id != dataset_id
             or raw_manifest.openml_file_id != spec.file_id
             or raw_manifest.dataset_version != spec.version
-            or raw_manifest.internal_dataset_id not in (None, spec.name)
+            or raw_internal_dataset_id not in (None, spec.name)
             or raw_manifest.computed_sha256 != record.raw_sha256
             or raw_manifest.provider_md5 != spec.provider_md5
             or processed_manifest.openml_data_id != dataset_id

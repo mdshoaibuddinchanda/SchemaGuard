@@ -7,6 +7,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
+from schemaguard.data.contracts import ProcessedManifestContract, RawSourceManifestContract
 from schemaguard.experiments.pilot_contracts import (
     MODEL_ORDER,
     PilotConditionInventory,
@@ -18,6 +19,8 @@ from schemaguard.experiments.pilot_planning import (
     DATASET_IDS,
     EXPECTED_SPLIT_SEEDS,
     PlanningError,
+    _validate_pilot_processed_manifest,
+    _validate_pilot_raw_manifest,
     build_staged_schedule,
     load_pilot_config,
     select_candidate_ids,
@@ -66,6 +69,91 @@ def _effect(**overrides: Any) -> dict[str, Any]:
         "tie_only": False,
         **overrides,
     }
+
+
+def test_pilot_raw_manifest_adapter_is_narrow_and_preserves_strict_shared_contract() -> None:
+    digest = "a" * 64
+    md5 = "b" * 32
+    payload: dict[str, Any] = {
+        "cache_status": "downloaded",
+        "provider": "openml",
+        "internal_dataset_id": "credit-g",
+        "openml_data_id": 31,
+        "openml_file_id": 31,
+        "dataset_name": "credit-g",
+        "dataset_version": "1",
+        "data_format": "ARFF",
+        "default_target_attribute": "class",
+        "metadata_url": "https://example.invalid/metadata",
+        "requested_download_url": "https://example.invalid/data",
+        "resolved_download_url": "https://example.invalid/data",
+        "provider_md5": md5,
+        "computed_md5": md5,
+        "computed_sha256": digest,
+        "file_size_bytes": 1,
+        "raw_relative_path": "raw/openml/31/dataset.arff",
+        "retrieved_at_utc": "2026-01-01T00:00:00Z",
+        "package_versions": {},
+    }
+
+    with pytest.raises(ValidationError):
+        RawSourceManifestContract.model_validate(payload)
+
+    manifest, internal_dataset_id = _validate_pilot_raw_manifest(
+        payload, expected_dataset_name="credit-g"
+    )
+    assert manifest.openml_data_id == 31
+    assert internal_dataset_id == "credit-g"
+    assert "internal_dataset_id" in payload
+
+    with pytest.raises(ValueError, match="identity does not match"):
+        _validate_pilot_raw_manifest(
+            {**payload, "internal_dataset_id": "other"},
+            expected_dataset_name="credit-g",
+        )
+    with pytest.raises(ValidationError):
+        _validate_pilot_raw_manifest(
+            {**payload, "unrecognized": True}, expected_dataset_name="credit-g"
+        )
+
+
+def test_pilot_processed_manifest_adapter_hashes_only_the_missing_quality_report() -> None:
+    digest = "a" * 64
+    payload: dict[str, Any] = {
+        "internal_dataset_id": "blood-transfusion-service-center",
+        "openml_data_id": 1464,
+        "row_count": 748,
+        "feature_columns": ["a", "b", "c", "d"],
+        "target_columns": ["target"],
+        "raw_sha256": digest,
+        "source_manifest_sha256": digest,
+        "processing_config_sha256": digest,
+        "row_id_formula": "stable-row-id-v1",
+        "artifact_hashes": {
+            "features.parquet": digest,
+            "targets.parquet": digest,
+            "schema.json": digest,
+            "label_mapping.json": digest,
+        },
+        "compression": "zstd",
+        "compression_level": 3,
+    }
+
+    with pytest.raises(ValidationError):
+        ProcessedManifestContract.model_validate(payload)
+
+    manifest = _validate_pilot_processed_manifest(
+        payload, quality_report_sha256="c" * 64
+    )
+    assert manifest.artifact_hashes["quality_report.json"] == "c" * 64
+    assert "quality_report.json" not in payload["artifact_hashes"]
+
+    with pytest.raises(ValidationError):
+        invalid_hashes = {**payload["artifact_hashes"], "unexpected.bin": digest}
+        _validate_pilot_processed_manifest(
+            {**payload, "artifact_hashes": invalid_hashes},
+            quality_report_sha256="c" * 64,
+        )
 
 
 def test_strict_config_accepts_frozen_policy_and_rejects_unknown_and_missing_keys(

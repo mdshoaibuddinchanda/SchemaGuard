@@ -67,6 +67,7 @@ PROTECTED_LOCAL_ROOTS = (
 CLEAN_CLONE_OVERLAY = (
     "configs/runtime/pilot_protocol.yaml",
     "src/schemaguard/artifact_contracts.py",
+    "src/schemaguard/data/contracts.py",
     "src/schemaguard/experiments/pilot_contracts.py",
     "src/schemaguard/experiments/pilot_planning.py",
     "src/schemaguard/experiments/pilot_validation.py",

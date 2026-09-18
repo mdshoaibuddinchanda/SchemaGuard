@@ -1,5 +1,5 @@
 {
-  "condition_inventory_sha256": "29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565cb5780509d4e76",
+  "condition_inventory_sha256": "51e933d439dc59506c5b6120e4e94622980dff00200d2aaddb82f3f6f13c94d6",
   "dataset_selection_policy": {
     "balanced_max_class_fraction": 0.7,
     "categorical_substantial_fraction": 0.5,
@@ -374,7 +374,7 @@
   "offline": true,
   "protocol_id": "schemaguard_representation_sensitivity_pilot",
   "protocol_name": "SchemaGuard Representation-Sensitivity Pilot",
-  "protocol_sha256": "5dad78c35a332077c3790e0eac8fc355adf48d93bd8e9f815d23636c9d7f3fe9",
+  "protocol_sha256": "4021dd99a6f797f154acfa3bf90d38f93cddd0443b74fea3475c8ee590107e3d",
   "protocol_version": "schema_guard_representation_sensitivity_v1",
   "registry_parameter_decisions": [
     "catboost_yaml_no_scalar",
@@ -1468,14 +1468,14 @@
     "results/validation/license_inventory.json": "002620c4a447ace5deada41e68f9a5b3d1c4b53174bd7270b39a4f6881a1a3e2",
     "results/validation/model_compatibility_report.json": "8eb6bdbd2203072dd9c493265ed0f12797a3398a7002d4c73badf865ee58feb3",
     "scripts/freeze_pilot_protocol.py": "4bee26705243290782c1e766cfa661e79b3e12fab5684edf7ab7c6818ec7adf5",
-    "scripts/validate_pilot_protocol.py": "79185109691b2fe7eacebe5c18399adc2727ec64eb2852f0c527e8a55460a4af",
+    "scripts/validate_pilot_protocol.py": "c5099ecdf1bfbb687bd7bcb7f73debb37e1ba6052a09dd550ffd33c327d25483",
     "src/schemaguard/cache/contracts.py": "c8f61c8196ff1ff93ede5df44bd656e81ca033d743d7c3a0796fd2d064daa7c4",
     "src/schemaguard/experiments/contracts.py": "2e717a0929b4133e0ae0ceecfae84f0f47aa4a982a9b08bb6b78855e10f25da3",
     "src/schemaguard/experiments/evaluation.py": "2282888e853cb16836748ab61411b239d84ea8f901ceeac2dcf547b3f44eeb02",
     "src/schemaguard/experiments/evidence.py": "c282a16cda1703ae865b94a557a54cee0050062ce39859b1c9e586d8ab4bce30",
     "src/schemaguard/experiments/execution.py": "bae088afbacb5a15a37176c49216251f9ef661515b114f78aea8afdfc001239b",
     "src/schemaguard/experiments/pilot_contracts.py": "19df5eb02151ab5d23671ab6c02ccf6a70f10d767e5571e1a9efb377e2495ebf",
-    "src/schemaguard/experiments/pilot_planning.py": "a9e56ecb857ef2dd5bb274c6fe02243ab930b5a843249d2bde06c9d13f44c4d2",
+    "src/schemaguard/experiments/pilot_planning.py": "67106c00ba7e30dc8ebc41184999a6f9764172e743b226a61995812404d11bf5",
     "src/schemaguard/experiments/pilot_validation.py": "b724e616c846333f40cf9f474215b5f9cdb64e3a2877556c2ef69f8bf5b26e7e",
     "src/schemaguard/experiments/planning.py": "0946d36167abdddf3ca902d952e4a1aeb202a1ae0d44c55f9a4231f9b2dd97a4",
     "src/schemaguard/models/adapters/catboost_adapter.py": "b02cf47a48c97f16cb27118254476d62119321af0f2c023053c2529cc726a719",

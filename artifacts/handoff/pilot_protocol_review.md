@@ -1,6 +1,6 @@
 # SchemaGuard Representation-Sensitivity Pilot Protocol Review
 
-Status: `RESOURCE_REVIEW_REQUIRED`
+Status: `REPAIR_REQUIRED`
 
 Protocol base commit: `9a59e5a5dda320ec00f1915c80fb82d2531cb442`
 Delivery commit: the Git commit containing this review; its exact hash and verified Actions run are recorded in the delivery response.
@@ -15,15 +15,15 @@ The private root `.docx` was not opened or modified and remains untracked.
 - Seeds: 1729, 2718, 31415; 24 selected dataset-seed pairs bind passing grouped splits.
 - Views: 11; planned tuples 264, applicable 192, controlled N/A 72.
 - Model conditions: 960 of a maximum 1320; CPU 576, CUDA 384.
-- Protocol SHA-256: `5dad78c35a332077c3790e0eac8fc355adf48d93bd8e9f815d23636c9d7f3fe9`.
-- Condition inventory SHA-256: `29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565cb5780509d4e76`.
+- Protocol SHA-256: `4021dd99a6f797f154acfa3bf90d38f93cddd0443b74fea3475c8ee590107e3d`.
+- Condition inventory SHA-256: `51e933d439dc59506c5b6120e4e94622980dff00200d2aaddb82f3f6f13c94d6`.
 
 ## Resource estimate
 
 - Conservative wall time: 75040.1 s; preferred limit 28800 s; hard limit 43200 s.
 - Prediction storage: 261605640 bytes; cache allowance 523211280 bytes; preferred storage 21474836480 bytes.
 - Staged schedule required: `True`; full condition matrix remains frozen.
-- Staged schedule SHA-256: `6291534aec5fd156e3e8c2f9d494b69700ccb7b9efb7e0e1fba6c6029e75c4b8`; 4 deterministic dataset-pair stages; cumulative staged estimate 75220.1 s (20.89 h); each stage is within the 43200-second hard limit: `True`. The cumulative full-matrix estimate still requires resource review; staging does not reduce total work.
+- Staged schedule SHA-256: `c82a97fd8d0edebd725c5fe6449e15aa1c553e1b4e8983bb755ec7175ab41cae`; 4 deterministic dataset-pair stages; cumulative staged estimate 75220.1 s (20.89 h); each stage is within the 43200-second hard limit: `True`. The cumulative full-matrix estimate still requires resource review; staging does not reduce total work.
 | Stage | Dataset IDs | Conditions (CPU/CUDA) | Conservative wall | Hard limit |
 | --- | --- | ---: | ---: | ---: |
 | dataset_group_3_23 | 3, 23 | 255 (153 / 102) | 15463.4 s | 43200 s |
@@ -33,15 +33,15 @@ The private root `.docx` was not opened or modified and remains untracked.
 
 ## Acceptance gates
 
-Passed: 40; failed: 0; not verified: 0.
+Passed: 39; failed: 1; not verified: 0.
 
 | Gate | Result | Evidence SHA-256 | Detail |
 | --- | --- | --- | --- |
-| PF01 | PASS | `91256050cec26262b25ed0631d4195eeab229ffe87621c93575064693955afd9` | repository must remain on the authorized base commit before delivery |
+| PF01 | FAIL | `fae02845780116e3340b259d14ee462dd14e36b31d1267ca83945be25e88b925` | repository must remain on the authorized base commit before delivery |
 | PF02 | PASS | `dfc087c7bc3d8cebec7266521594cc944021f9e8b704307a3ed98ecd53388619` | accepted independent smoke identity and no-pilot flag are bound by source hash |
 | PF03 | PASS | `0fd6d13270e4bc9bab907bec8f5e1dbcd71d7d46b32ed3f3f39e1826015e951a` | content-addressed protected-tree snapshot is unchanged through validation; pre-existing tracked schemas match the authorized base |
 | PF04 | PASS | `745b70d70edf457aa035956bb5f96fb036bd084bc9e429da28892aff3601c5ed` | the closed SchemaOrbit-14 registry and complete accepted 70-split inventory validate |
-| PF05 | PASS | `ad4e02d93bf3dae53c94e219694a7b5dcd81315f088a9cb73371530c2cbdfefd` | rebuilding from sanitized registry metadata produces identical selected IDs and hashes |
+| PF05 | PASS | `9a63b8b2ff9db90d53ad825e103dc2d9e7aa665960f9380290d88fd9d61963eb` | rebuilding from sanitized registry metadata produces identical selected IDs and hashes |
 | PF06 | PASS | `f10ceac14967a26befbb55a9e9b0a033c7ffe92f4faa3a589bce67d57b41cda6` | eight-dataset cohort covers every frozen schema/task/size/balance feature and explains six exclusions |
 | PF07 | PASS | `771f240a579c3b7f3aa690c2e2b3939906251ad331cdd0553a9d20b13e58b71b` | the first three canonical configured seeds include 1729 and contain no generated seed |
 | PF08 | PASS | `5a447d3ef06b3c1591c690cd91b47b7073311d66ef1e5ab00a55295eee42be04` | all 24 selected dataset-seed pairs bind passing grouped assignments with zero crossing groups |
@@ -50,7 +50,7 @@ Passed: 40; failed: 0; not verified: 0.
 | PF11 | PASS | `2b9212b1eab3a0137a6864c46f8770f45cdf7001391f94523006334f6d3a8018` | the five accepted frozen model IDs retain canonical order and execution devices |
 | PF12 | PASS | `66afea8eb8493334b7736a24570cc71a203915709c42db1f5c056c8def408f05` | exact package versions, checkpoint identifiers, and frozen checkpoint hashes are bound |
 | PF13 | PASS | `20929b27807734f91892e239e12b0e311b480f89980413603e69c6c322d13b67` | condition inventory contains exactly five conditions per applicable view tuple |
-| PF14 | PASS | `872ed8b57e07ebe939241121f0ae8657fe9a3855f5a38ae06a2fedc9740b8643` | all condition IDs are unique canonical hashes of the complete identity payload |
+| PF14 | PASS | `96e8972efa8c3a3b575e43389403e10f6f62f9cfbc1927eb6b091ba61bf68294` | all condition IDs are unique canonical hashes of the complete identity payload |
 | PF15 | PASS | `2028bfa221953e2e8a54c36d506e87a8ef88899f221c2245bb91805b2d9af436` | frozen leakage policy confines fitting to training rows and orders evaluation events |
 | PF16 | PASS | `6f1e024e4b7a7de9aa7607fa11bc7d2989b09560d0a63282d9735e591971cb03` | planning remains outcome-blind; label opening occurs only after structural prediction validation |
 | PF17 | PASS | `169be88ecfb3bac9ed4b033e2aa5513de9842f5391644d39fe48c023cfec4e1c` | primary Brier degradation, relative epsilon, SII, flips, and undefined-metric policy are frozen |
@@ -59,39 +59,39 @@ Passed: 40; failed: 0; not verified: 0.
 | PF20 | PASS | `b1f0c61812972db671f0debe2e1f581fe768206f9f92073fe9180fbea4083958` | nontrivial-effect, breadth, residual-preprocessing, comparison, and six outcomes are frozen |
 | PF21 | PASS | `8bc79fb07923a5f4b6eaf6d21e72d47ab3cb3895e7799ae678fb8a02f9492800` | retryable failures, attempt limits, failed-cache prohibition, and same-identity resume are frozen |
 | PF22 | PASS | `53fd71486faa1b595307c5e3e2116297fd325c2d156114300087a302419c222a` | two CPU workers, one sequential GPU worker, 3600 MiB VRAM cap, and offline execution are frozen |
-| PF23 | PASS | `5a6e64040b9425296b189be9987a0ad6423a335e4e0e2d644dbe1851b13f11b7` | runtime estimate and deterministic staged schedule cover every planned condition; each stage fits the hard wall limit |
+| PF23 | PASS | `bd26cc462bb9c267e9543dddb22b9cfc197379eb1578b41fe318b78dec69e301` | runtime estimate and deterministic staged schedule cover every planned condition; each stage fits the hard wall limit |
 | PF24 | PASS | `366d75501802a95b478b4480ec57f5404bb5c6aee4feeeb0061d900ca3efdd87` | storage estimate includes row IDs, probabilities, metadata, headers, and cache allowance |
 | PF25 | PASS | `ffbfd125488f20cb09e7848f065e2a35d250c0796dfedfb10df187e1e8afd38d` | protocol, dataset, condition, inventory, metric, decision, and validation contracts are strict and immutable |
 | PF26 | PASS | `ea7b3a35309cc371efcc0379e45eae9b42ae2b9c22a14098886955289cc6f427` | generated contract schemas exactly match current Pydantic contracts |
-| PF27 | PASS | `95eab200114bb217d934e64f5d570537b224676e0aab92f3618b2b061cb57ceb` | non-network, non-GPU, non-foundation-model unit tests passed (exit 0) |
-| PF28 | PASS | `8448834db780643401163451ed2d2a00b4d460c0cff933c634db1d447d0aec4e` | non-network integration tests; pilot plan test is metadata-only passed (exit 0) |
+| PF27 | PASS | `237c6292115a7814d6740d5df487831e1dcf1377ed31f4ac73f449dd94809d0e` | non-network, non-GPU, non-foundation-model unit tests passed (exit 0) |
+| PF28 | PASS | `213e368aebe8cd64f90d4ffae2cc15991af446bf6597844764a1a3762b8704ba` | non-network integration tests; pilot plan test is metadata-only passed (exit 0) |
 | PF29 | PASS | `81128cb8e8fd854f1d623b25b4329356e78976a71b93a34571d1d29eea92236b` | Ruff passed (exit 0) |
 | PF30 | PASS | `255e432db5c7e741bea44ffb7fc5337dd36a63e77d9c629a58ebf9ab40ccbf04` | Mypy passed (exit 0) |
 | PF31 | PASS | `6cf5aca2145c6cad9b23bf66d89e0c6c167e964f3e98a1be717b23154e406fa9` | semantic repository naming validation passed (exit 0) |
-| PF32 | PASS | `b0780499748bc84401d9145b3b8963c227c5f52323cbffea09e89f6fc25e9d00` | repository structural and local-evidence validation passed (exit 0) |
+| PF32 | PASS | `2f5874c46482ac9f020c3f6902877a8afb572fa976694ff236f70957b4099d87` | repository structural and local-evidence validation passed (exit 0) |
 | PF33 | PASS | `d59b57af5064601d69b10dbe506f420e81523e8898273e7b90b69b2d2edea350` | all accepted split inventory records remain PASS with zero predictor-group crossings |
 | PF34 | PASS | `975d813804ceff31f68a78b6a4aba6f3e24f81f0c81b4fac422189d881f86a71` | accepted transformation applicability inventory and implementation identity remain unchanged |
 | PF35 | PASS | `91ba71612ec1d53d8bbdcc1fa86378b7f5bf699c56d5bdec2627ace713d35ad5` | all accepted adapter evidence remains passing and is identity-bound into the frozen model matrix |
 | PF36 | PASS | `49151adc24245892d898f41d1960e1e888cf1aee0efa33c2901ea1127d50f28f` | accepted cache/scheduler inventory, 30 fault cases, and resume probe remain strictly valid |
 | PF37 | PASS | `ef35178888d044e8363d1212cd3f771e26060d954a5b7a58629beb5db25b119c` | accepted smoke protocol and run evidence remain byte-identical and explicitly report no pilot |
-| PF38 | PASS | `105252ebe8cd977e9ac9c9eff0141ab803ccb45148d321de8bf9102a1381c6d2` | source, schemas, and focused protocol tests pass in a temporary local clean clone without local datasets or private files |
+| PF38 | PASS | `387a54eebe3ccec867faad894a38f920c629486820045832675181f034498f85` | source, schemas, and focused protocol tests pass in a temporary local clean clone without local datasets or private files |
 | PF39 | PASS | `e9fa8cb7dbc22f4006be7e07495d51f7f19222b5930a096e3a527694f6286686` | only a plan and condition manifest exist; no pilot fit, prediction, or pilot metric output was created |
 | PF40 | PASS | `dbb0eb38be36eeb5aa73e7d81b506ceafd34c3e4ba214d080ef26a7fec9e1906` | private root reference document was not opened or modified and remains untracked |
 
 ## Quality command results
 
 Commands ran with the P12 interpreter; full raw output was not embedded in this tracked handoff.
-- `unit_tests`: exit 0; output SHA-256 `a1bad6ab23b9c839447aa6094a6f825f3b745a505e465457320cac0e3caa618b`; command `D:\Conda\P12\python.exe -m pytest -o addopts= -q -m not integration and not network and not gpu and not foundation_model -rA`.
-- `integration_tests`: exit 0; output SHA-256 `60235d7b594eb81164e0953fb5c25cca5dc48dff4eb37b16a9d96952cdfa67f8`; command `D:\Conda\P12\python.exe -m pytest -o addopts= -q -m integration and not network and not gpu and not foundation_model -rA`.
+- `unit_tests`: exit 0; output SHA-256 `f2bca25e166feda6f780bdf78f7989bb772bccd75a183e42c43be2b9f873420e`; command `D:\Conda\P12\python.exe -m pytest -o addopts= -q -m not integration and not network and not gpu and not foundation_model -rA`.
+- `integration_tests`: exit 0; output SHA-256 `cd41f44dca3f2244eb573dec43e8d429d06aec398daa21390e5f6cc204200607`; command `D:\Conda\P12\python.exe -m pytest -o addopts= -q -m integration and not network and not gpu and not foundation_model -rA`.
 - `ruff`: exit 0; output SHA-256 `82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`; command `D:\Conda\P12\python.exe -m ruff check .`.
 - `mypy`: exit 0; output SHA-256 `a7c4aae49ff9d21cbf4edf1b955366f4cb545b2dbf41b63329a9f1c16b3b0c5d`; command `D:\Conda\P12\python.exe -m mypy src/schemaguard`.
 - `naming`: exit 0; output SHA-256 `e23d637605363cef935aea29e38cb53219836c64fd7926223c496cf0bc5cd12a`; command `D:\Conda\P12\python.exe scripts/validate_repository_naming.py`.
-- `repository`: exit 0; output SHA-256 `3aa38f78a4a87d3eb34b43a8951a0441c368b20973a6381f0db6e56bed900ec7`; command `D:\Conda\P12\python.exe scripts/validate_repository_repair.py --local-evidence`.
+- `repository`: exit 0; output SHA-256 `ad0ee084910b72ce99f36672d8c87657193eda2edb40241f5e3012922eeb41a3`; command `D:\Conda\P12\python.exe scripts/validate_repository_repair.py --local-evidence`.
 
 ## Preservation and portability
 
 - Protected local evidence snapshot unchanged during validation: `True`; before/after identity `dc02ae3f16feb1b24bd9c77d285f3860c4c4b792ed7fd07db3def42c64edc3b4` / `dc02ae3f16feb1b24bd9c77d285f3860c4c4b792ed7fd07db3def42c64edc3b4`.
-- Clean-clone focused tests: `True`; overlay file count 24.
+- Clean-clone focused tests: `True`; overlay file count 25.
 - The planner validates source/processed/target hashes and accepted split assignment hashes using manifests and byte hashing only; it does not decode target rows or open pilot test labels.
 - Next permitted workstream: independent pilot-protocol review. Pilot execution remains unauthorized until that review accepts this handoff.
 
@@ -186,8 +186,8 @@ No data, split, transformation, adapter, scheduler, or smoke evidence was rewrit
 Seeds: 1729, 2718, 31415.
 Applicable view tuples: 192; controlled NOT_APPLICABLE tuples: 72; total: 264.
 Model conditions: 960; CPU: 576; CUDA: 384; maximum: 1320.
-Protocol SHA-256: `5dad78c35a332077c3790e0eac8fc355adf48d93bd8e9f815d23636c9d7f3fe9`.
-Condition-inventory SHA-256: `29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565cb5780509d4e76`.
+Protocol SHA-256: `4021dd99a6f797f154acfa3bf90d38f93cddd0443b74fea3475c8ee590107e3d`.
+Condition-inventory SHA-256: `51e933d439dc59506c5b6120e4e94622980dff00200d2aaddb82f3f6f13c94d6`.
 
 | Dimension | Key | Condition count |
 | --- | --- | ---: |
@@ -304,14 +304,14 @@ Condition-inventory SHA-256: `29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565
 | `results/validation/license_inventory.json` | `002620c4a447ace5deada41e68f9a5b3d1c4b53174bd7270b39a4f6881a1a3e2` |
 | `results/validation/model_compatibility_report.json` | `8eb6bdbd2203072dd9c493265ed0f12797a3398a7002d4c73badf865ee58feb3` |
 | `scripts/freeze_pilot_protocol.py` | `4bee26705243290782c1e766cfa661e79b3e12fab5684edf7ab7c6818ec7adf5` |
-| `scripts/validate_pilot_protocol.py` | `79185109691b2fe7eacebe5c18399adc2727ec64eb2852f0c527e8a55460a4af` |
+| `scripts/validate_pilot_protocol.py` | `c5099ecdf1bfbb687bd7bcb7f73debb37e1ba6052a09dd550ffd33c327d25483` |
 | `src/schemaguard/cache/contracts.py` | `c8f61c8196ff1ff93ede5df44bd656e81ca033d743d7c3a0796fd2d064daa7c4` |
 | `src/schemaguard/experiments/contracts.py` | `2e717a0929b4133e0ae0ceecfae84f0f47aa4a982a9b08bb6b78855e10f25da3` |
 | `src/schemaguard/experiments/evaluation.py` | `2282888e853cb16836748ab61411b239d84ea8f901ceeac2dcf547b3f44eeb02` |
 | `src/schemaguard/experiments/evidence.py` | `c282a16cda1703ae865b94a557a54cee0050062ce39859b1c9e586d8ab4bce30` |
 | `src/schemaguard/experiments/execution.py` | `bae088afbacb5a15a37176c49216251f9ef661515b114f78aea8afdfc001239b` |
 | `src/schemaguard/experiments/pilot_contracts.py` | `19df5eb02151ab5d23671ab6c02ccf6a70f10d767e5571e1a9efb377e2495ebf` |
-| `src/schemaguard/experiments/pilot_planning.py` | `a9e56ecb857ef2dd5bb274c6fe02243ab930b5a843249d2bde06c9d13f44c4d2` |
+| `src/schemaguard/experiments/pilot_planning.py` | `67106c00ba7e30dc8ebc41184999a6f9764172e743b226a61995812404d11bf5` |
 | `src/schemaguard/experiments/pilot_validation.py` | `b724e616c846333f40cf9f474215b5f9cdb64e3a2877556c2ef69f8bf5b26e7e` |
 | `src/schemaguard/experiments/planning.py` | `0946d36167abdddf3ca902d952e4a1aeb202a1ae0d44c55f9a4231f9b2dd97a4` |
 | `src/schemaguard/models/adapters/catboost_adapter.py` | `b02cf47a48c97f16cb27118254476d62119321af0f2c023053c2529cc726a719` |
@@ -368,23 +368,23 @@ Resource ceilings: 2 CPU workers × 2 threads, 1 sequential GPU worker, 3600 MiB
 ## Commands, preservation, files, and deviations
 
 Protected tree unchanged: `True`; files 1265; bytes 368851119; snapshot SHA-256 `dc02ae3f16feb1b24bd9c77d285f3860c4c4b792ed7fd07db3def42c64edc3b4`. Phase 01 data and split outputs were not regenerated.
-Clean-clone validation: `True`; overlay files 24.
+Clean-clone validation: `True`; overlay files 25.
 Executed command outputs are represented by exit codes, hashes, and test-summary highlights below. Absolute interpreter paths are omitted.
-- `unit_tests`: exit 0; output SHA-256 `a1bad6ab23b9c839447aa6094a6f825f3b745a505e465457320cac0e3caa618b`; `P12 Python -m pytest -o addopts= -q -m not integration and not network and not gpu and not foundation_model -rA`.
+- `unit_tests`: exit 0; output SHA-256 `f2bca25e166feda6f780bdf78f7989bb772bccd75a183e42c43be2b9f873420e`; `P12 Python -m pytest -o addopts= -q -m not integration and not network and not gpu and not foundation_model -rA`.
   - PASSED tests/unit/test_transformation_validator_policy.py::test_alternate_ignored_inventory_output_preserves_tracked_inventory
   - PASSED tests/unit/test_xgboost_adapter.py::test_xgboost_binary_and_multiclass_probability_contract
   - PASSED tests/unit/test_xgboost_adapter.py::test_xgboost_unseen_category_uses_training_onehot_vocabulary
-  - 502 passed, 35 deselected, 5 warnings in 104.56s (0:01:44)
-- `integration_tests`: exit 0; output SHA-256 `60235d7b594eb81164e0953fb5c25cca5dc48dff4eb37b16a9d96952cdfa67f8`; `P12 Python -m pytest -o addopts= -q -m integration and not network and not gpu and not foundation_model -rA`.
+  - 504 passed, 35 deselected, 5 warnings in 114.68s (0:01:54)
+- `integration_tests`: exit 0; output SHA-256 `cd41f44dca3f2244eb573dec43e8d429d06aec398daa21390e5f6cc204200607`; `P12 Python -m pytest -o addopts= -q -m integration and not network and not gpu and not foundation_model -rA`.
   - PASSED tests/integration/test_smoke_experiment.py::test_tiny_smoke_plan_cold_execution_metrics_and_resume
   - PASSED tests/integration/test_split_generation.py::test_grouped_split_generation_write_validate_promote_reload_and_cache
   - PASSED tests/integration/test_transformation_roundtrip.py::test_end_to_end_materialization_cache_and_promotion_for_all_views
-  - 22 passed, 515 deselected, 5 warnings in 39.61s
+  - 22 passed, 517 deselected, 5 warnings in 39.66s
 - `ruff`: exit 0; output SHA-256 `82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`; `P12 Python -m ruff check .`.
   - All checks passed!
 - `mypy`: exit 0; output SHA-256 `a7c4aae49ff9d21cbf4edf1b955366f4cb545b2dbf41b63329a9f1c16b3b0c5d`; `P12 Python -m mypy src/schemaguard`.
 - `naming`: exit 0; output SHA-256 `e23d637605363cef935aea29e38cb53219836c64fd7926223c496cf0bc5cd12a`; `P12 Python scripts/validate_repository_naming.py`.
-- `repository`: exit 0; output SHA-256 `3aa38f78a4a87d3eb34b43a8951a0441c368b20973a6381f0db6e56bed900ec7`; `P12 Python scripts/validate_repository_repair.py --local-evidence`.
+- `repository`: exit 0; output SHA-256 `ad0ee084910b72ce99f36672d8c87657193eda2edb40241f5e3012922eeb41a3`; `P12 Python scripts/validate_repository_repair.py --local-evidence`.
 
 Deviation: the pasted specification cites Actions run `35296257149`, which GitHub shows as an in-progress push workflow, not the accepted smoke workflow. The accepted independent-smoke report binds successful run `35291513248`, verdict VERIFIED_PASS, 32/32 gates, and pilot_started=false.
 No pilot model was trained; no pilot predictions or metrics were produced; no pilot test labels were decoded or evaluated. The private root reference `.docx` remained untouched and untracked.
