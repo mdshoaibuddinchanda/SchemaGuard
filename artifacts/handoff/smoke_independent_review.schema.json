@@ -1,0 +1,1244 @@
+{
+  "$defs": {
+    "CheckpointDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "enum": [
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "sha256"
+      ],
+      "title": "CheckpointDigest",
+      "type": "object"
+    },
+    "CleanClone": {
+      "additionalProperties": false,
+      "properties": {
+        "local_smoke_artifacts": {
+          "const": "NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT",
+          "title": "Local Smoke Artifacts",
+          "type": "string"
+        },
+        "private_reference_absent": {
+          "const": true,
+          "title": "Private Reference Absent",
+          "type": "boolean"
+        },
+        "reviewed_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Reviewed Commit",
+          "type": "string"
+        },
+        "schemas_fresh": {
+          "const": true,
+          "title": "Schemas Fresh",
+          "type": "boolean"
+        },
+        "status": {
+          "const": "PASS",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "reviewed_commit",
+        "schemas_fresh",
+        "private_reference_absent",
+        "local_smoke_artifacts"
+      ],
+      "title": "CleanClone",
+      "type": "object"
+    },
+    "ColdRun": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked": {
+          "const": 0,
+          "title": "Blocked",
+          "type": "integer"
+        },
+        "cache_hits": {
+          "const": 0,
+          "title": "Cache Hits",
+          "type": "integer"
+        },
+        "executed": {
+          "const": 10,
+          "title": "Executed",
+          "type": "integer"
+        },
+        "failed": {
+          "const": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "maximum_cpu_workers": {
+          "const": 2,
+          "title": "Maximum Cpu Workers",
+          "type": "integer"
+        },
+        "maximum_gpu_workers": {
+          "const": 1,
+          "title": "Maximum Gpu Workers",
+          "type": "integer"
+        },
+        "network_attempts": {
+          "const": 0,
+          "title": "Network Attempts",
+          "type": "integer"
+        },
+        "planned": {
+          "const": 10,
+          "title": "Planned",
+          "type": "integer"
+        },
+        "wall_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Wall Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "planned",
+        "executed",
+        "cache_hits",
+        "failed",
+        "blocked",
+        "network_attempts",
+        "wall_seconds",
+        "maximum_cpu_workers",
+        "maximum_gpu_workers"
+      ],
+      "title": "ColdRun",
+      "type": "object"
+    },
+    "DatasetSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "const": 1464,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "features_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Features Sha256",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "targets_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Targets Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "source_sha256",
+        "features_sha256",
+        "targets_sha256"
+      ],
+      "title": "DatasetSummary",
+      "type": "object"
+    },
+    "Digest": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sha256"
+      ],
+      "title": "Digest",
+      "type": "object"
+    },
+    "Gate": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "gate_id": {
+          "pattern": "^IR(0[1-9]|[12][0-9]|3[0-2])$",
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_APPLICABLE"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "result",
+        "evidence"
+      ],
+      "title": "Gate",
+      "type": "object"
+    },
+    "GateCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "failed": {
+          "const": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "not_applicable": {
+          "const": 0,
+          "title": "Not Applicable",
+          "type": "integer"
+        },
+        "passed": {
+          "const": 32,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "total": {
+          "const": 32,
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "passed",
+        "failed",
+        "not_applicable"
+      ],
+      "title": "GateCounts",
+      "type": "object"
+    },
+    "MetricDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "enum": [
+            "model_metrics",
+            "paired_view_metrics"
+          ],
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256"
+      ],
+      "title": "MetricDigest",
+      "type": "object"
+    },
+    "NumericalTie": {
+      "additionalProperties": false,
+      "properties": {
+        "changed_positive_negative_pairs": {
+          "exclusiveMinimum": 0,
+          "title": "Changed Positive Negative Pairs",
+          "type": "integer"
+        },
+        "classification": {
+          "const": "NUMERICAL_TIE_SENSITIVITY",
+          "title": "Classification",
+          "type": "string"
+        },
+        "label_flips": {
+          "const": 0,
+          "title": "Label Flips",
+          "type": "integer"
+        },
+        "maximum_changed_pair_gap": {
+          "minimum": 0,
+          "title": "Maximum Changed Pair Gap",
+          "type": "number"
+        },
+        "maximum_probability_difference": {
+          "minimum": 0,
+          "title": "Maximum Probability Difference",
+          "type": "number"
+        },
+        "pilot_tie_policy_required": {
+          "const": true,
+          "title": "Pilot Tie Policy Required",
+          "type": "boolean"
+        },
+        "raw_auc_difference": {
+          "title": "Raw Auc Difference",
+          "type": "number"
+        },
+        "raw_auc_v00": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Raw Auc V00",
+          "type": "number"
+        },
+        "raw_auc_v01": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Raw Auc V01",
+          "type": "number"
+        },
+        "scientific_schema_instability": {
+          "const": false,
+          "title": "Scientific Schema Instability",
+          "type": "boolean"
+        },
+        "tolerance_aware_auc_difference": {
+          "const": 0.0,
+          "title": "Tolerance Aware Auc Difference",
+          "type": "number"
+        }
+      },
+      "required": [
+        "classification",
+        "maximum_probability_difference",
+        "label_flips",
+        "changed_positive_negative_pairs",
+        "maximum_changed_pair_gap",
+        "raw_auc_v00",
+        "raw_auc_v01",
+        "raw_auc_difference",
+        "tolerance_aware_auc_difference",
+        "scientific_schema_instability",
+        "pilot_tie_policy_required"
+      ],
+      "title": "NumericalTie",
+      "type": "object"
+    },
+    "PlanSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_count": {
+          "const": 10,
+          "title": "Condition Count",
+          "type": "integer"
+        },
+        "cpu_condition_count": {
+          "const": 6,
+          "title": "Cpu Condition Count",
+          "type": "integer"
+        },
+        "cuda_condition_count": {
+          "const": 4,
+          "title": "Cuda Condition Count",
+          "type": "integer"
+        },
+        "dataset_id": {
+          "const": 1464,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "model_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "minItems": 5,
+          "title": "Model Ids",
+          "type": "array"
+        },
+        "seed": {
+          "const": 1729,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Source Commit",
+          "type": "string"
+        },
+        "split_strategy": {
+          "const": "stratified_group_5fold_v1",
+          "title": "Split Strategy",
+          "type": "string"
+        },
+        "view_ids": {
+          "items": {
+            "enum": [
+              "V00",
+              "V01"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "View Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sha256",
+        "source_commit",
+        "condition_count",
+        "cpu_condition_count",
+        "cuda_condition_count",
+        "dataset_id",
+        "split_strategy",
+        "seed",
+        "model_ids",
+        "view_ids"
+      ],
+      "title": "PlanSummary",
+      "type": "object"
+    },
+    "PredictionDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "partition": {
+          "enum": [
+            "calibration",
+            "test"
+          ],
+          "title": "Partition",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01"
+          ],
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "view_id",
+        "partition",
+        "sha256"
+      ],
+      "title": "PredictionDigest",
+      "type": "object"
+    },
+    "PreservationSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_cache_files": {
+          "const": 30,
+          "title": "Accepted Cache Files",
+          "type": "integer"
+        },
+        "auxiliary_files": {
+          "const": 123,
+          "title": "Auxiliary Files",
+          "type": "integer"
+        },
+        "changed_files": {
+          "const": 0,
+          "title": "Changed Files",
+          "type": "integer"
+        },
+        "data_foundation_artifacts": {
+          "const": 13,
+          "title": "Data Foundation Artifacts",
+          "type": "integer"
+        },
+        "metric_files": {
+          "const": 2,
+          "title": "Metric Files",
+          "type": "integer"
+        },
+        "prediction_artifacts": {
+          "const": 20,
+          "title": "Prediction Artifacts",
+          "type": "integer"
+        },
+        "private_reference_untouched_and_untracked": {
+          "const": true,
+          "title": "Private Reference Untouched And Untracked",
+          "type": "boolean"
+        },
+        "quarantined_repair_files": {
+          "const": 34,
+          "title": "Quarantined Repair Files",
+          "type": "integer"
+        },
+        "split_artifacts": {
+          "const": 140,
+          "title": "Split Artifacts",
+          "type": "integer"
+        },
+        "transformation_quarantine_directories": {
+          "const": 3,
+          "title": "Transformation Quarantine Directories",
+          "type": "integer"
+        },
+        "unchanged": {
+          "const": true,
+          "title": "Unchanged",
+          "type": "boolean"
+        },
+        "v01_materialization_files": {
+          "const": 7,
+          "title": "V01 Materialization Files",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "unchanged",
+        "data_foundation_artifacts",
+        "split_artifacts",
+        "prediction_artifacts",
+        "metric_files",
+        "accepted_cache_files",
+        "v01_materialization_files",
+        "quarantined_repair_files",
+        "auxiliary_files",
+        "transformation_quarantine_directories",
+        "changed_files",
+        "private_reference_untouched_and_untracked"
+      ],
+      "title": "PreservationSummary",
+      "type": "object"
+    },
+    "QualitySummary": {
+      "additionalProperties": false,
+      "properties": {
+        "clean_clone_smoke_integration_passed": {
+          "const": 1,
+          "title": "Clean Clone Smoke Integration Passed",
+          "type": "integer"
+        },
+        "clean_clone_unit_tests_passed": {
+          "exclusiveMinimum": 0,
+          "title": "Clean Clone Unit Tests Passed",
+          "type": "integer"
+        },
+        "git_diff_check": {
+          "const": "PASS",
+          "title": "Git Diff Check",
+          "type": "string"
+        },
+        "mypy_clean_clone": {
+          "const": "PASS",
+          "title": "Mypy Clean Clone",
+          "type": "string"
+        },
+        "mypy_root": {
+          "const": "PASS",
+          "title": "Mypy Root",
+          "type": "string"
+        },
+        "mypy_source_files": {
+          "const": 102,
+          "title": "Mypy Source Files",
+          "type": "integer"
+        },
+        "naming_validation": {
+          "const": "PASS",
+          "title": "Naming Validation",
+          "type": "string"
+        },
+        "repository_validation_clean_clone": {
+          "const": "PASS",
+          "title": "Repository Validation Clean Clone",
+          "type": "string"
+        },
+        "repository_validation_root": {
+          "const": "PASS",
+          "title": "Repository Validation Root",
+          "type": "string"
+        },
+        "root_smoke_integration_passed": {
+          "const": 1,
+          "title": "Root Smoke Integration Passed",
+          "type": "integer"
+        },
+        "root_unit_tests_passed": {
+          "exclusiveMinimum": 0,
+          "title": "Root Unit Tests Passed",
+          "type": "integer"
+        },
+        "ruff_clean_clone": {
+          "const": "PASS",
+          "title": "Ruff Clean Clone",
+          "type": "string"
+        },
+        "ruff_root": {
+          "const": "PASS",
+          "title": "Ruff Root",
+          "type": "string"
+        },
+        "schema_generation_clean_clone": {
+          "const": "PASS_NO_DIFF",
+          "title": "Schema Generation Clean Clone",
+          "type": "string"
+        },
+        "smoke_validation_core": {
+          "const": "PASS_READ_ONLY",
+          "title": "Smoke Validation Core",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_unit_tests_passed",
+        "clean_clone_unit_tests_passed",
+        "root_smoke_integration_passed",
+        "clean_clone_smoke_integration_passed",
+        "ruff_root",
+        "ruff_clean_clone",
+        "mypy_root",
+        "mypy_clean_clone",
+        "mypy_source_files",
+        "schema_generation_clean_clone",
+        "naming_validation",
+        "repository_validation_root",
+        "repository_validation_clean_clone",
+        "git_diff_check",
+        "smoke_validation_core"
+      ],
+      "title": "QualitySummary",
+      "type": "object"
+    },
+    "RecomputeSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_class_order": {
+          "items": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Canonical Class Order",
+          "type": "array"
+        },
+        "metric_records_recomputed": {
+          "const": 20,
+          "title": "Metric Records Recomputed",
+          "type": "integer"
+        },
+        "paired_records_recomputed": {
+          "const": 10,
+          "title": "Paired Records Recomputed",
+          "type": "integer"
+        },
+        "prediction_artifacts_validated": {
+          "const": 20,
+          "title": "Prediction Artifacts Validated",
+          "type": "integer"
+        },
+        "probabilities_valid": {
+          "const": true,
+          "title": "Probabilities Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "prediction_artifacts_validated",
+        "metric_records_recomputed",
+        "paired_records_recomputed",
+        "probabilities_valid",
+        "canonical_class_order"
+      ],
+      "title": "RecomputeSummary",
+      "type": "object"
+    },
+    "ResourceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanup_passed": {
+          "const": true,
+          "title": "Cleanup Passed",
+          "type": "boolean"
+        },
+        "estimated_wall_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Estimated Wall Seconds",
+          "type": "number"
+        },
+        "maximum_cuda_allocated_mib": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Cuda Allocated Mib",
+          "type": "number"
+        },
+        "maximum_cuda_reserved_mib": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Cuda Reserved Mib",
+          "type": "number"
+        },
+        "maximum_process_tree_ram_mib": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Process Tree Ram Mib",
+          "type": "number"
+        },
+        "network_attempts": {
+          "const": 0,
+          "title": "Network Attempts",
+          "type": "integer"
+        },
+        "observed_wall_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Observed Wall Seconds",
+          "type": "number"
+        },
+        "telemetry_complete": {
+          "const": true,
+          "title": "Telemetry Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "maximum_process_tree_ram_mib",
+        "maximum_cuda_allocated_mib",
+        "maximum_cuda_reserved_mib",
+        "observed_wall_seconds",
+        "estimated_wall_seconds",
+        "telemetry_complete",
+        "cleanup_passed",
+        "network_attempts"
+      ],
+      "title": "ResourceSummary",
+      "type": "object"
+    },
+    "ResumeRun": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked": {
+          "const": 0,
+          "title": "Blocked",
+          "type": "integer"
+        },
+        "duplicate_artifacts": {
+          "const": 0,
+          "title": "Duplicate Artifacts",
+          "type": "integer"
+        },
+        "executed": {
+          "const": 0,
+          "title": "Executed",
+          "type": "integer"
+        },
+        "failed": {
+          "const": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "network_attempts": {
+          "const": 0,
+          "title": "Network Attempts",
+          "type": "integer"
+        },
+        "output_hashes_unchanged": {
+          "const": true,
+          "title": "Output Hashes Unchanged",
+          "type": "boolean"
+        },
+        "output_rewrites": {
+          "const": 0,
+          "title": "Output Rewrites",
+          "type": "integer"
+        },
+        "output_timestamps_unchanged": {
+          "const": true,
+          "title": "Output Timestamps Unchanged",
+          "type": "boolean"
+        },
+        "planned": {
+          "const": 10,
+          "title": "Planned",
+          "type": "integer"
+        },
+        "validated_cache_hits": {
+          "const": 10,
+          "title": "Validated Cache Hits",
+          "type": "integer"
+        },
+        "verification_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Verification Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "planned",
+        "executed",
+        "validated_cache_hits",
+        "failed",
+        "blocked",
+        "duplicate_artifacts",
+        "output_rewrites",
+        "network_attempts",
+        "verification_sha256",
+        "output_hashes_unchanged",
+        "output_timestamps_unchanged"
+      ],
+      "title": "ResumeRun",
+      "type": "object"
+    },
+    "SplitSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "all_split_records_passed": {
+          "const": 70,
+          "title": "All Split Records Passed",
+          "type": "integer"
+        },
+        "all_split_records_total": {
+          "const": 70,
+          "title": "All Split Records Total",
+          "type": "integer"
+        },
+        "assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Assignment Sha256",
+          "type": "string"
+        },
+        "calibration_rows": {
+          "const": 150,
+          "title": "Calibration Rows",
+          "type": "integer"
+        },
+        "conflicting_target_groups": {
+          "const": 31,
+          "title": "Conflicting Target Groups",
+          "type": "integer"
+        },
+        "crossing_groups": {
+          "const": 0,
+          "title": "Crossing Groups",
+          "type": "integer"
+        },
+        "duplicate_groups": {
+          "const": 69,
+          "title": "Duplicate Groups",
+          "type": "integer"
+        },
+        "predictor_groups": {
+          "const": 502,
+          "title": "Predictor Groups",
+          "type": "integer"
+        },
+        "rows": {
+          "const": 748,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "test_rows": {
+          "const": 149,
+          "title": "Test Rows",
+          "type": "integer"
+        },
+        "train_rows": {
+          "const": 449,
+          "title": "Train Rows",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "assignment_sha256",
+        "rows",
+        "train_rows",
+        "calibration_rows",
+        "test_rows",
+        "predictor_groups",
+        "duplicate_groups",
+        "conflicting_target_groups",
+        "crossing_groups",
+        "all_split_records_passed",
+        "all_split_records_total"
+      ],
+      "title": "SplitSummary",
+      "type": "object"
+    },
+    "TabICLStability": {
+      "additionalProperties": false,
+      "properties": {
+        "label_flips": {
+          "const": 0,
+          "title": "Label Flips",
+          "type": "integer"
+        },
+        "maximum_probability_difference": {
+          "minimum": 0,
+          "title": "Maximum Probability Difference",
+          "type": "number"
+        },
+        "mean_js_divergence": {
+          "minimum": 0,
+          "title": "Mean Js Divergence",
+          "type": "number"
+        },
+        "test_rows": {
+          "const": 149,
+          "title": "Test Rows",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "test_rows",
+        "label_flips",
+        "maximum_probability_difference",
+        "mean_js_divergence"
+      ],
+      "title": "TabICLStability",
+      "type": "object"
+    },
+    "TabPFNSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "accuracy_delta": {
+          "title": "Accuracy Delta",
+          "type": "number"
+        },
+        "auroc_delta": {
+          "title": "Auroc Delta",
+          "type": "number"
+        },
+        "balanced_accuracy_delta": {
+          "title": "Balanced Accuracy Delta",
+          "type": "number"
+        },
+        "brier_delta": {
+          "title": "Brier Delta",
+          "type": "number"
+        },
+        "ece_delta": {
+          "title": "Ece Delta",
+          "type": "number"
+        },
+        "flip_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Flip Rate",
+          "type": "number"
+        },
+        "interpretation": {
+          "const": "material_micro-fixture_signal_not_generalization_or_improvement",
+          "title": "Interpretation",
+          "type": "string"
+        },
+        "label_flips": {
+          "const": 3,
+          "title": "Label Flips",
+          "type": "integer"
+        },
+        "maximum_probability_difference": {
+          "minimum": 0,
+          "title": "Maximum Probability Difference",
+          "type": "number"
+        },
+        "mean_js_divergence": {
+          "minimum": 0,
+          "title": "Mean Js Divergence",
+          "type": "number"
+        },
+        "mean_probability_difference": {
+          "minimum": 0,
+          "title": "Mean Probability Difference",
+          "type": "number"
+        },
+        "test_rows": {
+          "const": 149,
+          "title": "Test Rows",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "test_rows",
+        "label_flips",
+        "flip_rate",
+        "maximum_probability_difference",
+        "mean_probability_difference",
+        "mean_js_divergence",
+        "brier_delta",
+        "accuracy_delta",
+        "balanced_accuracy_delta",
+        "auroc_delta",
+        "ece_delta",
+        "interpretation"
+      ],
+      "title": "TabPFNSignal",
+      "type": "object"
+    },
+    "TransformationSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Cache Identity Sha256",
+          "type": "string"
+        },
+        "implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Implementation Sha256",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "status": {
+          "const": "PASS",
+          "title": "Status",
+          "type": "string"
+        },
+        "view_id": {
+          "const": "V01",
+          "title": "View Id",
+          "type": "string"
+        },
+        "view_name": {
+          "const": "numeric_affine_units",
+          "title": "View Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "view_id",
+        "view_name",
+        "implementation_sha256",
+        "cache_identity_sha256",
+        "manifest_sha256"
+      ],
+      "title": "TransformationSummary",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checkpoint_hashes": {
+      "items": {
+        "$ref": "#/$defs/CheckpointDigest"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Checkpoint Hashes",
+      "type": "array"
+    },
+    "clean_clone": {
+      "$ref": "#/$defs/CleanClone"
+    },
+    "cold_run": {
+      "$ref": "#/$defs/ColdRun"
+    },
+    "dataset": {
+      "$ref": "#/$defs/DatasetSummary"
+    },
+    "evidence_hashes": {
+      "items": {
+        "$ref": "#/$defs/Digest"
+      },
+      "minItems": 1,
+      "title": "Evidence Hashes",
+      "type": "array"
+    },
+    "gate_counts": {
+      "$ref": "#/$defs/GateCounts"
+    },
+    "gates": {
+      "items": {
+        "$ref": "#/$defs/Gate"
+      },
+      "maxItems": 32,
+      "minItems": 32,
+      "title": "Gates",
+      "type": "array"
+    },
+    "github_actions_run_id": {
+      "pattern": "^[0-9]{11}$",
+      "title": "Github Actions Run Id",
+      "type": "string"
+    },
+    "leakage_result": {
+      "const": "PASS",
+      "title": "Leakage Result",
+      "type": "string"
+    },
+    "metric_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/MetricDigest"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Metric Artifact Hashes",
+      "type": "array"
+    },
+    "next_permitted_stage": {
+      "const": "pilot_protocol_freezing",
+      "title": "Next Permitted Stage",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Notes",
+      "type": "array"
+    },
+    "numerical_tie": {
+      "$ref": "#/$defs/NumericalTie"
+    },
+    "pilot_started": {
+      "const": false,
+      "title": "Pilot Started",
+      "type": "boolean"
+    },
+    "plan": {
+      "$ref": "#/$defs/PlanSummary"
+    },
+    "prediction_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/PredictionDigest"
+      },
+      "maxItems": 20,
+      "minItems": 20,
+      "title": "Prediction Artifact Hashes",
+      "type": "array"
+    },
+    "preservation": {
+      "$ref": "#/$defs/PreservationSummary"
+    },
+    "quality": {
+      "$ref": "#/$defs/QualitySummary"
+    },
+    "recomputation": {
+      "$ref": "#/$defs/RecomputeSummary"
+    },
+    "resources": {
+      "$ref": "#/$defs/ResourceSummary"
+    },
+    "resume": {
+      "$ref": "#/$defs/ResumeRun"
+    },
+    "review_timestamp_utc": {
+      "format": "date-time",
+      "title": "Review Timestamp Utc",
+      "type": "string"
+    },
+    "reviewed_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Reviewed Commit",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "split": {
+      "$ref": "#/$defs/SplitSummary"
+    },
+    "tabicl_stability": {
+      "$ref": "#/$defs/TabICLStability"
+    },
+    "tabpfn_signal": {
+      "$ref": "#/$defs/TabPFNSignal"
+    },
+    "transformation": {
+      "$ref": "#/$defs/TransformationSummary"
+    },
+    "verdict": {
+      "enum": [
+        "VERIFIED_PASS",
+        "REPAIR_REQUIRED",
+        "BLOCKED"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "verdict",
+    "reviewed_commit",
+    "review_timestamp_utc",
+    "github_actions_run_id",
+    "gate_counts",
+    "gates",
+    "evidence_hashes",
+    "prediction_artifact_hashes",
+    "metric_artifact_hashes",
+    "checkpoint_hashes",
+    "plan",
+    "dataset",
+    "split",
+    "transformation",
+    "recomputation",
+    "cold_run",
+    "resume",
+    "numerical_tie",
+    "tabpfn_signal",
+    "tabicl_stability",
+    "resources",
+    "quality",
+    "clean_clone",
+    "preservation",
+    "leakage_result",
+    "next_permitted_stage",
+    "pilot_started",
+    "notes"
+  ],
+  "title": "SchemaGuard Independent Smoke Review",
+  "type": "object"
+}

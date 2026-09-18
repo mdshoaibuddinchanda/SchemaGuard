@@ -1,0 +1,692 @@
+{
+  "checkpoint_hashes": [
+    {
+      "model_id": "TPFN3-8.5",
+      "sha256": "d0d865d54dfbc524f5703104be90620182dca7e5fb2c16de72e9959ea18f3988"
+    },
+    {
+      "model_id": "TICL2-2.2",
+      "sha256": "bdc7dbd5e4ff21f8f0456fcf90c6b7cdf72dbea960f2d05b19bec19f9b3d4ed0"
+    }
+  ],
+  "clean_clone": {
+    "local_smoke_artifacts": "NOT_APPLICABLE_LOCAL_ARTIFACTS_ABSENT",
+    "private_reference_absent": true,
+    "reviewed_commit": "ff92852f98bf482c0ad2b11ab11e9ae290960395",
+    "schemas_fresh": true,
+    "status": "PASS"
+  },
+  "cold_run": {
+    "blocked": 0,
+    "cache_hits": 0,
+    "executed": 10,
+    "failed": 0,
+    "maximum_cpu_workers": 2,
+    "maximum_gpu_workers": 1,
+    "network_attempts": 0,
+    "planned": 10,
+    "wall_seconds": 68.901971
+  },
+  "dataset": {
+    "dataset_id": 1464,
+    "features_sha256": "9d3168b0bafc5af610caea42c96f95033f32bf5ae4dc011797f45d1809af458f",
+    "source_sha256": "ee1304cac4a650ac31afe7395a100536a165f935bbe718a4643757c1a842316a",
+    "targets_sha256": "9d4e0f665127dd2c41e990d4b129e08d8a0c55f83d42d2e57b758959a9fc23d0"
+  },
+  "evidence_hashes": [
+    {
+      "name": "smoke_plan_file",
+      "sha256": "d20a021bd29e073fa38557941dbcd8ad4310fb1ecb5b6601bcae6ffbaf4d9174"
+    },
+    {
+      "name": "cold_run_report",
+      "sha256": "bc7fc0c72e3f597484b81f5462f95385bc5ccad23214b893b93639cbedb25d86"
+    },
+    {
+      "name": "resume_run_report",
+      "sha256": "88ee48cfea7ef64be2f942d7f0c2e9305dc95ae23738febb3ed9071e0e79059b"
+    },
+    {
+      "name": "resume_verification",
+      "sha256": "9f071b06e95ff034b60cb0fcce9d1e8e760c5e31797c00f195c985551635a808"
+    },
+    {
+      "name": "smoke_inventory",
+      "sha256": "2d171556316e41699acec04f7e162cd0b23a91a48dbb9fa3813f5e8c5d9915fd"
+    },
+    {
+      "name": "independent_recomputation",
+      "sha256": "6bd9a56e9faa53fd7ba8b71875d93b6a545a4e097d081bf94cebc05346f015cd"
+    },
+    {
+      "name": "cache_audit",
+      "sha256": "393c5c7107cf5a503a21c3934a4e6f1e90d76929bb605016c37ee14ae57e1491"
+    },
+    {
+      "name": "read_only_smoke_validation",
+      "sha256": "b962633c437ea2597685633e1846ee80cbdf83c82953cdb8cb64dba8eca98224"
+    },
+    {
+      "name": "quarantine_isolation",
+      "sha256": "062bedfd42e4d33e8e0cc4537210424bdd323475a4a7c285031b7bae1772ab69"
+    },
+    {
+      "name": "preservation_comparison",
+      "sha256": "5cf224c3982ddaace0125a38ab2a221e3b9aab81bcc0f0a805582939d797bac0"
+    },
+    {
+      "name": "data_foundation_before_snapshot",
+      "sha256": "889cb8b08ff973a8eb5f1a8c8e5e8eeab18756a42ed14e495b4cd32bd2f43798"
+    },
+    {
+      "name": "data_foundation_after_snapshot",
+      "sha256": "7a122af836fd210378461437e0afab04584e1bc14c80fba0433d5b3be4a0612c"
+    },
+    {
+      "name": "auxiliary_before_snapshot",
+      "sha256": "d4fc8ff2a034c4236a7eb1903d3fb2e5a1f2f7c551c3d5d6edd57168fed23f64"
+    },
+    {
+      "name": "auxiliary_after_snapshot",
+      "sha256": "d4fc8ff2a034c4236a7eb1903d3fb2e5a1f2f7c551c3d5d6edd57168fed23f64"
+    },
+    {
+      "name": "split_validator_output",
+      "sha256": "8006ec09749ddbbceefb3f8ed17e524cfac599fcd16b75de076eba46a2a8682f"
+    },
+    {
+      "name": "transformation_validator_output",
+      "sha256": "6f1a9a00047f130121a55bba14169400aa592c949b9aab296b5e0fd290c63b71"
+    },
+    {
+      "name": "v01_manifest",
+      "sha256": "d28972842dbc2f8b71967b0afa078284e9c78e7491d7f5c0e590cda5eda467a8"
+    },
+    {
+      "name": "model_metrics",
+      "sha256": "8bdc8a49075d62e6a5d5bc16aa0f175e651cfea7fe80556d984ca23142f46a8e"
+    },
+    {
+      "name": "paired_view_metrics",
+      "sha256": "a129845182f067285d064ec41db0ad0afe5b8806f7faf07da5533b0dfc9d8adc"
+    },
+    {
+      "name": "split_inventory",
+      "sha256": "368acbd6ecaffafbecf6b5bdbce301211da4902ceaea05fbfb0db933a3611482"
+    },
+    {
+      "name": "adapter_inventory",
+      "sha256": "119ea901a3b81de726b154af1ac4b8601605139bc82b5593eaf7787427a42b56"
+    },
+    {
+      "name": "adapter_leakage_evidence",
+      "sha256": "8992d9286e68da8c19dbe1bf6e2eec295495b725cf3b5406f785e8ea8212bf78"
+    },
+    {
+      "name": "scheduler_inventory",
+      "sha256": "0b697c8f484b73c09413eaa7f266c5900a531ed3a896c3135abc5f6d5517b42f"
+    },
+    {
+      "name": "scheduler_fault_evidence",
+      "sha256": "b7f25cc9b6a12f7fadeab4742f3f58411a70b242490e336df28d16ab33049dd2"
+    },
+    {
+      "name": "scheduler_probe_evidence",
+      "sha256": "7908fde03dc6618ad37ee7ddece7acc256b82c7f9988465bdb34b09471aef743"
+    },
+    {
+      "name": "scheduler_protected_comparison",
+      "sha256": "e3a1c059eeeebf0f5c0bcc298cd07e6c35a6c2ff29a95306d39fb08810aa6192"
+    }
+  ],
+  "gate_counts": {
+    "failed": 0,
+    "not_applicable": 0,
+    "passed": 32,
+    "total": 32
+  },
+  "gates": [
+    {
+      "evidence": [
+        "evidence:repository_identity",
+        "Root identity: required main branch and commit; clean tracked tree before publication."
+      ],
+      "gate_id": "IR01",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:github_actions_identity",
+        "Exact reviewed commit; GitHub Actions run reports Success with four successful jobs."
+      ],
+      "gate_id": "IR02",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:plan_reconstruction",
+        "Independent plan reconstruction reproduces the required canonical SHA-256."
+      ],
+      "gate_id": "IR03",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:condition_matrix",
+        "Exactly ten unique conditions: five frozen models by V00/V01; six CPU and four CUDA."
+      ],
+      "gate_id": "IR04",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:dataset_identity",
+        "OpenML 1464 feature, source, and target identities match the accepted plan."
+      ],
+      "gate_id": "IR05",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:grouped_split",
+        "748 rows; 449/150/149 split; 502 groups; 69 duplicates; 31 conflicts; zero crossings."
+      ],
+      "gate_id": "IR06",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:transformation_integrity",
+        "Offline validate-only V01 check passed; train-only, ordered, target-preserving certificate evidence."
+      ],
+      "gate_id": "IR07",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:validator_repair_provenance",
+        "Accepted plan uses the nullable-lineage repair commit; mutation tests reject mismatch."
+      ],
+      "gate_id": "IR08",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:quarantine_isolation",
+        "Old run identities and artifacts are disjoint; all 34 defective-run files remain quarantined."
+      ],
+      "gate_id": "IR09",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:prediction_completeness",
+        "All twenty accepted calibration/test artifacts independently hash and lineage validate."
+      ],
+      "gate_id": "IR10",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:probability_validity",
+        "All probability rows are finite, in range, normalized, and match frozen argmax rules."
+      ],
+      "gate_id": "IR11",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:row_alignment",
+        "Stable row identity and expected partition order were checked for all twenty files."
+      ],
+      "gate_id": "IR12",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:class_order",
+        "Canonical binary class order is [0, 1] across all validated outputs."
+      ],
+      "gate_id": "IR13",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:leakage_boundary",
+        "Code-path audit and leakage-focused tests confirm train-only fitting and delayed target access."
+      ],
+      "gate_id": "IR14",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:metric_recomputation",
+        "All twenty Brier, log-loss, accuracy, balanced accuracy, AUROC, and ECE records reproduce."
+      ],
+      "gate_id": "IR15",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:paired_recomputation",
+        "All ten paired divergence, flip, probability-difference, and metric-delta rows reproduce."
+      ],
+      "gate_id": "IR16",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:lr_tie_analysis",
+        "Six machine-precision ranking changes explain raw AUROC delta; tolerance-aware delta is zero."
+      ],
+      "gate_id": "IR17",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:tabpfn_signal",
+        "Three flips and all requested test probability/divergence/metric changes reproduce independently."
+      ],
+      "gate_id": "IR18",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:tabicl_stability",
+        "TabICL test has zero flips and the independently recomputed small probability/divergence changes."
+      ],
+      "gate_id": "IR19",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:cold_run_accounting",
+        "Cold report and cache audit agree on ten executions, zero hits/failures/blocks/network attempts."
+      ],
+      "gate_id": "IR20",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:resume_cache_integrity",
+        "Ten validated hits; unchanged hashes/timestamps; zero writes, duplicates, or network attempts."
+      ],
+      "gate_id": "IR21",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:resource_telemetry",
+        "Two CPU workers maximum; one GPU worker; complete telemetry and cleanup; observed peaks recorded."
+      ],
+      "gate_id": "IR22",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:offline_enforcement",
+        "Offline configuration, local checkpoint hashes, and zero network attempts verified."
+      ],
+      "gate_id": "IR23",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:data_foundation_preservation",
+        "Before/after byte hashes, sizes, and mtimes match for all thirteen protected artifacts."
+      ],
+      "gate_id": "IR24",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:split_preservation",
+        "All 70 split records pass; 140 protected files unchanged; no crossing groups."
+      ],
+      "gate_id": "IR25",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:transformation_preservation",
+        "V01 accepted materialization and three prior quarantine directories remain unchanged."
+      ],
+      "gate_id": "IR26",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:adapter_preservation",
+        "Adapter inventories, leakage proofs, and protected evidence remain unchanged."
+      ],
+      "gate_id": "IR27",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:scheduler_preservation",
+        "Scheduler inventory, fault/probe evidence, runtime, and comparison remain unchanged."
+      ],
+      "gate_id": "IR28",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:tests_lint_types",
+        "Root and clean-clone tests, Ruff, Mypy, schema generation, naming, and validators pass."
+      ],
+      "gate_id": "IR29",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:clean_clone",
+        "Exact-commit clean clone passes; local smoke artifacts explicitly N/A because ignored files are absent."
+      ],
+      "gate_id": "IR30",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:schema_freshness",
+        "Artifact schemas regenerate without a tracked diff in the clean clone."
+      ],
+      "gate_id": "IR31",
+      "result": "PASS"
+    },
+    {
+      "evidence": [
+        "evidence:repository_hygiene",
+        "Only the private reference document was untracked before publication; it was never opened or staged."
+      ],
+      "gate_id": "IR32",
+      "result": "PASS"
+    }
+  ],
+  "github_actions_run_id": "35291513248",
+  "leakage_result": "PASS",
+  "metric_artifact_hashes": [
+    {
+      "artifact_id": "model_metrics",
+      "sha256": "8bdc8a49075d62e6a5d5bc16aa0f175e651cfea7fe80556d984ca23142f46a8e"
+    },
+    {
+      "artifact_id": "paired_view_metrics",
+      "sha256": "a129845182f067285d064ec41db0ad0afe5b8806f7faf07da5533b0dfc9d8adc"
+    }
+  ],
+  "next_permitted_stage": "pilot_protocol_freezing",
+  "notes": [
+    "The Logistic Regression AUROC shift is caused only by machine-precision ranking ties; it is not scientific schema instability.",
+    "The pilot protocol must freeze tie-handling and reporting before any pilot execution.",
+    "TabPFN's observed micro-fixture change is confirmed but is not evidence of generalization or improvement.",
+    "The smoke validator's read-only validation core was used to avoid rewriting its protected local validation report.",
+    "Detailed row-level diagnostics remain only in ignored local review evidence; no row identifiers are in this report."
+  ],
+  "numerical_tie": {
+    "changed_positive_negative_pairs": 6,
+    "classification": "NUMERICAL_TIE_SENSITIVITY",
+    "label_flips": 0,
+    "maximum_changed_pair_gap": 5.551115123125783e-17,
+    "maximum_probability_difference": 2.220446049250313e-16,
+    "pilot_tie_policy_required": true,
+    "raw_auc_difference": -0.0007518796992480592,
+    "raw_auc_v00": 0.6647869674185464,
+    "raw_auc_v01": 0.6640350877192983,
+    "scientific_schema_instability": false,
+    "tolerance_aware_auc_difference": 0.0
+  },
+  "pilot_started": false,
+  "plan": {
+    "condition_count": 10,
+    "cpu_condition_count": 6,
+    "cuda_condition_count": 4,
+    "dataset_id": 1464,
+    "model_ids": [
+      "LR-1.9",
+      "CAT-1.2",
+      "XGB-3.4",
+      "TPFN3-8.5",
+      "TICL2-2.2"
+    ],
+    "seed": 1729,
+    "sha256": "de24211de43552175461d23fb08342c368fd9c3ff66c128b16c9011c3d99f7c6",
+    "source_commit": "d151eb1db2a5196e9e28814508a0c4cd49147641",
+    "split_strategy": "stratified_group_5fold_v1",
+    "view_ids": [
+      "V00",
+      "V01"
+    ]
+  },
+  "prediction_artifact_hashes": [
+    {
+      "model_id": "CAT-1.2",
+      "partition": "calibration",
+      "sha256": "dd593bf6e6dca00e0253c82e0e3cf86be1f18f577ebc6bfe127559c06e551986",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "CAT-1.2",
+      "partition": "test",
+      "sha256": "2b7554840d77abdc263a6242a856556d7d59093065ebd0b8f56aa196b1ab9d0c",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "CAT-1.2",
+      "partition": "calibration",
+      "sha256": "f24de900d80cf42050c4abc5f7043c6e41989463897f06acb260d2ad4b57b8c4",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "CAT-1.2",
+      "partition": "test",
+      "sha256": "3ef5b3d24ebfe4a2ff1f67ec40c1b8e93ee5b7946999affdbf010e45d846adc5",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "LR-1.9",
+      "partition": "calibration",
+      "sha256": "013d9680ad6bbe5eb0b97d623a9787cccf60e02f78dec6e58d3d3843dc320cb8",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "LR-1.9",
+      "partition": "test",
+      "sha256": "d4b0ad0f0e412684c9da77ef2f40d290eec645772f532d42eaab0ceecf8b79c1",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "LR-1.9",
+      "partition": "calibration",
+      "sha256": "2bcf703defafeeda7e7912018cc041c90bdb3558e4ae4a250009e0ad82acc4f8",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "LR-1.9",
+      "partition": "test",
+      "sha256": "3aa45cf2f901cbe0fe1b00fcf5fc9726250e4e3991f3bbffc3038241b281085c",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "TICL2-2.2",
+      "partition": "calibration",
+      "sha256": "0014a253fa9746dbac374a5e07dbd4516d2ea532faae3c535305118ce164abca",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "TICL2-2.2",
+      "partition": "test",
+      "sha256": "3d5e27c4a27a1b6f855d923ec3a6204e84dbafb0cdc939192fe88bda736c42de",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "TICL2-2.2",
+      "partition": "calibration",
+      "sha256": "6ff49768a00cd54659a3ad274d602c699eaae8f7b8a74b03c1dd61665891eed4",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "TICL2-2.2",
+      "partition": "test",
+      "sha256": "0ae8a2e5ac5e7feeb28e74b41b35414711b9491ee095c0d61ff4c14d4d08a344",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "TPFN3-8.5",
+      "partition": "calibration",
+      "sha256": "3a2352a3d05008d271fc792faaa9d5d4a13454a18aa8496899fc5df7c1ca5a37",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "TPFN3-8.5",
+      "partition": "test",
+      "sha256": "f97370d0450467bd13cc4eb42ca6cf7e5ed089473bcf7797fc80a03ec7c06f96",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "TPFN3-8.5",
+      "partition": "calibration",
+      "sha256": "936c12850165fb3bbdbde1d2a06db6141c4002fb1e16c776b66a40e14e90a420",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "TPFN3-8.5",
+      "partition": "test",
+      "sha256": "d28c58c31f9661f69507a52ccaa37b4c1e53209112b3e17bc65a5c8f0233b716",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "XGB-3.4",
+      "partition": "calibration",
+      "sha256": "952fd05c7344c0fa4ef6db5239f7d89682bceedc93ed4b6ea95131351b3afdff",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "XGB-3.4",
+      "partition": "test",
+      "sha256": "ca69f8fcef31b02dfcce767881784497e502f2768091989a9ac0c81db6d307cb",
+      "view_id": "V00"
+    },
+    {
+      "model_id": "XGB-3.4",
+      "partition": "calibration",
+      "sha256": "e40fb500c8841b7fbc28c59a4f2c59a85c36155e0d6b4e30a26df249608b022b",
+      "view_id": "V01"
+    },
+    {
+      "model_id": "XGB-3.4",
+      "partition": "test",
+      "sha256": "e801ae5a99f9c7c9d7a05f27a9724b6d8ac3367eb016cb1a4499b1f611ab0049",
+      "view_id": "V01"
+    }
+  ],
+  "preservation": {
+    "accepted_cache_files": 30,
+    "auxiliary_files": 123,
+    "changed_files": 0,
+    "data_foundation_artifacts": 13,
+    "metric_files": 2,
+    "prediction_artifacts": 20,
+    "private_reference_untouched_and_untracked": true,
+    "quarantined_repair_files": 34,
+    "split_artifacts": 140,
+    "transformation_quarantine_directories": 3,
+    "unchanged": true,
+    "v01_materialization_files": 7
+  },
+  "quality": {
+    "clean_clone_smoke_integration_passed": 1,
+    "clean_clone_unit_tests_passed": 443,
+    "git_diff_check": "PASS",
+    "mypy_clean_clone": "PASS",
+    "mypy_root": "PASS",
+    "mypy_source_files": 102,
+    "naming_validation": "PASS",
+    "repository_validation_clean_clone": "PASS",
+    "repository_validation_root": "PASS",
+    "root_smoke_integration_passed": 1,
+    "root_unit_tests_passed": 443,
+    "ruff_clean_clone": "PASS",
+    "ruff_root": "PASS",
+    "schema_generation_clean_clone": "PASS_NO_DIFF",
+    "smoke_validation_core": "PASS_READ_ONLY"
+  },
+  "recomputation": {
+    "canonical_class_order": [
+      0,
+      1
+    ],
+    "metric_records_recomputed": 20,
+    "paired_records_recomputed": 10,
+    "prediction_artifacts_validated": 20,
+    "probabilities_valid": true
+  },
+  "resources": {
+    "cleanup_passed": true,
+    "estimated_wall_seconds": 115.2221806499947,
+    "maximum_cuda_allocated_mib": 322.2978515625,
+    "maximum_cuda_reserved_mib": 368.0,
+    "maximum_process_tree_ram_mib": 1953.37890625,
+    "network_attempts": 0,
+    "observed_wall_seconds": 68.901971,
+    "telemetry_complete": true
+  },
+  "resume": {
+    "blocked": 0,
+    "duplicate_artifacts": 0,
+    "executed": 0,
+    "failed": 0,
+    "network_attempts": 0,
+    "output_hashes_unchanged": true,
+    "output_rewrites": 0,
+    "output_timestamps_unchanged": true,
+    "planned": 10,
+    "validated_cache_hits": 10,
+    "verification_sha256": "9f071b06e95ff034b60cb0fcce9d1e8e760c5e31797c00f195c985551635a808"
+  },
+  "review_timestamp_utc": "2026-09-18T01:39:00.083643Z",
+  "reviewed_commit": "ff92852f98bf482c0ad2b11ab11e9ae290960395",
+  "schema_version": 1,
+  "split": {
+    "all_split_records_passed": 70,
+    "all_split_records_total": 70,
+    "assignment_sha256": "e08b9d5c94578b317dcc844c2a6aa7a4f96ad8df699352d1e11d86a7dd452236",
+    "calibration_rows": 150,
+    "conflicting_target_groups": 31,
+    "crossing_groups": 0,
+    "duplicate_groups": 69,
+    "predictor_groups": 502,
+    "rows": 748,
+    "test_rows": 149,
+    "train_rows": 449
+  },
+  "tabicl_stability": {
+    "label_flips": 0,
+    "maximum_probability_difference": 1.5497207641601562e-06,
+    "mean_js_divergence": 2.3323018208582886e-13,
+    "test_rows": 149
+  },
+  "tabpfn_signal": {
+    "accuracy_delta": -0.006711409395973145,
+    "auroc_delta": -0.003759398496240629,
+    "balanced_accuracy_delta": 0.005513784461152804,
+    "brier_delta": -0.0021201019411460353,
+    "ece_delta": -0.009797990722144254,
+    "flip_rate": 0.020134228187919462,
+    "interpretation": "material_micro-fixture_signal_not_generalization_or_improvement",
+    "label_flips": 3,
+    "maximum_probability_difference": 0.05588936805725098,
+    "mean_js_divergence": 0.00025063003001823974,
+    "mean_probability_difference": 0.012981989705347575,
+    "test_rows": 149
+  },
+  "transformation": {
+    "cache_identity_sha256": "9191149f3e8097874cb55ef2e19b5409373bed4c1d67667166e9512246b70635",
+    "implementation_sha256": "00548880e1de331d8b6540778b374a17e61838b3bd0f7e81590ff51ab595b034",
+    "manifest_sha256": "d28972842dbc2f8b71967b0afa078284e9c78e7491d7f5c0e590cda5eda467a8",
+    "status": "PASS",
+    "view_id": "V01",
+    "view_name": "numeric_affine_units"
+  },
+  "verdict": "VERIFIED_PASS"
+}

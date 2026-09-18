@@ -5,6 +5,10 @@ checkpoints, logs, and caches remain ignored local artifacts.
 
 ## Current workstream
 
+- [Independent ten-condition smoke review](smoke_independent_review.md) — status is
+  `VERIFIED_PASS`; the smoke is a feasibility result, not a benchmark. Pilot-protocol freezing is
+  the next permitted workstream.
+
 - [Cache and scheduler review](cache_scheduler_review.md) — immutable content-addressed artifacts,
   atomic publication, worker scheduling, resume validation, resource controls, and fault evidence;
   status is `PASS_PENDING_REVIEW`.
@@ -34,6 +38,7 @@ checkpoints, logs, and caches remain ignored local artifacts.
 - [Split generation](split_generation_review.md)
 - [Transformation evidence finalization](transformation_evidence_finalization.md)
 
-Historical review files are retained for provenance. Current acceptance is distinct from the
-cache/scheduler status: the smoke test remains unstarted until an independent reviewer accepts that
-workstream. The current commands are documented in the root README and cache/scheduler handoff.
+Historical review files are retained for provenance. The independent smoke review verifies the
+ten-condition outputs and cache/resume behavior without changing the separate cache/scheduler
+workstream status. Pilot execution remains unstarted. Current project scope is documented in the
+root README and project-status page.

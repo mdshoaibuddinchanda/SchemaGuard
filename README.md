@@ -23,14 +23,16 @@ they are not benchmark results and do not test the research hypothesis.
 | Transformation engine | `VERIFIED_PASS` | `artifacts/handoff/transformation_evidence_finalization.md` |
 | Model adapters | `VERIFIED_PASS` | Accepted by the current workstream authorization; implementation evidence is indexed in `artifacts/handoff/README.md` |
 | Cache and scheduler | `PASS_PENDING_REVIEW` | `artifacts/handoff/cache_scheduler_review.md` |
-| Ten-condition smoke test | `NOT_STARTED` | Requires independent acceptance of the cache and scheduler workstream |
+| Ten-condition smoke test | `VERIFIED_PASS` | Independent review: `artifacts/handoff/smoke_independent_review.md` |
 | Pilot and main experiments | `NOT_STARTED` | Not authorized |
 
-`PASS_PENDING_REVIEW` means the local implementation and evidence gates passed and independent
-review is still required for the cache and scheduler workstream. The Model Adapters workstream is
-accepted as `VERIFIED_PASS` under the current workstream authorization. No full dataset-seed-view
-matrix or ten-condition smoke, pilot, or main experiment has been run. SCNF, COSA, statistical
-analysis, paper figures, and paper claims remain unstarted.
+`PASS_PENDING_REVIEW` means independent review is still required for the cache and scheduler
+workstream. The Model Adapters workstream is accepted as `VERIFIED_PASS` under the current
+workstream authorization. The ten-condition smoke has independently passed as an implementation
+and feasibility check; it is not a benchmark result and does not establish generalization or
+improvement. No full dataset-seed-view matrix, pilot, or main experiment has been run. Pilot
+protocol freezing is the next permitted workstream; pilot execution remains unstarted. SCNF, COSA,
+statistical analysis, paper figures, and paper claims remain unstarted.
 
 ## Reproducibility and resource limits
 
