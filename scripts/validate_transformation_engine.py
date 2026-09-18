@@ -60,6 +60,15 @@ CACHE_SCHEDULER_SCHEMA_ADDITIONS = {
     "schemas/scheduler_task_transition.schema.json",
     "schemas/scheduler_task_spec.schema.json",
 }
+PILOT_PROTOCOL_SCHEMA_ADDITIONS = {
+    "schemas/pilot_protocol.schema.json",
+    "schemas/pilot_dataset_selection.schema.json",
+    "schemas/pilot_condition.schema.json",
+    "schemas/pilot_condition_inventory.schema.json",
+    "schemas/pilot_metric_policy.schema.json",
+    "schemas/pilot_decision_policy.schema.json",
+    "schemas/pilot_protocol_validation.schema.json",
+}
 ALLOWED_REPAIR_SCHEMA_ADDITIONS = {
     "schemas/smoke_condition.schema.json",
     "schemas/smoke_condition_resource.schema.json",
@@ -80,7 +89,7 @@ ALLOWED_REPAIR_SCHEMA_ADDITIONS = {
     "schemas/model_adapter_result.schema.json",
     "schemas/transformation_cache_manifest.schema.json",
     "schemas/transformation_property_evidence.schema.json",
-} | CACHE_SCHEDULER_SCHEMA_ADDITIONS
+} | CACHE_SCHEDULER_SCHEMA_ADDITIONS | PILOT_PROTOCOL_SCHEMA_ADDITIONS
 FROZEN_TRANSFORMATION_BASELINE_COMMIT = "5a8d59b53baaee8de26314c3803f8260dab3df16"
 FROZEN_TRANSFORMATION_PATHS = (
     "src/schemaguard/transformations",

@@ -1,0 +1,255 @@
+{
+  "condition_inventory_sha256": "29ed6759ada3b9f23302288161f54e57a5e49ef538a1023565cb5780509d4e76",
+  "failed_count": 0,
+  "gate_count": 40,
+  "gates": [
+    {
+      "detail": "repository must remain on the authorized base commit before delivery",
+      "evidence_sha256": "91256050cec26262b25ed0631d4195eeab229ffe87621c93575064693955afd9",
+      "gate_id": "PF01",
+      "result": "PASS"
+    },
+    {
+      "detail": "accepted independent smoke identity and no-pilot flag are bound by source hash",
+      "evidence_sha256": "dfc087c7bc3d8cebec7266521594cc944021f9e8b704307a3ed98ecd53388619",
+      "gate_id": "PF02",
+      "result": "PASS"
+    },
+    {
+      "detail": "content-addressed protected-tree snapshot is unchanged through validation; pre-existing tracked schemas match the authorized base",
+      "evidence_sha256": "0fd6d13270e4bc9bab907bec8f5e1dbcd71d7d46b32ed3f3f39e1826015e951a",
+      "gate_id": "PF03",
+      "result": "PASS"
+    },
+    {
+      "detail": "the closed SchemaOrbit-14 registry and complete accepted 70-split inventory validate",
+      "evidence_sha256": "745b70d70edf457aa035956bb5f96fb036bd084bc9e429da28892aff3601c5ed",
+      "gate_id": "PF04",
+      "result": "PASS"
+    },
+    {
+      "detail": "rebuilding from sanitized registry metadata produces identical selected IDs and hashes",
+      "evidence_sha256": "ad4e02d93bf3dae53c94e219694a7b5dcd81315f088a9cb73371530c2cbdfefd",
+      "gate_id": "PF05",
+      "result": "PASS"
+    },
+    {
+      "detail": "eight-dataset cohort covers every frozen schema/task/size/balance feature and explains six exclusions",
+      "evidence_sha256": "f10ceac14967a26befbb55a9e9b0a033c7ffe92f4faa3a589bce67d57b41cda6",
+      "gate_id": "PF06",
+      "result": "PASS"
+    },
+    {
+      "detail": "the first three canonical configured seeds include 1729 and contain no generated seed",
+      "evidence_sha256": "771f240a579c3b7f3aa690c2e2b3939906251ad331cdd0553a9d20b13e58b71b",
+      "gate_id": "PF07",
+      "result": "PASS"
+    },
+    {
+      "detail": "all 24 selected dataset-seed pairs bind passing grouped assignments with zero crossing groups",
+      "evidence_sha256": "5a447d3ef06b3c1591c690cd91b47b7073311d66ef1e5ab00a55295eee42be04",
+      "gate_id": "PF08",
+      "result": "PASS"
+    },
+    {
+      "detail": "all eleven view IDs and names are bound to the frozen transformation configuration",
+      "evidence_sha256": "403ba3b10778b656fd8729600fc6c29ccc1fdcfbfcbd46769c6cd0f430fcc355",
+      "gate_id": "PF09",
+      "result": "PASS"
+    },
+    {
+      "detail": "applicable and controlled NOT_APPLICABLE states cover every tuple; V00 is always applicable",
+      "evidence_sha256": "91ea912d12b9a7a620e259a739f9bcfe640767cf339cea228d86653c094f2368",
+      "gate_id": "PF10",
+      "result": "PASS"
+    },
+    {
+      "detail": "the five accepted frozen model IDs retain canonical order and execution devices",
+      "evidence_sha256": "2b9212b1eab3a0137a6864c46f8770f45cdf7001391f94523006334f6d3a8018",
+      "gate_id": "PF11",
+      "result": "PASS"
+    },
+    {
+      "detail": "exact package versions, checkpoint identifiers, and frozen checkpoint hashes are bound",
+      "evidence_sha256": "66afea8eb8493334b7736a24570cc71a203915709c42db1f5c056c8def408f05",
+      "gate_id": "PF12",
+      "result": "PASS"
+    },
+    {
+      "detail": "condition inventory contains exactly five conditions per applicable view tuple",
+      "evidence_sha256": "20929b27807734f91892e239e12b0e311b480f89980413603e69c6c322d13b67",
+      "gate_id": "PF13",
+      "result": "PASS"
+    },
+    {
+      "detail": "all condition IDs are unique canonical hashes of the complete identity payload",
+      "evidence_sha256": "872ed8b57e07ebe939241121f0ae8657fe9a3855f5a38ae06a2fedc9740b8643",
+      "gate_id": "PF14",
+      "result": "PASS"
+    },
+    {
+      "detail": "frozen leakage policy confines fitting to training rows and orders evaluation events",
+      "evidence_sha256": "2028bfa221953e2e8a54c36d506e87a8ef88899f221c2245bb91805b2d9af436",
+      "gate_id": "PF15",
+      "result": "PASS"
+    },
+    {
+      "detail": "planning remains outcome-blind; label opening occurs only after structural prediction validation",
+      "evidence_sha256": "6f1e024e4b7a7de9aa7607fa11bc7d2989b09560d0a63282d9735e591971cb03",
+      "gate_id": "PF16",
+      "result": "PASS"
+    },
+    {
+      "detail": "primary Brier degradation, relative epsilon, SII, flips, and undefined-metric policy are frozen",
+      "evidence_sha256": "169be88ecfb3bac9ed4b033e2aa5513de9842f5391644d39fe48c023cfec4e1c",
+      "gate_id": "PF17",
+      "result": "PASS"
+    },
+    {
+      "detail": "raw and tolerance-aware AUROC use chunked comparisons and explicit numerical-tie handling",
+      "evidence_sha256": "a4c32de77624291034ce4866988459457354f90b1047c5463741f5a13bcbc6a6",
+      "gate_id": "PF18",
+      "result": "PASS"
+    },
+    {
+      "detail": "seed repeats are summarized within datasets; datasets remain the cross-dataset unit",
+      "evidence_sha256": "df1dba9328d14809ae4d1b2c99cee1976209efe200ab29c1d9ccdddeca597769",
+      "gate_id": "PF19",
+      "result": "PASS"
+    },
+    {
+      "detail": "nontrivial-effect, breadth, residual-preprocessing, comparison, and six outcomes are frozen",
+      "evidence_sha256": "b1f0c61812972db671f0debe2e1f581fe768206f9f92073fe9180fbea4083958",
+      "gate_id": "PF20",
+      "result": "PASS"
+    },
+    {
+      "detail": "retryable failures, attempt limits, failed-cache prohibition, and same-identity resume are frozen",
+      "evidence_sha256": "8bc79fb07923a5f4b6eaf6d21e72d47ab3cb3895e7799ae678fb8a02f9492800",
+      "gate_id": "PF21",
+      "result": "PASS"
+    },
+    {
+      "detail": "two CPU workers, one sequential GPU worker, 3600 MiB VRAM cap, and offline execution are frozen",
+      "evidence_sha256": "53fd71486faa1b595307c5e3e2116297fd325c2d156114300087a302419c222a",
+      "gate_id": "PF22",
+      "result": "PASS"
+    },
+    {
+      "detail": "runtime estimate and deterministic staged schedule cover every planned condition; each stage fits the hard wall limit",
+      "evidence_sha256": "5a6e64040b9425296b189be9987a0ad6423a335e4e0e2d644dbe1851b13f11b7",
+      "gate_id": "PF23",
+      "result": "PASS"
+    },
+    {
+      "detail": "storage estimate includes row IDs, probabilities, metadata, headers, and cache allowance",
+      "evidence_sha256": "366d75501802a95b478b4480ec57f5404bb5c6aee4feeeb0061d900ca3efdd87",
+      "gate_id": "PF24",
+      "result": "PASS"
+    },
+    {
+      "detail": "protocol, dataset, condition, inventory, metric, decision, and validation contracts are strict and immutable",
+      "evidence_sha256": "ffbfd125488f20cb09e7848f065e2a35d250c0796dfedfb10df187e1e8afd38d",
+      "gate_id": "PF25",
+      "result": "PASS"
+    },
+    {
+      "detail": "generated contract schemas exactly match current Pydantic contracts",
+      "evidence_sha256": "ea7b3a35309cc371efcc0379e45eae9b42ae2b9c22a14098886955289cc6f427",
+      "gate_id": "PF26",
+      "result": "PASS"
+    },
+    {
+      "detail": "non-network, non-GPU, non-foundation-model unit tests passed (exit 0)",
+      "evidence_sha256": "95eab200114bb217d934e64f5d570537b224676e0aab92f3618b2b061cb57ceb",
+      "gate_id": "PF27",
+      "result": "PASS"
+    },
+    {
+      "detail": "non-network integration tests; pilot plan test is metadata-only passed (exit 0)",
+      "evidence_sha256": "8448834db780643401163451ed2d2a00b4d460c0cff933c634db1d447d0aec4e",
+      "gate_id": "PF28",
+      "result": "PASS"
+    },
+    {
+      "detail": "Ruff passed (exit 0)",
+      "evidence_sha256": "81128cb8e8fd854f1d623b25b4329356e78976a71b93a34571d1d29eea92236b",
+      "gate_id": "PF29",
+      "result": "PASS"
+    },
+    {
+      "detail": "Mypy passed (exit 0)",
+      "evidence_sha256": "255e432db5c7e741bea44ffb7fc5337dd36a63e77d9c629a58ebf9ab40ccbf04",
+      "gate_id": "PF30",
+      "result": "PASS"
+    },
+    {
+      "detail": "semantic repository naming validation passed (exit 0)",
+      "evidence_sha256": "6cf5aca2145c6cad9b23bf66d89e0c6c167e964f3e98a1be717b23154e406fa9",
+      "gate_id": "PF31",
+      "result": "PASS"
+    },
+    {
+      "detail": "repository structural and local-evidence validation passed (exit 0)",
+      "evidence_sha256": "b0780499748bc84401d9145b3b8963c227c5f52323cbffea09e89f6fc25e9d00",
+      "gate_id": "PF32",
+      "result": "PASS"
+    },
+    {
+      "detail": "all accepted split inventory records remain PASS with zero predictor-group crossings",
+      "evidence_sha256": "d59b57af5064601d69b10dbe506f420e81523e8898273e7b90b69b2d2edea350",
+      "gate_id": "PF33",
+      "result": "PASS"
+    },
+    {
+      "detail": "accepted transformation applicability inventory and implementation identity remain unchanged",
+      "evidence_sha256": "975d813804ceff31f68a78b6a4aba6f3e24f81f0c81b4fac422189d881f86a71",
+      "gate_id": "PF34",
+      "result": "PASS"
+    },
+    {
+      "detail": "all accepted adapter evidence remains passing and is identity-bound into the frozen model matrix",
+      "evidence_sha256": "91ba71612ec1d53d8bbdcc1fa86378b7f5bf699c56d5bdec2627ace713d35ad5",
+      "gate_id": "PF35",
+      "result": "PASS"
+    },
+    {
+      "detail": "accepted cache/scheduler inventory, 30 fault cases, and resume probe remain strictly valid",
+      "evidence_sha256": "49151adc24245892d898f41d1960e1e888cf1aee0efa33c2901ea1127d50f28f",
+      "gate_id": "PF36",
+      "result": "PASS"
+    },
+    {
+      "detail": "accepted smoke protocol and run evidence remain byte-identical and explicitly report no pilot",
+      "evidence_sha256": "ef35178888d044e8363d1212cd3f771e26060d954a5b7a58629beb5db25b119c",
+      "gate_id": "PF37",
+      "result": "PASS"
+    },
+    {
+      "detail": "source, schemas, and focused protocol tests pass in a temporary local clean clone without local datasets or private files",
+      "evidence_sha256": "105252ebe8cd977e9ac9c9eff0141ab803ccb45148d321de8bf9102a1381c6d2",
+      "gate_id": "PF38",
+      "result": "PASS"
+    },
+    {
+      "detail": "only a plan and condition manifest exist; no pilot fit, prediction, or pilot metric output was created",
+      "evidence_sha256": "e9fa8cb7dbc22f4006be7e07495d51f7f19222b5930a096e3a527694f6286686",
+      "gate_id": "PF39",
+      "result": "PASS"
+    },
+    {
+      "detail": "private root reference document was not opened or modified and remains untracked",
+      "evidence_sha256": "dbb0eb38be36eeb5aa73e7d81b506ceafd34c3e4ba214d080ef26a7fec9e1906",
+      "gate_id": "PF40",
+      "result": "PASS"
+    }
+  ],
+  "not_verified_count": 0,
+  "passed_count": 40,
+  "pilot_execution_performed": false,
+  "protocol_sha256": "5dad78c35a332077c3790e0eac8fc355adf48d93bd8e9f815d23636c9d7f3fe9",
+  "schema_version": 1,
+  "source_commit": "9a59e5a5dda320ec00f1915c80fb82d2531cb442",
+  "status": "RESOURCE_REVIEW_REQUIRED",
+  "test_labels_accessed": false
+}

@@ -401,6 +401,7 @@ class FeatureMetadataContract(StrictContract):
 class RawSourceManifestContract(StrictContract):
     cache_status: Literal["downloaded", "hit"]
     provider: Literal["openml"]
+    internal_dataset_id: str | None = None
     openml_data_id: int = Field(gt=0)
     openml_file_id: int = Field(gt=0)
     dataset_name: str
@@ -503,10 +504,14 @@ class ProcessedManifestContract(StrictContract):
             "targets.parquet",
             "schema.json",
             "label_mapping.json",
-            "quality_report.json",
         }
-        if set(self.artifact_hashes) != required:
-            raise ValueError("processed manifest must hash exactly the four data artifacts")
+        allowed = required | {"quality_report.json"}
+        if not required.issubset(self.artifact_hashes) or not set(self.artifact_hashes).issubset(
+            allowed
+        ):
+            raise ValueError(
+                "processed manifest must hash the four core artifacts and optional quality report"
+            )
         return self
 
 

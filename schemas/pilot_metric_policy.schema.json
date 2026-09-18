@@ -1,0 +1,407 @@
+{
+  "$defs": {
+    "AurocPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "binary_only": {
+          "const": true,
+          "title": "Binary Only",
+          "type": "boolean"
+        },
+        "chunk_size": {
+          "exclusiveMinimum": 0,
+          "title": "Chunk Size",
+          "type": "integer"
+        },
+        "numerical_tie_tolerance": {
+          "exclusiveMinimum": 0,
+          "title": "Numerical Tie Tolerance",
+          "type": "number"
+        },
+        "record_tolerance_tie_pair_count": {
+          "const": true,
+          "title": "Record Tolerance Tie Pair Count",
+          "type": "boolean"
+        },
+        "report_raw_and_tolerance_aware": {
+          "const": true,
+          "title": "Report Raw And Tolerance Aware",
+          "type": "boolean"
+        },
+        "tie_credit": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Tie Credit",
+          "type": "number"
+        },
+        "tie_only_changes_excluded_from_scientific_instability": {
+          "const": true,
+          "title": "Tie Only Changes Excluded From Scientific Instability",
+          "type": "boolean"
+        },
+        "tie_sensitivity_classification": {
+          "const": "NUMERICAL_TIE_SENSITIVITY",
+          "title": "Tie Sensitivity Classification",
+          "type": "string"
+        },
+        "tie_sensitivity_label_flip_count": {
+          "const": 0,
+          "title": "Tie Sensitivity Label Flip Count",
+          "type": "integer"
+        },
+        "tie_sensitivity_non_rank_metrics": {
+          "items": {
+            "enum": [
+              "brier",
+              "log_loss"
+            ],
+            "type": "string"
+          },
+          "title": "Tie Sensitivity Non Rank Metrics",
+          "type": "array"
+        },
+        "tie_sensitivity_probability_max_abs_diff": {
+          "exclusiveMinimum": 0,
+          "title": "Tie Sensitivity Probability Max Abs Diff",
+          "type": "number"
+        },
+        "tie_sensitivity_tolerance_aware_auroc_atol": {
+          "minimum": 0,
+          "title": "Tie Sensitivity Tolerance Aware Auroc Atol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "binary_only",
+        "numerical_tie_tolerance",
+        "chunk_size",
+        "tie_credit",
+        "report_raw_and_tolerance_aware",
+        "record_tolerance_tie_pair_count",
+        "tie_only_changes_excluded_from_scientific_instability",
+        "tie_sensitivity_probability_max_abs_diff",
+        "tie_sensitivity_label_flip_count",
+        "tie_sensitivity_non_rank_metrics",
+        "tie_sensitivity_tolerance_aware_auroc_atol",
+        "tie_sensitivity_classification"
+      ],
+      "title": "AurocPolicy",
+      "type": "object"
+    },
+    "EcePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "minimum": 2,
+          "title": "Bins",
+          "type": "integer"
+        },
+        "rule": {
+          "const": "equal_width_max_probability_confidence",
+          "title": "Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bins",
+        "rule"
+      ],
+      "title": "EcePolicy",
+      "type": "object"
+    },
+    "LabelFlipPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "include_pairwise_against_v00": {
+          "const": true,
+          "title": "Include Pairwise Against V00",
+          "type": "boolean"
+        },
+        "include_responsible_transformation_family": {
+          "const": true,
+          "title": "Include Responsible Transformation Family",
+          "type": "boolean"
+        },
+        "include_worst_view": {
+          "const": true,
+          "title": "Include Worst View",
+          "type": "boolean"
+        },
+        "rule": {
+          "const": "any_argmax_class_difference_across_applicable_views",
+          "title": "Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "include_pairwise_against_v00",
+        "include_worst_view",
+        "include_responsible_transformation_family"
+      ],
+      "title": "LabelFlipPolicy",
+      "type": "object"
+    },
+    "NonRankEquivalencePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "absolute_atol": {
+          "minimum": 0,
+          "title": "Absolute Atol",
+          "type": "number"
+        },
+        "relative_rtol": {
+          "minimum": 0,
+          "title": "Relative Rtol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "absolute_atol",
+        "relative_rtol"
+      ],
+      "title": "NonRankEquivalencePolicy",
+      "type": "object"
+    },
+    "ProbabilityPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "non_rank_metric_tolerance_is_separate": {
+          "const": true,
+          "title": "Non Rank Metric Tolerance Is Separate",
+          "type": "boolean"
+        },
+        "row_sum_atol": {
+          "exclusiveMinimum": 0,
+          "title": "Row Sum Atol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "row_sum_atol",
+        "non_rank_metric_tolerance_is_separate"
+      ],
+      "title": "ProbabilityPolicy",
+      "type": "object"
+    },
+    "SiiPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "clipping_rule": {
+          "const": "clip_then_renormalize_rows",
+          "title": "Clipping Rule",
+          "type": "string"
+        },
+        "logarithm_base": {
+          "const": 2,
+          "title": "Logarithm Base",
+          "type": "integer"
+        },
+        "maximum_mean_pair_recorded": {
+          "const": true,
+          "title": "Maximum Mean Pair Recorded",
+          "type": "boolean"
+        },
+        "maximum_row_pair_recorded": {
+          "const": true,
+          "title": "Maximum Row Pair Recorded",
+          "type": "boolean"
+        },
+        "name": {
+          "const": "semantic_instability_index",
+          "title": "Name",
+          "type": "string"
+        },
+        "per_row": {
+          "const": "maximum_pairwise_jsd_across_applicable_views",
+          "title": "Per Row",
+          "type": "string"
+        },
+        "probability_clip": {
+          "exclusiveMaximum": 0.01,
+          "exclusiveMinimum": 0,
+          "title": "Probability Clip",
+          "type": "number"
+        },
+        "summaries": {
+          "items": {
+            "enum": [
+              "mean",
+              "median",
+              "p90",
+              "p95",
+              "maximum"
+            ],
+            "type": "string"
+          },
+          "title": "Summaries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "per_row",
+        "logarithm_base",
+        "probability_clip",
+        "clipping_rule",
+        "summaries",
+        "maximum_mean_pair_recorded",
+        "maximum_row_pair_recorded"
+      ],
+      "title": "SiiPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "auroc": {
+      "$ref": "#/$defs/AurocPolicy"
+    },
+    "brier_aggregation": {
+      "const": "sum_squared_class_probability_error_per_row_then_mean",
+      "title": "Brier Aggregation",
+      "type": "string"
+    },
+    "confidence_intervals": {
+      "const": "exploratory_only",
+      "title": "Confidence Intervals",
+      "type": "string"
+    },
+    "confirmatory_significance_claims": {
+      "const": false,
+      "title": "Confirmatory Significance Claims",
+      "type": "boolean"
+    },
+    "cross_dataset_unit": {
+      "const": "dataset",
+      "title": "Cross Dataset Unit",
+      "type": "string"
+    },
+    "dataset_aggregation": {
+      "const": "median",
+      "title": "Dataset Aggregation",
+      "type": "string"
+    },
+    "dataset_level_summaries": {
+      "items": {
+        "enum": [
+          "median",
+          "interquartile_range",
+          "minimum",
+          "maximum",
+          "win_tie_loss_counts",
+          "transformation_family_summaries",
+          "model_family_summaries"
+        ],
+        "type": "string"
+      },
+      "title": "Dataset Level Summaries",
+      "type": "array"
+    },
+    "dataset_model_level_aggregation": {
+      "const": "median_across_seeds",
+      "title": "Dataset Model Level Aggregation",
+      "type": "string"
+    },
+    "ece": {
+      "$ref": "#/$defs/EcePolicy"
+    },
+    "effective_sample_size": {
+      "const": "number_of_datasets",
+      "title": "Effective Sample Size",
+      "type": "string"
+    },
+    "label_flip": {
+      "$ref": "#/$defs/LabelFlipPolicy"
+    },
+    "non_rank_equivalence": {
+      "$ref": "#/$defs/NonRankEquivalencePolicy"
+    },
+    "primary_endpoint": {
+      "const": "worst_view_brier_degradation",
+      "title": "Primary Endpoint",
+      "type": "string"
+    },
+    "probability": {
+      "$ref": "#/$defs/ProbabilityPolicy"
+    },
+    "relative_degradation_epsilon": {
+      "exclusiveMinimum": 0,
+      "title": "Relative Degradation Epsilon",
+      "type": "number"
+    },
+    "row_level_role": {
+      "const": "metric_calculation_only",
+      "title": "Row Level Role",
+      "type": "string"
+    },
+    "secondary_metrics": {
+      "items": {
+        "enum": [
+          "log_loss",
+          "accuracy",
+          "balanced_accuracy",
+          "raw_auroc",
+          "tolerance_aware_auroc",
+          "expected_calibration_error",
+          "maximum_absolute_probability_difference",
+          "mean_absolute_probability_difference",
+          "runtime",
+          "fit_time",
+          "prediction_time",
+          "peak_process_tree_ram",
+          "peak_cuda_allocated_memory",
+          "peak_cuda_reserved_memory",
+          "cache_status",
+          "failure_category"
+        ],
+        "type": "string"
+      },
+      "title": "Secondary Metrics",
+      "type": "array"
+    },
+    "seed_aggregation": {
+      "const": "median",
+      "title": "Seed Aggregation",
+      "type": "string"
+    },
+    "seed_level_role": {
+      "const": "repeatability",
+      "title": "Seed Level Role",
+      "type": "string"
+    },
+    "sii": {
+      "$ref": "#/$defs/SiiPolicy"
+    },
+    "undefined_metric_status": {
+      "const": "explicit_undefined_with_reason",
+      "title": "Undefined Metric Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "primary_endpoint",
+    "brier_aggregation",
+    "relative_degradation_epsilon",
+    "seed_aggregation",
+    "dataset_aggregation",
+    "cross_dataset_unit",
+    "row_level_role",
+    "seed_level_role",
+    "dataset_model_level_aggregation",
+    "dataset_level_summaries",
+    "effective_sample_size",
+    "confirmatory_significance_claims",
+    "confidence_intervals",
+    "sii",
+    "label_flip",
+    "secondary_metrics",
+    "undefined_metric_status",
+    "non_rank_equivalence",
+    "auroc",
+    "ece",
+    "probability"
+  ],
+  "title": "MetricPolicy",
+  "type": "object"
+}

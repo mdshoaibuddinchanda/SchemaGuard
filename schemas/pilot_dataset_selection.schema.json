@@ -1,0 +1,231 @@
+{
+  "$defs": {
+    "SplitIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Assignment Sha256",
+          "type": "string"
+        },
+        "cross_partition_group_count": {
+          "const": 0,
+          "title": "Cross Partition Group Count",
+          "type": "integer"
+        },
+        "logical_assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Logical Assignment Sha256",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "partition_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "train",
+              "calibration",
+              "test"
+            ]
+          },
+          "title": "Partition Counts",
+          "type": "object"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "strategy": {
+          "const": "stratified_group_5fold_v1",
+          "title": "Strategy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "seed",
+        "strategy",
+        "assignment_sha256",
+        "logical_assignment_sha256",
+        "manifest_sha256",
+        "cross_partition_group_count",
+        "row_count",
+        "partition_counts"
+      ],
+      "title": "SplitIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "categorical_feature_count": {
+      "minimum": 0,
+      "title": "Categorical Feature Count",
+      "type": "integer"
+    },
+    "class_count": {
+      "minimum": 2,
+      "title": "Class Count",
+      "type": "integer"
+    },
+    "class_distribution": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Class Distribution",
+      "type": "object"
+    },
+    "coverage_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Coverage Tags",
+      "type": "array"
+    },
+    "dataset_id": {
+      "exclusiveMinimum": 0,
+      "title": "Dataset Id",
+      "type": "integer"
+    },
+    "dataset_name": {
+      "title": "Dataset Name",
+      "type": "string"
+    },
+    "duplicate_group_count": {
+      "minimum": 0,
+      "title": "Duplicate Group Count",
+      "type": "integer"
+    },
+    "feature_count": {
+      "exclusiveMinimum": 0,
+      "title": "Feature Count",
+      "type": "integer"
+    },
+    "five_split_identities": {
+      "items": {
+        "$ref": "#/$defs/SplitIdentity"
+      },
+      "title": "Five Split Identities",
+      "type": "array"
+    },
+    "license": {
+      "title": "License",
+      "type": "string"
+    },
+    "metadata_evidence_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Metadata Evidence Sha256",
+      "type": "string"
+    },
+    "numeric_feature_count": {
+      "minimum": 0,
+      "title": "Numeric Feature Count",
+      "type": "integer"
+    },
+    "predictor_group_count": {
+      "minimum": 1,
+      "title": "Predictor Group Count",
+      "type": "integer"
+    },
+    "processed_feature_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Processed Feature Sha256",
+      "type": "string"
+    },
+    "provider": {
+      "const": "openml",
+      "title": "Provider",
+      "type": "string"
+    },
+    "provider_dataset_version": {
+      "title": "Provider Dataset Version",
+      "type": "string"
+    },
+    "provider_file_id": {
+      "exclusiveMinimum": 0,
+      "title": "Provider File Id",
+      "type": "integer"
+    },
+    "quality_report_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Report Sha256",
+      "type": "string"
+    },
+    "raw_source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Raw Source Sha256",
+      "type": "string"
+    },
+    "row_count": {
+      "exclusiveMinimum": 0,
+      "title": "Row Count",
+      "type": "integer"
+    },
+    "selection_rationale": {
+      "title": "Selection Rationale",
+      "type": "string"
+    },
+    "target_artifact_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Artifact Sha256",
+      "type": "string"
+    },
+    "target_column": {
+      "title": "Target Column",
+      "type": "string"
+    },
+    "task_type": {
+      "enum": [
+        "binary",
+        "multiclass"
+      ],
+      "title": "Task Type",
+      "type": "string"
+    },
+    "v00_model_compatibility": {
+      "const": "PASS_REGISTRY_CAPABILITY",
+      "title": "V00 Model Compatibility",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "provider",
+    "provider_dataset_version",
+    "provider_file_id",
+    "dataset_name",
+    "target_column",
+    "task_type",
+    "row_count",
+    "feature_count",
+    "numeric_feature_count",
+    "categorical_feature_count",
+    "class_count",
+    "class_distribution",
+    "predictor_group_count",
+    "duplicate_group_count",
+    "license",
+    "raw_source_sha256",
+    "processed_feature_sha256",
+    "target_artifact_sha256",
+    "quality_report_sha256",
+    "metadata_evidence_sha256",
+    "five_split_identities",
+    "coverage_tags",
+    "selection_rationale",
+    "v00_model_compatibility"
+  ],
+  "title": "PilotDatasetSelection",
+  "type": "object"
+}

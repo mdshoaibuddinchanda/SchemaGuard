@@ -1,0 +1,280 @@
+schema_version: 1
+protocol:
+  protocol_id: schemaguard_representation_sensitivity_pilot
+  protocol_name: SchemaGuard Representation-Sensitivity Pilot
+  protocol_version: schema_guard_representation_sensitivity_v1
+  purpose: Determine whether information-preserving schema transformations cause repeatable, nontrivial prediction instability.
+  primary_question: Do lossless schema transformations change predictive probabilities, decisions, calibration, or Brier risk?
+  secondary_question: Are tabular foundation models more sensitive than classical tabular models under the same leakage-safe evaluation protocol?
+  execution_authorized: false
+  offline: true
+  source_commit: 9a59e5a5dda320ec00f1915c80fb82d2531cb442
+  registry_config: configs/datasets/schemaorbit14.yaml
+  experiment_registry: configs/experiment_registry.yaml
+  split_config: configs/runtime/split_generation.yaml
+  transformation_config: configs/runtime/transformation_engine.yaml
+  adapter_config: configs/runtime/model_adapters.yaml
+  model_config: configs/runtime/model_compatibility.yaml
+  dependency_lock: uv.lock
+  dataset_report: results/validation/dataset_registry_report.json
+  split_inventory: artifacts/handoff/split_generation_inventory.json
+  transformation_inventory: artifacts/handoff/transformation_inventory.json
+  adapter_inventory: artifacts/handoff/model_adapter_inventory.json
+  smoke_review: artifacts/handoff/smoke_independent_review.json
+  smoke_runtime_report: results/smoke/runs/de24211de43552175461d23fb08342c368fd9c3ff66c128b16c9011c3d99f7c6_cold.json
+  selected_dataset_count: 8
+  protected_anchor_dataset_id: 1464
+  selected_seed_count: 3
+
+selection:
+  max_rows: 6000
+  max_features: 100
+  max_classes: 10
+  foundation_max_train_rows: 5000
+  balanced_max_class_fraction: 0.70
+  categorical_substantial_fraction: 0.50
+  small_dataset_max_rows: 1000
+  required_coverage:
+    - numeric_only
+    - mixed_numeric_categorical
+    - substantial_categorical
+    - high_dimensional
+    - high_cardinality_categorical
+    - missing_values
+    - binary
+    - multiclass
+    - small
+    - medium
+    - balanced
+    - imbalanced
+  duplicate_profile_fields:
+    - task_type
+    - schema_family
+    - size_band
+    - balance_band
+  tie_break: ascending_canonical_dataset_id
+  outcomes_prohibited: true
+
+seeds:
+  source_config: configs/runtime/split_generation.yaml
+  selection_rule: first_three_in_canonical_configured_order
+  required_anchor_seed: 1729
+
+views:
+  source_config: configs/runtime/transformation_engine.yaml
+  required_count: 11
+  source_inventory: artifacts/handoff/transformation_inventory.json
+  preserve_applicability_status: true
+  require_v00_applicable: true
+  do_not_materialize: true
+
+models:
+  source_registry: configs/experiment_registry.yaml
+  source_runtime_config: configs/runtime/model_compatibility.yaml
+  source_adapter_config: configs/runtime/model_adapters.yaml
+  required_ids: [LR-1.9, CAT-1.2, XGB-3.4, TPFN3-8.5, TICL2-2.2]
+  devices:
+    LR-1.9: cpu
+    CAT-1.2: cpu
+    XGB-3.4: cpu
+    TPFN3-8.5: cuda
+    TICL2-2.2: cuda
+  checkpoint_hashes:
+    TPFN3-8.5: d0d865d54dfbc524f5703104be90620182dca7e5fb2c16de72e9959ea18f3988
+    TICL2-2.2: bdc7dbd5e4ff21f8f0456fcf90c6b7cdf72dbea960f2d05b19bec19f9b3d4ed0
+  precision_policy:
+    LR-1.9: estimator_native
+    CAT-1.2: estimator_native
+    XGB-3.4: estimator_native
+    TPFN3-8.5: inference_precision_auto
+    TICL2-2.2: amp_auto
+  batch_policy:
+    LR-1.9: adapter_full_partition
+    CAT-1.2: adapter_full_partition
+    XGB-3.4: adapter_full_partition
+    TPFN3-8.5: adapter_frozen_default
+    TICL2-2.2: batch_size_one
+
+metrics:
+  primary_endpoint: worst_view_brier_degradation
+  brier_aggregation: sum_squared_class_probability_error_per_row_then_mean
+  relative_degradation_epsilon: 1.0e-12
+  seed_aggregation: median
+  dataset_aggregation: median
+  cross_dataset_unit: dataset
+  row_level_role: metric_calculation_only
+  seed_level_role: repeatability
+  dataset_model_level_aggregation: median_across_seeds
+  dataset_level_summaries:
+    - median
+    - interquartile_range
+    - minimum
+    - maximum
+    - win_tie_loss_counts
+    - transformation_family_summaries
+    - model_family_summaries
+  effective_sample_size: number_of_datasets
+  confirmatory_significance_claims: false
+  confidence_intervals: exploratory_only
+  sii:
+    name: semantic_instability_index
+    per_row: maximum_pairwise_jsd_across_applicable_views
+    logarithm_base: 2
+    probability_clip: 1.0e-15
+    clipping_rule: clip_then_renormalize_rows
+    summaries: [mean, median, p90, p95, maximum]
+    maximum_mean_pair_recorded: true
+    maximum_row_pair_recorded: true
+  label_flip:
+    rule: any_argmax_class_difference_across_applicable_views
+    include_pairwise_against_v00: true
+    include_worst_view: true
+    include_responsible_transformation_family: true
+  secondary_metrics:
+    - log_loss
+    - accuracy
+    - balanced_accuracy
+    - raw_auroc
+    - tolerance_aware_auroc
+    - expected_calibration_error
+    - maximum_absolute_probability_difference
+    - mean_absolute_probability_difference
+    - runtime
+    - fit_time
+    - prediction_time
+    - peak_process_tree_ram
+    - peak_cuda_allocated_memory
+    - peak_cuda_reserved_memory
+    - cache_status
+    - failure_category
+  undefined_metric_status: explicit_undefined_with_reason
+  non_rank_equivalence:
+    absolute_atol: 1.0e-12
+    relative_rtol: 1.0e-10
+  auroc:
+    binary_only: true
+    numerical_tie_tolerance: 1.0e-15
+    chunk_size: 256
+    tie_credit: 0.5
+    report_raw_and_tolerance_aware: true
+    record_tolerance_tie_pair_count: true
+    tie_only_changes_excluded_from_scientific_instability: true
+    tie_sensitivity_probability_max_abs_diff: 1.0e-15
+    tie_sensitivity_label_flip_count: 0
+    tie_sensitivity_non_rank_metrics: [brier, log_loss]
+    tie_sensitivity_tolerance_aware_auroc_atol: 1.0e-12
+    tie_sensitivity_classification: NUMERICAL_TIE_SENSITIVITY
+  ece:
+    bins: 10
+    rule: equal_width_max_probability_confidence
+  probability:
+    row_sum_atol: 1.0e-6
+    non_rank_metric_tolerance_is_separate: true
+
+leakage:
+  split_before_views: true
+  transformation_fit_partition: train
+  preprocessing_fit_partition: train
+  model_fit_partition: train
+  calibration_use: predeclared_calibration_or_evaluation_only
+  test_features: final_frozen_inference_only
+  seal_test_labels_until_all_predictions_and_structure_valid: true
+  stable_row_id_alignment_required: true
+  label_open_event_order:
+    - plan_frozen
+    - test_labels_sealed
+    - training_completed
+    - calibration_predictions_completed
+    - test_predictions_completed
+    - prediction_structure_validated
+    - test_labels_opened
+    - metrics_generated
+    - results_sealed
+  labels_must_not_influence:
+    - planning
+    - applicability
+    - fitting
+    - preprocessing
+    - batch_size
+    - timeout
+    - retry
+    - resource_fallback
+    - view_or_model_selection
+    - condition_exclusion
+
+decisions:
+  integrity_failure: REPAIR_REQUIRED
+  foundation_model_ids: [TPFN3-8.5, TICL2-2.2]
+  nontrivial_absolute_wbd: 0.03
+  nontrivial_relative_wbd: 0.10
+  require_all_v00_conditions: true
+  minimum_transformed_condition_completion_rate: 0.95
+  require_every_failure_classified: true
+  require_frozen_model_configuration: true
+  require_resume_cache_integrity: true
+  require_resource_ceilings: true
+  require_frozen_preprocessing_residual: true
+  exploratory_only: true
+  breadth_dataset_count: 3
+  required_transformation_families: 2
+  required_seed_direction_count: 2
+  required_seed_count: 3
+  exclude_numerical_tie_only: true
+  outcomes:
+    - ADVANCE_BROAD_METHOD
+    - ADVANCE_TFM_FOCUSED
+    - NARROW_CASE_STUDY
+    - STOP_OR_REDESIGN
+    - PARTIAL_CAPABILITY
+    - REPAIR_REQUIRED
+
+resources:
+  cpu_workers: 2
+  gpu_workers: 1
+  cpu_threads_per_worker: 2
+  cpu_thread_environment:
+    OMP_NUM_THREADS: "2"
+    MKL_NUM_THREADS: "2"
+    OPENBLAS_NUM_THREADS: "2"
+    NUMEXPR_NUM_THREADS: "2"
+  foundation_models_sequential: true
+  vram_ceiling_mib: 3600
+  ram_hard_limit_mib: 28672
+  timeout_seconds:
+    cpu_model_condition: 3600
+    cuda_model_condition: 1800
+  preferred_wall_seconds: 28800
+  hard_wall_seconds: 43200
+  preferred_storage_bytes: 21474836480
+  prediction_artifact_overhead_bytes: 65536
+  storage_bytes_per_row_class: 4
+  storage_bytes_per_row_id: 40
+  per_row_metadata_overhead_bytes: 128
+  estimate_safety_factor: 1.5
+  coordination_seconds: 60
+  no_silent_fallback: true
+  no_silent_precision_or_batch_change: true
+  offline_execution: true
+  atomic_incremental_publication: true
+  validated_resume: true
+  staging:
+    stage_grouping: contiguous_pairs_by_ascending_dataset_id
+    datasets_per_stage: 2
+    stage_boundary: whole_dataset
+    preserve_complete_condition_matrix: true
+
+retry:
+  max_attempts_per_condition: 2
+  retryable_categories: [WORKER_CRASH, TRANSIENT_IO, TIMEOUT]
+  non_retryable_categories:
+    - GPU_OOM
+    - INVALID_PROBABILITY
+    - MISSING_ROW
+    - CHECKPOINT_FAILURE
+    - PACKAGE_OR_API_MISMATCH
+    - OFFLINE_NETWORK_ATTEMPT
+    - IDENTITY_MISMATCH
+  failed_artifact_cache_hit: false
+  partial_artifact_promotion: false
+  retry_identity_must_match: true
+  test_outcome_controls_retry: false

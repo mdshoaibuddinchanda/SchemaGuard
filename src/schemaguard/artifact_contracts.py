@@ -48,6 +48,16 @@ from .experiments.contracts import (
     SmokeRunReport,
     SmokeValidationReport,
 )
+from .experiments.pilot_contracts import (
+    DecisionPolicy,
+    MetricPolicy,
+    PilotConditionInventory,
+    PilotDatasetSelection,
+    PilotProtocolArtifact,
+    PilotProtocolValidation,
+    PilotStagedSchedule,
+    PlannedCondition,
+)
 from .experiments.planning import SmokeConfig
 from .models.adapters.contracts import (
     AdapterLeakageEvidenceManifest,
@@ -341,6 +351,14 @@ SCHEMA_CONTRACTS: dict[str, type[BaseModel]] = {
     "smoke_run_report.schema.json": SmokeRunReport,
     "smoke_evidence_inventory.schema.json": SmokeEvidenceInventory,
     "smoke_validation_report.schema.json": SmokeValidationReport,
+    "pilot_protocol.schema.json": PilotProtocolArtifact,
+    "pilot_dataset_selection.schema.json": PilotDatasetSelection,
+    "pilot_condition.schema.json": PlannedCondition,
+    "pilot_condition_inventory.schema.json": PilotConditionInventory,
+    "pilot_staged_schedule.schema.json": PilotStagedSchedule,
+    "pilot_metric_policy.schema.json": MetricPolicy,
+    "pilot_decision_policy.schema.json": DecisionPolicy,
+    "pilot_protocol_validation.schema.json": PilotProtocolValidation,
     "cache_artifact_manifest.schema.json": CacheArtifactManifest,
     "cache_completion_marker.schema.json": CompletionMarker,
     "cache_identity.schema.json": CacheIdentity,

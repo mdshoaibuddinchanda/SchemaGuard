@@ -1,0 +1,131 @@
+{
+  "$defs": {
+    "ProtocolValidationGate": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Sha256",
+          "type": "string"
+        },
+        "gate_id": {
+          "pattern": "^PF[0-9]{2}$",
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_VERIFIED"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "result",
+        "evidence_sha256",
+        "detail"
+      ],
+      "title": "ProtocolValidationGate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "condition_inventory_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Condition Inventory Sha256",
+      "type": "string"
+    },
+    "failed_count": {
+      "maximum": 40,
+      "minimum": 0,
+      "title": "Failed Count",
+      "type": "integer"
+    },
+    "gate_count": {
+      "const": 40,
+      "default": 40,
+      "title": "Gate Count",
+      "type": "integer"
+    },
+    "gates": {
+      "items": {
+        "$ref": "#/$defs/ProtocolValidationGate"
+      },
+      "maxItems": 40,
+      "minItems": 40,
+      "title": "Gates",
+      "type": "array"
+    },
+    "not_verified_count": {
+      "maximum": 40,
+      "minimum": 0,
+      "title": "Not Verified Count",
+      "type": "integer"
+    },
+    "passed_count": {
+      "maximum": 40,
+      "minimum": 0,
+      "title": "Passed Count",
+      "type": "integer"
+    },
+    "pilot_execution_performed": {
+      "const": false,
+      "default": false,
+      "title": "Pilot Execution Performed",
+      "type": "boolean"
+    },
+    "protocol_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Protocol Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASS_PENDING_REVIEW",
+        "RESOURCE_REVIEW_REQUIRED",
+        "REPAIR_REQUIRED",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "test_labels_accessed": {
+      "const": false,
+      "default": false,
+      "title": "Test Labels Accessed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "status",
+    "source_commit",
+    "protocol_sha256",
+    "condition_inventory_sha256",
+    "passed_count",
+    "failed_count",
+    "not_verified_count",
+    "gates"
+  ],
+  "title": "PilotProtocolValidation",
+  "type": "object"
+}

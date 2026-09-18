@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "PilotScheduleStage": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_ids": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Condition Ids",
+          "type": "array"
+        },
+        "conservative_wall_seconds": {
+          "minimum": 0,
+          "title": "Conservative Wall Seconds",
+          "type": "number"
+        },
+        "cpu_condition_count": {
+          "minimum": 0,
+          "title": "Cpu Condition Count",
+          "type": "integer"
+        },
+        "cuda_condition_count": {
+          "minimum": 0,
+          "title": "Cuda Condition Count",
+          "type": "integer"
+        },
+        "dataset_ids": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Dataset Ids",
+          "type": "array"
+        },
+        "estimated_cache_storage_bytes": {
+          "minimum": 0,
+          "title": "Estimated Cache Storage Bytes",
+          "type": "integer"
+        },
+        "estimated_cpu_seconds": {
+          "minimum": 0,
+          "title": "Estimated Cpu Seconds",
+          "type": "number"
+        },
+        "estimated_cuda_seconds": {
+          "minimum": 0,
+          "title": "Estimated Cuda Seconds",
+          "type": "number"
+        },
+        "estimated_prediction_storage_bytes": {
+          "minimum": 0,
+          "title": "Estimated Prediction Storage Bytes",
+          "type": "integer"
+        },
+        "model_condition_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "LR-1.9",
+              "CAT-1.2",
+              "XGB-3.4",
+              "TPFN3-8.5",
+              "TICL2-2.2"
+            ]
+          },
+          "title": "Model Condition Counts",
+          "type": "object"
+        },
+        "stage_id": {
+          "pattern": "^dataset_group_[0-9]+_[0-9]+$",
+          "title": "Stage Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage_id",
+        "dataset_ids",
+        "condition_ids",
+        "model_condition_counts",
+        "cpu_condition_count",
+        "cuda_condition_count",
+        "estimated_cpu_seconds",
+        "estimated_cuda_seconds",
+        "conservative_wall_seconds",
+        "estimated_prediction_storage_bytes",
+        "estimated_cache_storage_bytes"
+      ],
+      "title": "PilotScheduleStage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "all_stages_within_hard_wall_limit": {
+      "title": "All Stages Within Hard Wall Limit",
+      "type": "boolean"
+    },
+    "dataset_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 8,
+      "minItems": 8,
+      "title": "Dataset Ids",
+      "type": "array"
+    },
+    "estimated_cache_storage_bytes": {
+      "minimum": 0,
+      "title": "Estimated Cache Storage Bytes",
+      "type": "integer"
+    },
+    "estimated_prediction_storage_bytes": {
+      "minimum": 0,
+      "title": "Estimated Prediction Storage Bytes",
+      "type": "integer"
+    },
+    "full_condition_matrix_preserved": {
+      "const": true,
+      "title": "Full Condition Matrix Preserved",
+      "type": "boolean"
+    },
+    "hard_wall_limit_seconds": {
+      "exclusiveMinimum": 0,
+      "title": "Hard Wall Limit Seconds",
+      "type": "integer"
+    },
+    "inventory_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Inventory Sha256",
+      "type": "string"
+    },
+    "not_applicable_view_count": {
+      "minimum": 0,
+      "title": "Not Applicable View Count",
+      "type": "integer"
+    },
+    "protocol_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Protocol Sha256",
+      "type": "string"
+    },
+    "schedule_policy": {
+      "const": "contiguous_pairs_by_ascending_dataset_id",
+      "title": "Schedule Policy",
+      "type": "string"
+    },
+    "schedule_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Schedule Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/PilotScheduleStage"
+      },
+      "minItems": 1,
+      "title": "Stages",
+      "type": "array"
+    },
+    "total_condition_count": {
+      "minimum": 1,
+      "title": "Total Condition Count",
+      "type": "integer"
+    },
+    "total_estimated_wall_seconds": {
+      "minimum": 0,
+      "title": "Total Estimated Wall Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "schedule_sha256",
+    "protocol_sha256",
+    "inventory_sha256",
+    "schedule_policy",
+    "dataset_ids",
+    "stages",
+    "total_condition_count",
+    "not_applicable_view_count",
+    "total_estimated_wall_seconds",
+    "hard_wall_limit_seconds",
+    "all_stages_within_hard_wall_limit",
+    "estimated_prediction_storage_bytes",
+    "estimated_cache_storage_bytes",
+    "full_condition_matrix_preserved"
+  ],
+  "title": "PilotStagedSchedule",
+  "type": "object"
+}

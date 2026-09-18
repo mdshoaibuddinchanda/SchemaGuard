@@ -1,0 +1,316 @@
+{
+  "$defs": {
+    "ConditionIdentityComponents": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_kind": {
+          "const": "pilot_prediction",
+          "default": "pilot_prediction",
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "batch_policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Batch Policy Sha256",
+          "type": "string"
+        },
+        "certificate_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Certificate Identity Sha256",
+          "type": "string"
+        },
+        "checkpoint_identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Identifier"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "complete_parameters_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Complete Parameters Sha256",
+          "type": "string"
+        },
+        "dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "dependency_lock_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dependency Lock Sha256",
+          "type": "string"
+        },
+        "device_policy": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device Policy",
+          "type": "string"
+        },
+        "metric_policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Metric Policy Sha256",
+          "type": "string"
+        },
+        "model_config_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Config Sha256",
+          "type": "string"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "numerical_tolerance_policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Numerical Tolerance Policy Sha256",
+          "type": "string"
+        },
+        "offline_policy": {
+          "const": true,
+          "title": "Offline Policy",
+          "type": "boolean"
+        },
+        "package_name": {
+          "title": "Package Name",
+          "type": "string"
+        },
+        "package_version": {
+          "title": "Package Version",
+          "type": "string"
+        },
+        "pilot_protocol_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Pilot Protocol Sha256",
+          "type": "string"
+        },
+        "precision_policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Precision Policy Sha256",
+          "type": "string"
+        },
+        "preprocessing_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing Sha256",
+          "type": "string"
+        },
+        "processed_feature_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Processed Feature Sha256",
+          "type": "string"
+        },
+        "protocol_version": {
+          "title": "Protocol Version",
+          "type": "string"
+        },
+        "raw_source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Source Sha256",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "schema_version_identity": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version Identity",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Implementation Sha256",
+          "type": "string"
+        },
+        "split_assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Split Assignment Sha256",
+          "type": "string"
+        },
+        "split_logical_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Split Logical Sha256",
+          "type": "string"
+        },
+        "split_strategy": {
+          "const": "stratified_group_5fold_v1",
+          "title": "Split Strategy",
+          "type": "string"
+        },
+        "target_artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Target Artifact Sha256",
+          "type": "string"
+        },
+        "transformation_config_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Transformation Config Sha256",
+          "type": "string"
+        },
+        "transformation_implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Transformation Implementation Sha256",
+          "type": "string"
+        },
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01",
+            "V02",
+            "V03",
+            "V04",
+            "V05",
+            "V06",
+            "V07",
+            "V08",
+            "V09",
+            "V10"
+          ],
+          "title": "View Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol_version",
+        "pilot_protocol_sha256",
+        "dataset_id",
+        "raw_source_sha256",
+        "processed_feature_sha256",
+        "target_artifact_sha256",
+        "split_strategy",
+        "seed",
+        "split_assignment_sha256",
+        "split_logical_sha256",
+        "view_id",
+        "transformation_config_sha256",
+        "transformation_implementation_sha256",
+        "certificate_identity_sha256",
+        "model_id",
+        "package_name",
+        "package_version",
+        "model_config_sha256",
+        "complete_parameters_sha256",
+        "preprocessing_sha256",
+        "checkpoint_identifier",
+        "checkpoint_sha256",
+        "device_policy",
+        "precision_policy_sha256",
+        "batch_policy_sha256",
+        "dependency_lock_sha256",
+        "source_implementation_sha256",
+        "metric_policy_sha256",
+        "numerical_tolerance_policy_sha256",
+        "offline_policy"
+      ],
+      "title": "ConditionIdentityComponents",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applicability": {
+      "const": "APPLICABLE",
+      "default": "APPLICABLE",
+      "title": "Applicability",
+      "type": "string"
+    },
+    "condition_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Condition Id",
+      "type": "string"
+    },
+    "dataset_id": {
+      "exclusiveMinimum": 0,
+      "title": "Dataset Id",
+      "type": "integer"
+    },
+    "device": {
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
+      "title": "Device",
+      "type": "string"
+    },
+    "identity": {
+      "$ref": "#/$defs/ConditionIdentityComponents"
+    },
+    "model_id": {
+      "enum": [
+        "LR-1.9",
+        "CAT-1.2",
+        "XGB-3.4",
+        "TPFN3-8.5",
+        "TICL2-2.2"
+      ],
+      "title": "Model Id",
+      "type": "string"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "view_id": {
+      "enum": [
+        "V00",
+        "V01",
+        "V02",
+        "V03",
+        "V04",
+        "V05",
+        "V06",
+        "V07",
+        "V08",
+        "V09",
+        "V10"
+      ],
+      "title": "View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "condition_id",
+    "identity",
+    "dataset_id",
+    "seed",
+    "view_id",
+    "model_id",
+    "device"
+  ],
+  "title": "PlannedCondition",
+  "type": "object"
+}

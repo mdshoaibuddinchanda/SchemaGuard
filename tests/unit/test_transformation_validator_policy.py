@@ -86,6 +86,32 @@ def test_exact_smoke_contract_schemas_are_permitted_without_weakening_unknown_pa
     assert result["unexpected_added_files"] == []
 
 
+def test_exact_pilot_protocol_schemas_are_permitted_without_weakening_unknown_paths(
+    tmp_path: Path,
+) -> None:
+    expected = {
+        "schemas/pilot_protocol.schema.json",
+        "schemas/pilot_dataset_selection.schema.json",
+        "schemas/pilot_condition.schema.json",
+        "schemas/pilot_condition_inventory.schema.json",
+        "schemas/pilot_metric_policy.schema.json",
+        "schemas/pilot_decision_policy.schema.json",
+        "schemas/pilot_protocol_validation.schema.json",
+    }
+    assert expected == validator.PILOT_PROTOCOL_SCHEMA_ADDITIONS
+    assert expected.issubset(validator.ALLOWED_REPAIR_SCHEMA_ADDITIONS)
+    before = _write_baseline(tmp_path)
+    for relative in expected:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("pilot protocol schema", encoding="utf-8")
+
+    result = _compare(tmp_path, before, validator.ALLOWED_REPAIR_SCHEMA_ADDITIONS)
+    assert result["status"] == "PASS"
+    assert set(result["allowed_added_files"]) == expected
+    assert result["unexpected_added_files"] == []
+
+
 def test_removing_an_expected_schema_from_allowlist_fails(tmp_path: Path) -> None:
     before = _write_baseline(tmp_path)
     expected = "schemas/scheduler_run_plan.schema.json"

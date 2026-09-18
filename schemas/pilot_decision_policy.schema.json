@@ -1,0 +1,134 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "breadth_dataset_count": {
+      "exclusiveMinimum": 0,
+      "title": "Breadth Dataset Count",
+      "type": "integer"
+    },
+    "exclude_numerical_tie_only": {
+      "const": true,
+      "title": "Exclude Numerical Tie Only",
+      "type": "boolean"
+    },
+    "exploratory_only": {
+      "const": true,
+      "title": "Exploratory Only",
+      "type": "boolean"
+    },
+    "foundation_model_ids": {
+      "items": {
+        "enum": [
+          "TPFN3-8.5",
+          "TICL2-2.2"
+        ],
+        "type": "string"
+      },
+      "title": "Foundation Model Ids",
+      "type": "array"
+    },
+    "integrity_failure": {
+      "const": "REPAIR_REQUIRED",
+      "title": "Integrity Failure",
+      "type": "string"
+    },
+    "minimum_transformed_condition_completion_rate": {
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Minimum Transformed Condition Completion Rate",
+      "type": "number"
+    },
+    "nontrivial_absolute_wbd": {
+      "minimum": 0,
+      "title": "Nontrivial Absolute Wbd",
+      "type": "number"
+    },
+    "nontrivial_relative_wbd": {
+      "minimum": 0,
+      "title": "Nontrivial Relative Wbd",
+      "type": "number"
+    },
+    "outcomes": {
+      "items": {
+        "enum": [
+          "ADVANCE_BROAD_METHOD",
+          "ADVANCE_TFM_FOCUSED",
+          "NARROW_CASE_STUDY",
+          "STOP_OR_REDESIGN",
+          "PARTIAL_CAPABILITY",
+          "REPAIR_REQUIRED"
+        ],
+        "type": "string"
+      },
+      "title": "Outcomes",
+      "type": "array"
+    },
+    "require_all_v00_conditions": {
+      "const": true,
+      "title": "Require All V00 Conditions",
+      "type": "boolean"
+    },
+    "require_every_failure_classified": {
+      "const": true,
+      "title": "Require Every Failure Classified",
+      "type": "boolean"
+    },
+    "require_frozen_model_configuration": {
+      "const": true,
+      "title": "Require Frozen Model Configuration",
+      "type": "boolean"
+    },
+    "require_frozen_preprocessing_residual": {
+      "const": true,
+      "title": "Require Frozen Preprocessing Residual",
+      "type": "boolean"
+    },
+    "require_resource_ceilings": {
+      "const": true,
+      "title": "Require Resource Ceilings",
+      "type": "boolean"
+    },
+    "require_resume_cache_integrity": {
+      "const": true,
+      "title": "Require Resume Cache Integrity",
+      "type": "boolean"
+    },
+    "required_seed_count": {
+      "exclusiveMinimum": 0,
+      "title": "Required Seed Count",
+      "type": "integer"
+    },
+    "required_seed_direction_count": {
+      "exclusiveMinimum": 0,
+      "title": "Required Seed Direction Count",
+      "type": "integer"
+    },
+    "required_transformation_families": {
+      "exclusiveMinimum": 0,
+      "title": "Required Transformation Families",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "integrity_failure",
+    "foundation_model_ids",
+    "nontrivial_absolute_wbd",
+    "nontrivial_relative_wbd",
+    "require_all_v00_conditions",
+    "minimum_transformed_condition_completion_rate",
+    "require_every_failure_classified",
+    "require_frozen_model_configuration",
+    "require_resume_cache_integrity",
+    "require_resource_ceilings",
+    "require_frozen_preprocessing_residual",
+    "exploratory_only",
+    "breadth_dataset_count",
+    "required_transformation_families",
+    "required_seed_direction_count",
+    "required_seed_count",
+    "exclude_numerical_tie_only",
+    "outcomes"
+  ],
+  "title": "DecisionPolicy",
+  "type": "object"
+}

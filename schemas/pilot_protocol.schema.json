@@ -1,0 +1,1773 @@
+{
+  "$defs": {
+    "AurocPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "binary_only": {
+          "const": true,
+          "title": "Binary Only",
+          "type": "boolean"
+        },
+        "chunk_size": {
+          "exclusiveMinimum": 0,
+          "title": "Chunk Size",
+          "type": "integer"
+        },
+        "numerical_tie_tolerance": {
+          "exclusiveMinimum": 0,
+          "title": "Numerical Tie Tolerance",
+          "type": "number"
+        },
+        "record_tolerance_tie_pair_count": {
+          "const": true,
+          "title": "Record Tolerance Tie Pair Count",
+          "type": "boolean"
+        },
+        "report_raw_and_tolerance_aware": {
+          "const": true,
+          "title": "Report Raw And Tolerance Aware",
+          "type": "boolean"
+        },
+        "tie_credit": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Tie Credit",
+          "type": "number"
+        },
+        "tie_only_changes_excluded_from_scientific_instability": {
+          "const": true,
+          "title": "Tie Only Changes Excluded From Scientific Instability",
+          "type": "boolean"
+        },
+        "tie_sensitivity_classification": {
+          "const": "NUMERICAL_TIE_SENSITIVITY",
+          "title": "Tie Sensitivity Classification",
+          "type": "string"
+        },
+        "tie_sensitivity_label_flip_count": {
+          "const": 0,
+          "title": "Tie Sensitivity Label Flip Count",
+          "type": "integer"
+        },
+        "tie_sensitivity_non_rank_metrics": {
+          "items": {
+            "enum": [
+              "brier",
+              "log_loss"
+            ],
+            "type": "string"
+          },
+          "title": "Tie Sensitivity Non Rank Metrics",
+          "type": "array"
+        },
+        "tie_sensitivity_probability_max_abs_diff": {
+          "exclusiveMinimum": 0,
+          "title": "Tie Sensitivity Probability Max Abs Diff",
+          "type": "number"
+        },
+        "tie_sensitivity_tolerance_aware_auroc_atol": {
+          "minimum": 0,
+          "title": "Tie Sensitivity Tolerance Aware Auroc Atol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "binary_only",
+        "numerical_tie_tolerance",
+        "chunk_size",
+        "tie_credit",
+        "report_raw_and_tolerance_aware",
+        "record_tolerance_tie_pair_count",
+        "tie_only_changes_excluded_from_scientific_instability",
+        "tie_sensitivity_probability_max_abs_diff",
+        "tie_sensitivity_label_flip_count",
+        "tie_sensitivity_non_rank_metrics",
+        "tie_sensitivity_tolerance_aware_auroc_atol",
+        "tie_sensitivity_classification"
+      ],
+      "title": "AurocPolicy",
+      "type": "object"
+    },
+    "DecisionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "breadth_dataset_count": {
+          "exclusiveMinimum": 0,
+          "title": "Breadth Dataset Count",
+          "type": "integer"
+        },
+        "exclude_numerical_tie_only": {
+          "const": true,
+          "title": "Exclude Numerical Tie Only",
+          "type": "boolean"
+        },
+        "exploratory_only": {
+          "const": true,
+          "title": "Exploratory Only",
+          "type": "boolean"
+        },
+        "foundation_model_ids": {
+          "items": {
+            "enum": [
+              "TPFN3-8.5",
+              "TICL2-2.2"
+            ],
+            "type": "string"
+          },
+          "title": "Foundation Model Ids",
+          "type": "array"
+        },
+        "integrity_failure": {
+          "const": "REPAIR_REQUIRED",
+          "title": "Integrity Failure",
+          "type": "string"
+        },
+        "minimum_transformed_condition_completion_rate": {
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Minimum Transformed Condition Completion Rate",
+          "type": "number"
+        },
+        "nontrivial_absolute_wbd": {
+          "minimum": 0,
+          "title": "Nontrivial Absolute Wbd",
+          "type": "number"
+        },
+        "nontrivial_relative_wbd": {
+          "minimum": 0,
+          "title": "Nontrivial Relative Wbd",
+          "type": "number"
+        },
+        "outcomes": {
+          "items": {
+            "enum": [
+              "ADVANCE_BROAD_METHOD",
+              "ADVANCE_TFM_FOCUSED",
+              "NARROW_CASE_STUDY",
+              "STOP_OR_REDESIGN",
+              "PARTIAL_CAPABILITY",
+              "REPAIR_REQUIRED"
+            ],
+            "type": "string"
+          },
+          "title": "Outcomes",
+          "type": "array"
+        },
+        "require_all_v00_conditions": {
+          "const": true,
+          "title": "Require All V00 Conditions",
+          "type": "boolean"
+        },
+        "require_every_failure_classified": {
+          "const": true,
+          "title": "Require Every Failure Classified",
+          "type": "boolean"
+        },
+        "require_frozen_model_configuration": {
+          "const": true,
+          "title": "Require Frozen Model Configuration",
+          "type": "boolean"
+        },
+        "require_frozen_preprocessing_residual": {
+          "const": true,
+          "title": "Require Frozen Preprocessing Residual",
+          "type": "boolean"
+        },
+        "require_resource_ceilings": {
+          "const": true,
+          "title": "Require Resource Ceilings",
+          "type": "boolean"
+        },
+        "require_resume_cache_integrity": {
+          "const": true,
+          "title": "Require Resume Cache Integrity",
+          "type": "boolean"
+        },
+        "required_seed_count": {
+          "exclusiveMinimum": 0,
+          "title": "Required Seed Count",
+          "type": "integer"
+        },
+        "required_seed_direction_count": {
+          "exclusiveMinimum": 0,
+          "title": "Required Seed Direction Count",
+          "type": "integer"
+        },
+        "required_transformation_families": {
+          "exclusiveMinimum": 0,
+          "title": "Required Transformation Families",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "integrity_failure",
+        "foundation_model_ids",
+        "nontrivial_absolute_wbd",
+        "nontrivial_relative_wbd",
+        "require_all_v00_conditions",
+        "minimum_transformed_condition_completion_rate",
+        "require_every_failure_classified",
+        "require_frozen_model_configuration",
+        "require_resume_cache_integrity",
+        "require_resource_ceilings",
+        "require_frozen_preprocessing_residual",
+        "exploratory_only",
+        "breadth_dataset_count",
+        "required_transformation_families",
+        "required_seed_direction_count",
+        "required_seed_count",
+        "exclude_numerical_tie_only",
+        "outcomes"
+      ],
+      "title": "DecisionPolicy",
+      "type": "object"
+    },
+    "EcePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "minimum": 2,
+          "title": "Bins",
+          "type": "integer"
+        },
+        "rule": {
+          "const": "equal_width_max_probability_confidence",
+          "title": "Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bins",
+        "rule"
+      ],
+      "title": "EcePolicy",
+      "type": "object"
+    },
+    "ExcludedDataset": {
+      "additionalProperties": false,
+      "properties": {
+        "competing_selected_dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Competing Selected Dataset Id",
+          "type": "integer"
+        },
+        "dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "dataset_name": {
+          "title": "Dataset Name",
+          "type": "string"
+        },
+        "eligible": {
+          "const": true,
+          "title": "Eligible",
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "title": "Exclusion Reason",
+          "type": "string"
+        },
+        "metadata_evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Metadata Evidence Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "dataset_name",
+        "eligible",
+        "exclusion_reason",
+        "competing_selected_dataset_id",
+        "metadata_evidence_sha256"
+      ],
+      "title": "ExcludedDataset",
+      "type": "object"
+    },
+    "LabelFlipPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "include_pairwise_against_v00": {
+          "const": true,
+          "title": "Include Pairwise Against V00",
+          "type": "boolean"
+        },
+        "include_responsible_transformation_family": {
+          "const": true,
+          "title": "Include Responsible Transformation Family",
+          "type": "boolean"
+        },
+        "include_worst_view": {
+          "const": true,
+          "title": "Include Worst View",
+          "type": "boolean"
+        },
+        "rule": {
+          "const": "any_argmax_class_difference_across_applicable_views",
+          "title": "Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "include_pairwise_against_v00",
+        "include_worst_view",
+        "include_responsible_transformation_family"
+      ],
+      "title": "LabelFlipPolicy",
+      "type": "object"
+    },
+    "LeakagePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "calibration_use": {
+          "const": "predeclared_calibration_or_evaluation_only",
+          "title": "Calibration Use",
+          "type": "string"
+        },
+        "label_open_event_order": {
+          "items": {
+            "enum": [
+              "plan_frozen",
+              "test_labels_sealed",
+              "training_completed",
+              "calibration_predictions_completed",
+              "test_predictions_completed",
+              "prediction_structure_validated",
+              "test_labels_opened",
+              "metrics_generated",
+              "results_sealed"
+            ],
+            "type": "string"
+          },
+          "title": "Label Open Event Order",
+          "type": "array"
+        },
+        "labels_must_not_influence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels Must Not Influence",
+          "type": "array"
+        },
+        "model_fit_partition": {
+          "const": "train",
+          "title": "Model Fit Partition",
+          "type": "string"
+        },
+        "preprocessing_fit_partition": {
+          "const": "train",
+          "title": "Preprocessing Fit Partition",
+          "type": "string"
+        },
+        "seal_test_labels_until_all_predictions_and_structure_valid": {
+          "const": true,
+          "title": "Seal Test Labels Until All Predictions And Structure Valid",
+          "type": "boolean"
+        },
+        "split_before_views": {
+          "const": true,
+          "title": "Split Before Views",
+          "type": "boolean"
+        },
+        "stable_row_id_alignment_required": {
+          "const": true,
+          "title": "Stable Row Id Alignment Required",
+          "type": "boolean"
+        },
+        "test_features": {
+          "const": "final_frozen_inference_only",
+          "title": "Test Features",
+          "type": "string"
+        },
+        "transformation_fit_partition": {
+          "const": "train",
+          "title": "Transformation Fit Partition",
+          "type": "string"
+        }
+      },
+      "required": [
+        "split_before_views",
+        "transformation_fit_partition",
+        "preprocessing_fit_partition",
+        "model_fit_partition",
+        "calibration_use",
+        "test_features",
+        "seal_test_labels_until_all_predictions_and_structure_valid",
+        "stable_row_id_alignment_required",
+        "label_open_event_order",
+        "labels_must_not_influence"
+      ],
+      "title": "LeakagePolicy",
+      "type": "object"
+    },
+    "MetricPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "auroc": {
+          "$ref": "#/$defs/AurocPolicy"
+        },
+        "brier_aggregation": {
+          "const": "sum_squared_class_probability_error_per_row_then_mean",
+          "title": "Brier Aggregation",
+          "type": "string"
+        },
+        "confidence_intervals": {
+          "const": "exploratory_only",
+          "title": "Confidence Intervals",
+          "type": "string"
+        },
+        "confirmatory_significance_claims": {
+          "const": false,
+          "title": "Confirmatory Significance Claims",
+          "type": "boolean"
+        },
+        "cross_dataset_unit": {
+          "const": "dataset",
+          "title": "Cross Dataset Unit",
+          "type": "string"
+        },
+        "dataset_aggregation": {
+          "const": "median",
+          "title": "Dataset Aggregation",
+          "type": "string"
+        },
+        "dataset_level_summaries": {
+          "items": {
+            "enum": [
+              "median",
+              "interquartile_range",
+              "minimum",
+              "maximum",
+              "win_tie_loss_counts",
+              "transformation_family_summaries",
+              "model_family_summaries"
+            ],
+            "type": "string"
+          },
+          "title": "Dataset Level Summaries",
+          "type": "array"
+        },
+        "dataset_model_level_aggregation": {
+          "const": "median_across_seeds",
+          "title": "Dataset Model Level Aggregation",
+          "type": "string"
+        },
+        "ece": {
+          "$ref": "#/$defs/EcePolicy"
+        },
+        "effective_sample_size": {
+          "const": "number_of_datasets",
+          "title": "Effective Sample Size",
+          "type": "string"
+        },
+        "label_flip": {
+          "$ref": "#/$defs/LabelFlipPolicy"
+        },
+        "non_rank_equivalence": {
+          "$ref": "#/$defs/NonRankEquivalencePolicy"
+        },
+        "primary_endpoint": {
+          "const": "worst_view_brier_degradation",
+          "title": "Primary Endpoint",
+          "type": "string"
+        },
+        "probability": {
+          "$ref": "#/$defs/ProbabilityPolicy"
+        },
+        "relative_degradation_epsilon": {
+          "exclusiveMinimum": 0,
+          "title": "Relative Degradation Epsilon",
+          "type": "number"
+        },
+        "row_level_role": {
+          "const": "metric_calculation_only",
+          "title": "Row Level Role",
+          "type": "string"
+        },
+        "secondary_metrics": {
+          "items": {
+            "enum": [
+              "log_loss",
+              "accuracy",
+              "balanced_accuracy",
+              "raw_auroc",
+              "tolerance_aware_auroc",
+              "expected_calibration_error",
+              "maximum_absolute_probability_difference",
+              "mean_absolute_probability_difference",
+              "runtime",
+              "fit_time",
+              "prediction_time",
+              "peak_process_tree_ram",
+              "peak_cuda_allocated_memory",
+              "peak_cuda_reserved_memory",
+              "cache_status",
+              "failure_category"
+            ],
+            "type": "string"
+          },
+          "title": "Secondary Metrics",
+          "type": "array"
+        },
+        "seed_aggregation": {
+          "const": "median",
+          "title": "Seed Aggregation",
+          "type": "string"
+        },
+        "seed_level_role": {
+          "const": "repeatability",
+          "title": "Seed Level Role",
+          "type": "string"
+        },
+        "sii": {
+          "$ref": "#/$defs/SiiPolicy"
+        },
+        "undefined_metric_status": {
+          "const": "explicit_undefined_with_reason",
+          "title": "Undefined Metric Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary_endpoint",
+        "brier_aggregation",
+        "relative_degradation_epsilon",
+        "seed_aggregation",
+        "dataset_aggregation",
+        "cross_dataset_unit",
+        "row_level_role",
+        "seed_level_role",
+        "dataset_model_level_aggregation",
+        "dataset_level_summaries",
+        "effective_sample_size",
+        "confirmatory_significance_claims",
+        "confidence_intervals",
+        "sii",
+        "label_flip",
+        "secondary_metrics",
+        "undefined_metric_status",
+        "non_rank_equivalence",
+        "auroc",
+        "ece",
+        "probability"
+      ],
+      "title": "MetricPolicy",
+      "type": "object"
+    },
+    "NonRankEquivalencePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "absolute_atol": {
+          "minimum": 0,
+          "title": "Absolute Atol",
+          "type": "number"
+        },
+        "relative_rtol": {
+          "minimum": 0,
+          "title": "Relative Rtol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "absolute_atol",
+        "relative_rtol"
+      ],
+      "title": "NonRankEquivalencePolicy",
+      "type": "object"
+    },
+    "PilotDatasetSelection": {
+      "additionalProperties": false,
+      "properties": {
+        "categorical_feature_count": {
+          "minimum": 0,
+          "title": "Categorical Feature Count",
+          "type": "integer"
+        },
+        "class_count": {
+          "minimum": 2,
+          "title": "Class Count",
+          "type": "integer"
+        },
+        "class_distribution": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Class Distribution",
+          "type": "object"
+        },
+        "coverage_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Coverage Tags",
+          "type": "array"
+        },
+        "dataset_id": {
+          "exclusiveMinimum": 0,
+          "title": "Dataset Id",
+          "type": "integer"
+        },
+        "dataset_name": {
+          "title": "Dataset Name",
+          "type": "string"
+        },
+        "duplicate_group_count": {
+          "minimum": 0,
+          "title": "Duplicate Group Count",
+          "type": "integer"
+        },
+        "feature_count": {
+          "exclusiveMinimum": 0,
+          "title": "Feature Count",
+          "type": "integer"
+        },
+        "five_split_identities": {
+          "items": {
+            "$ref": "#/$defs/SplitIdentity"
+          },
+          "title": "Five Split Identities",
+          "type": "array"
+        },
+        "license": {
+          "title": "License",
+          "type": "string"
+        },
+        "metadata_evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Metadata Evidence Sha256",
+          "type": "string"
+        },
+        "numeric_feature_count": {
+          "minimum": 0,
+          "title": "Numeric Feature Count",
+          "type": "integer"
+        },
+        "predictor_group_count": {
+          "minimum": 1,
+          "title": "Predictor Group Count",
+          "type": "integer"
+        },
+        "processed_feature_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Processed Feature Sha256",
+          "type": "string"
+        },
+        "provider": {
+          "const": "openml",
+          "title": "Provider",
+          "type": "string"
+        },
+        "provider_dataset_version": {
+          "title": "Provider Dataset Version",
+          "type": "string"
+        },
+        "provider_file_id": {
+          "exclusiveMinimum": 0,
+          "title": "Provider File Id",
+          "type": "integer"
+        },
+        "quality_report_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Quality Report Sha256",
+          "type": "string"
+        },
+        "raw_source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Source Sha256",
+          "type": "string"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "selection_rationale": {
+          "title": "Selection Rationale",
+          "type": "string"
+        },
+        "target_artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Target Artifact Sha256",
+          "type": "string"
+        },
+        "target_column": {
+          "title": "Target Column",
+          "type": "string"
+        },
+        "task_type": {
+          "enum": [
+            "binary",
+            "multiclass"
+          ],
+          "title": "Task Type",
+          "type": "string"
+        },
+        "v00_model_compatibility": {
+          "const": "PASS_REGISTRY_CAPABILITY",
+          "title": "V00 Model Compatibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "provider",
+        "provider_dataset_version",
+        "provider_file_id",
+        "dataset_name",
+        "target_column",
+        "task_type",
+        "row_count",
+        "feature_count",
+        "numeric_feature_count",
+        "categorical_feature_count",
+        "class_count",
+        "class_distribution",
+        "predictor_group_count",
+        "duplicate_group_count",
+        "license",
+        "raw_source_sha256",
+        "processed_feature_sha256",
+        "target_artifact_sha256",
+        "quality_report_sha256",
+        "metadata_evidence_sha256",
+        "five_split_identities",
+        "coverage_tags",
+        "selection_rationale",
+        "v00_model_compatibility"
+      ],
+      "title": "PilotDatasetSelection",
+      "type": "object"
+    },
+    "PilotModelEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "batch_policy": {
+          "title": "Batch Policy",
+          "type": "string"
+        },
+        "checkpoint_identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Identifier"
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Sha256"
+        },
+        "compatibility_evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Compatibility Evidence Sha256",
+          "type": "string"
+        },
+        "device": {
+          "enum": [
+            "cpu",
+            "cuda"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "model_class": {
+          "title": "Model Class",
+          "type": "string"
+        },
+        "model_config_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Config Sha256",
+          "type": "string"
+        },
+        "model_id": {
+          "enum": [
+            "LR-1.9",
+            "CAT-1.2",
+            "XGB-3.4",
+            "TPFN3-8.5",
+            "TICL2-2.2"
+          ],
+          "title": "Model Id",
+          "type": "string"
+        },
+        "package": {
+          "title": "Package",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "precision_policy": {
+          "title": "Precision Policy",
+          "type": "string"
+        },
+        "preprocessing": {
+          "title": "Preprocessing",
+          "type": "string"
+        },
+        "preprocessing_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Preprocessing Sha256",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "model_class",
+        "package",
+        "version",
+        "preprocessing",
+        "parameters",
+        "model_config_sha256",
+        "preprocessing_sha256",
+        "checkpoint_identifier",
+        "checkpoint_sha256",
+        "device",
+        "precision_policy",
+        "batch_policy",
+        "compatibility_evidence_sha256"
+      ],
+      "title": "PilotModelEntry",
+      "type": "object"
+    },
+    "PilotSeedSelection": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_order_preserved": {
+          "const": true,
+          "title": "Canonical Order Preserved",
+          "type": "boolean"
+        },
+        "dataset_seed_count": {
+          "const": 24,
+          "title": "Dataset Seed Count",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "seeds": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Seeds",
+          "type": "array"
+        },
+        "source_config_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Config Sha256",
+          "type": "string"
+        },
+        "split_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Split Identity Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "seeds",
+        "source_config_sha256",
+        "canonical_order_preserved",
+        "dataset_seed_count",
+        "split_identity_sha256"
+      ],
+      "title": "PilotSeedSelection",
+      "type": "object"
+    },
+    "PilotViewRegistryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "certificate_type": {
+          "enum": [
+            "BIJECTION",
+            "PROJECTION",
+            "PERMUTATION",
+            "COMPOSITION"
+          ],
+          "title": "Certificate Type",
+          "type": "string"
+        },
+        "scientific_role": {
+          "enum": [
+            "CONTROL",
+            "PRIMARY_MIGRATION"
+          ],
+          "title": "Scientific Role",
+          "type": "string"
+        },
+        "transformation_family": {
+          "title": "Transformation Family",
+          "type": "string"
+        },
+        "view_id": {
+          "enum": [
+            "V00",
+            "V01",
+            "V02",
+            "V03",
+            "V04",
+            "V05",
+            "V06",
+            "V07",
+            "V08",
+            "V09",
+            "V10"
+          ],
+          "title": "View Id",
+          "type": "string"
+        },
+        "view_name": {
+          "title": "View Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "view_id",
+        "view_name",
+        "transformation_family",
+        "certificate_type",
+        "scientific_role"
+      ],
+      "title": "PilotViewRegistryEntry",
+      "type": "object"
+    },
+    "ProbabilityPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "non_rank_metric_tolerance_is_separate": {
+          "const": true,
+          "title": "Non Rank Metric Tolerance Is Separate",
+          "type": "boolean"
+        },
+        "row_sum_atol": {
+          "exclusiveMinimum": 0,
+          "title": "Row Sum Atol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "row_sum_atol",
+        "non_rank_metric_tolerance_is_separate"
+      ],
+      "title": "ProbabilityPolicy",
+      "type": "object"
+    },
+    "ResourcePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "atomic_incremental_publication": {
+          "const": true,
+          "title": "Atomic Incremental Publication",
+          "type": "boolean"
+        },
+        "coordination_seconds": {
+          "minimum": 0,
+          "title": "Coordination Seconds",
+          "type": "integer"
+        },
+        "cpu_thread_environment": {
+          "additionalProperties": {
+            "const": "2",
+            "type": "string"
+          },
+          "title": "Cpu Thread Environment",
+          "type": "object"
+        },
+        "cpu_threads_per_worker": {
+          "const": 2,
+          "title": "Cpu Threads Per Worker",
+          "type": "integer"
+        },
+        "cpu_workers": {
+          "const": 2,
+          "title": "Cpu Workers",
+          "type": "integer"
+        },
+        "estimate_safety_factor": {
+          "minimum": 1,
+          "title": "Estimate Safety Factor",
+          "type": "number"
+        },
+        "foundation_models_sequential": {
+          "const": true,
+          "title": "Foundation Models Sequential",
+          "type": "boolean"
+        },
+        "gpu_workers": {
+          "const": 1,
+          "title": "Gpu Workers",
+          "type": "integer"
+        },
+        "hard_wall_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Hard Wall Seconds",
+          "type": "integer"
+        },
+        "no_silent_fallback": {
+          "const": true,
+          "title": "No Silent Fallback",
+          "type": "boolean"
+        },
+        "no_silent_precision_or_batch_change": {
+          "const": true,
+          "title": "No Silent Precision Or Batch Change",
+          "type": "boolean"
+        },
+        "offline_execution": {
+          "const": true,
+          "title": "Offline Execution",
+          "type": "boolean"
+        },
+        "per_row_metadata_overhead_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Per Row Metadata Overhead Bytes",
+          "type": "integer"
+        },
+        "prediction_artifact_overhead_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Prediction Artifact Overhead Bytes",
+          "type": "integer"
+        },
+        "preferred_storage_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Preferred Storage Bytes",
+          "type": "integer"
+        },
+        "preferred_wall_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Preferred Wall Seconds",
+          "type": "integer"
+        },
+        "ram_hard_limit_mib": {
+          "exclusiveMinimum": 0,
+          "title": "Ram Hard Limit Mib",
+          "type": "integer"
+        },
+        "staging": {
+          "$ref": "#/$defs/StagingPolicy"
+        },
+        "storage_bytes_per_row_class": {
+          "exclusiveMinimum": 0,
+          "title": "Storage Bytes Per Row Class",
+          "type": "integer"
+        },
+        "storage_bytes_per_row_id": {
+          "exclusiveMinimum": 0,
+          "title": "Storage Bytes Per Row Id",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "cpu_model_condition",
+              "cuda_model_condition"
+            ]
+          },
+          "title": "Timeout Seconds",
+          "type": "object"
+        },
+        "validated_resume": {
+          "const": true,
+          "title": "Validated Resume",
+          "type": "boolean"
+        },
+        "vram_ceiling_mib": {
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Vram Ceiling Mib",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cpu_workers",
+        "gpu_workers",
+        "cpu_threads_per_worker",
+        "cpu_thread_environment",
+        "foundation_models_sequential",
+        "vram_ceiling_mib",
+        "ram_hard_limit_mib",
+        "timeout_seconds",
+        "preferred_wall_seconds",
+        "hard_wall_seconds",
+        "preferred_storage_bytes",
+        "prediction_artifact_overhead_bytes",
+        "storage_bytes_per_row_class",
+        "storage_bytes_per_row_id",
+        "per_row_metadata_overhead_bytes",
+        "estimate_safety_factor",
+        "coordination_seconds",
+        "no_silent_fallback",
+        "no_silent_precision_or_batch_change",
+        "offline_execution",
+        "atomic_incremental_publication",
+        "validated_resume",
+        "staging"
+      ],
+      "title": "ResourcePolicy",
+      "type": "object"
+    },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "failed_artifact_cache_hit": {
+          "const": false,
+          "title": "Failed Artifact Cache Hit",
+          "type": "boolean"
+        },
+        "max_attempts_per_condition": {
+          "const": 2,
+          "title": "Max Attempts Per Condition",
+          "type": "integer"
+        },
+        "non_retryable_categories": {
+          "items": {
+            "enum": [
+              "GPU_OOM",
+              "INVALID_PROBABILITY",
+              "MISSING_ROW",
+              "CHECKPOINT_FAILURE",
+              "PACKAGE_OR_API_MISMATCH",
+              "OFFLINE_NETWORK_ATTEMPT",
+              "IDENTITY_MISMATCH"
+            ],
+            "type": "string"
+          },
+          "title": "Non Retryable Categories",
+          "type": "array"
+        },
+        "partial_artifact_promotion": {
+          "const": false,
+          "title": "Partial Artifact Promotion",
+          "type": "boolean"
+        },
+        "retry_identity_must_match": {
+          "const": true,
+          "title": "Retry Identity Must Match",
+          "type": "boolean"
+        },
+        "retryable_categories": {
+          "items": {
+            "enum": [
+              "WORKER_CRASH",
+              "TRANSIENT_IO",
+              "TIMEOUT"
+            ],
+            "type": "string"
+          },
+          "title": "Retryable Categories",
+          "type": "array"
+        },
+        "test_outcome_controls_retry": {
+          "const": false,
+          "title": "Test Outcome Controls Retry",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_attempts_per_condition",
+        "retryable_categories",
+        "non_retryable_categories",
+        "failed_artifact_cache_hit",
+        "partial_artifact_promotion",
+        "retry_identity_must_match",
+        "test_outcome_controls_retry"
+      ],
+      "title": "RetryPolicy",
+      "type": "object"
+    },
+    "RuntimeEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "conservative_wall_seconds": {
+          "minimum": 0,
+          "title": "Conservative Wall Seconds",
+          "type": "number"
+        },
+        "estimate_method": {
+          "title": "Estimate Method",
+          "type": "string"
+        },
+        "estimated_cache_storage_bytes": {
+          "minimum": 0,
+          "title": "Estimated Cache Storage Bytes",
+          "type": "integer"
+        },
+        "estimated_cpu_seconds": {
+          "minimum": 0,
+          "title": "Estimated Cpu Seconds",
+          "type": "number"
+        },
+        "estimated_cuda_seconds": {
+          "minimum": 0,
+          "title": "Estimated Cuda Seconds",
+          "type": "number"
+        },
+        "estimated_prediction_storage_by_dataset_bytes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Estimated Prediction Storage By Dataset Bytes",
+          "type": "object"
+        },
+        "estimated_prediction_storage_bytes": {
+          "minimum": 0,
+          "title": "Estimated Prediction Storage Bytes",
+          "type": "integer"
+        },
+        "estimated_work_seconds_by_dataset": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "enum": [
+                "cpu",
+                "cuda"
+              ]
+            },
+            "type": "object"
+          },
+          "title": "Estimated Work Seconds By Dataset",
+          "type": "object"
+        },
+        "hard_wall_limit_passed": {
+          "title": "Hard Wall Limit Passed",
+          "type": "boolean"
+        },
+        "model_condition_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "LR-1.9",
+              "CAT-1.2",
+              "XGB-3.4",
+              "TPFN3-8.5",
+              "TICL2-2.2"
+            ]
+          },
+          "title": "Model Condition Counts",
+          "type": "object"
+        },
+        "peak_ram_mib": {
+          "minimum": 0,
+          "title": "Peak Ram Mib",
+          "type": "number"
+        },
+        "peak_vram_mib": {
+          "minimum": 0,
+          "title": "Peak Vram Mib",
+          "type": "number"
+        },
+        "preferred_storage_limit_passed": {
+          "title": "Preferred Storage Limit Passed",
+          "type": "boolean"
+        },
+        "preferred_wall_limit_passed": {
+          "title": "Preferred Wall Limit Passed",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "source_measurement_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Measurement Sha256",
+          "type": "string"
+        },
+        "staged_schedule_required": {
+          "title": "Staged Schedule Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_measurement_sha256",
+        "model_condition_counts",
+        "estimated_work_seconds_by_dataset",
+        "estimated_prediction_storage_by_dataset_bytes",
+        "estimated_cpu_seconds",
+        "estimated_cuda_seconds",
+        "conservative_wall_seconds",
+        "estimated_prediction_storage_bytes",
+        "estimated_cache_storage_bytes",
+        "peak_ram_mib",
+        "peak_vram_mib",
+        "estimate_method",
+        "preferred_wall_limit_passed",
+        "hard_wall_limit_passed",
+        "preferred_storage_limit_passed",
+        "staged_schedule_required"
+      ],
+      "title": "RuntimeEstimate",
+      "type": "object"
+    },
+    "SelectionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "balanced_max_class_fraction": {
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0.5,
+          "title": "Balanced Max Class Fraction",
+          "type": "number"
+        },
+        "categorical_substantial_fraction": {
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Categorical Substantial Fraction",
+          "type": "number"
+        },
+        "duplicate_profile_fields": {
+          "items": {
+            "enum": [
+              "task_type",
+              "schema_family",
+              "size_band",
+              "balance_band"
+            ],
+            "type": "string"
+          },
+          "title": "Duplicate Profile Fields",
+          "type": "array"
+        },
+        "foundation_max_train_rows": {
+          "exclusiveMinimum": 0,
+          "title": "Foundation Max Train Rows",
+          "type": "integer"
+        },
+        "max_classes": {
+          "minimum": 2,
+          "title": "Max Classes",
+          "type": "integer"
+        },
+        "max_features": {
+          "exclusiveMinimum": 0,
+          "title": "Max Features",
+          "type": "integer"
+        },
+        "max_rows": {
+          "exclusiveMinimum": 0,
+          "title": "Max Rows",
+          "type": "integer"
+        },
+        "outcomes_prohibited": {
+          "const": true,
+          "title": "Outcomes Prohibited",
+          "type": "boolean"
+        },
+        "required_coverage": {
+          "items": {
+            "enum": [
+              "numeric_only",
+              "mixed_numeric_categorical",
+              "substantial_categorical",
+              "high_dimensional",
+              "high_cardinality_categorical",
+              "missing_values",
+              "binary",
+              "multiclass",
+              "small",
+              "medium",
+              "balanced",
+              "imbalanced"
+            ],
+            "type": "string"
+          },
+          "title": "Required Coverage",
+          "type": "array"
+        },
+        "small_dataset_max_rows": {
+          "exclusiveMinimum": 0,
+          "title": "Small Dataset Max Rows",
+          "type": "integer"
+        },
+        "tie_break": {
+          "const": "ascending_canonical_dataset_id",
+          "title": "Tie Break",
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_rows",
+        "max_features",
+        "max_classes",
+        "foundation_max_train_rows",
+        "balanced_max_class_fraction",
+        "categorical_substantial_fraction",
+        "small_dataset_max_rows",
+        "required_coverage",
+        "duplicate_profile_fields",
+        "tie_break",
+        "outcomes_prohibited"
+      ],
+      "title": "SelectionPolicy",
+      "type": "object"
+    },
+    "SiiPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "clipping_rule": {
+          "const": "clip_then_renormalize_rows",
+          "title": "Clipping Rule",
+          "type": "string"
+        },
+        "logarithm_base": {
+          "const": 2,
+          "title": "Logarithm Base",
+          "type": "integer"
+        },
+        "maximum_mean_pair_recorded": {
+          "const": true,
+          "title": "Maximum Mean Pair Recorded",
+          "type": "boolean"
+        },
+        "maximum_row_pair_recorded": {
+          "const": true,
+          "title": "Maximum Row Pair Recorded",
+          "type": "boolean"
+        },
+        "name": {
+          "const": "semantic_instability_index",
+          "title": "Name",
+          "type": "string"
+        },
+        "per_row": {
+          "const": "maximum_pairwise_jsd_across_applicable_views",
+          "title": "Per Row",
+          "type": "string"
+        },
+        "probability_clip": {
+          "exclusiveMaximum": 0.01,
+          "exclusiveMinimum": 0,
+          "title": "Probability Clip",
+          "type": "number"
+        },
+        "summaries": {
+          "items": {
+            "enum": [
+              "mean",
+              "median",
+              "p90",
+              "p95",
+              "maximum"
+            ],
+            "type": "string"
+          },
+          "title": "Summaries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "per_row",
+        "logarithm_base",
+        "probability_clip",
+        "clipping_rule",
+        "summaries",
+        "maximum_mean_pair_recorded",
+        "maximum_row_pair_recorded"
+      ],
+      "title": "SiiPolicy",
+      "type": "object"
+    },
+    "SplitIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Assignment Sha256",
+          "type": "string"
+        },
+        "cross_partition_group_count": {
+          "const": 0,
+          "title": "Cross Partition Group Count",
+          "type": "integer"
+        },
+        "logical_assignment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Logical Assignment Sha256",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "partition_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "train",
+              "calibration",
+              "test"
+            ]
+          },
+          "title": "Partition Counts",
+          "type": "object"
+        },
+        "row_count": {
+          "exclusiveMinimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "strategy": {
+          "const": "stratified_group_5fold_v1",
+          "title": "Strategy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "seed",
+        "strategy",
+        "assignment_sha256",
+        "logical_assignment_sha256",
+        "manifest_sha256",
+        "cross_partition_group_count",
+        "row_count",
+        "partition_counts"
+      ],
+      "title": "SplitIdentity",
+      "type": "object"
+    },
+    "StagingPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "datasets_per_stage": {
+          "const": 2,
+          "title": "Datasets Per Stage",
+          "type": "integer"
+        },
+        "preserve_complete_condition_matrix": {
+          "const": true,
+          "title": "Preserve Complete Condition Matrix",
+          "type": "boolean"
+        },
+        "stage_boundary": {
+          "const": "whole_dataset",
+          "title": "Stage Boundary",
+          "type": "string"
+        },
+        "stage_grouping": {
+          "const": "contiguous_pairs_by_ascending_dataset_id",
+          "title": "Stage Grouping",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage_grouping",
+        "datasets_per_stage",
+        "stage_boundary",
+        "preserve_complete_condition_matrix"
+      ],
+      "title": "StagingPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "condition_inventory_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Condition Inventory Sha256"
+    },
+    "dataset_selection_policy": {
+      "$ref": "#/$defs/SelectionPolicy"
+    },
+    "decision_policy": {
+      "$ref": "#/$defs/DecisionPolicy"
+    },
+    "excluded_datasets": {
+      "items": {
+        "$ref": "#/$defs/ExcludedDataset"
+      },
+      "title": "Excluded Datasets",
+      "type": "array"
+    },
+    "execution_authorized": {
+      "const": false,
+      "default": false,
+      "title": "Execution Authorized",
+      "type": "boolean"
+    },
+    "leakage_policy": {
+      "$ref": "#/$defs/LeakagePolicy"
+    },
+    "metric_policy": {
+      "$ref": "#/$defs/MetricPolicy"
+    },
+    "model_matrix": {
+      "items": {
+        "$ref": "#/$defs/PilotModelEntry"
+      },
+      "title": "Model Matrix",
+      "type": "array"
+    },
+    "offline": {
+      "const": true,
+      "default": true,
+      "title": "Offline",
+      "type": "boolean"
+    },
+    "protocol_id": {
+      "const": "schemaguard_representation_sensitivity_pilot",
+      "title": "Protocol Id",
+      "type": "string"
+    },
+    "protocol_name": {
+      "const": "SchemaGuard Representation-Sensitivity Pilot",
+      "title": "Protocol Name",
+      "type": "string"
+    },
+    "protocol_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Protocol Sha256",
+      "type": "string"
+    },
+    "protocol_version": {
+      "const": "schema_guard_representation_sensitivity_v1",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "registry_parameter_decisions": {
+      "items": {
+        "enum": [
+          "catboost_yaml_no_scalar",
+          "tabicl_checkpoint_version_from_checkpoint_field"
+        ],
+        "type": "string"
+      },
+      "title": "Registry Parameter Decisions",
+      "type": "array"
+    },
+    "resource_policy": {
+      "$ref": "#/$defs/ResourcePolicy"
+    },
+    "retry_policy": {
+      "$ref": "#/$defs/RetryPolicy"
+    },
+    "runtime_estimate": {
+      "$ref": "#/$defs/RuntimeEstimate"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "seed_selection": {
+      "$ref": "#/$defs/PilotSeedSelection"
+    },
+    "selected_datasets": {
+      "items": {
+        "$ref": "#/$defs/PilotDatasetSelection"
+      },
+      "title": "Selected Datasets",
+      "type": "array"
+    },
+    "source_commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "source_hashes": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Source Hashes",
+      "type": "object"
+    },
+    "summary": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Summary",
+      "type": "object"
+    },
+    "view_registry": {
+      "items": {
+        "$ref": "#/$defs/PilotViewRegistryEntry"
+      },
+      "title": "View Registry",
+      "type": "array"
+    }
+  },
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "protocol_version",
+    "protocol_sha256",
+    "source_commit",
+    "source_hashes",
+    "dataset_selection_policy",
+    "selected_datasets",
+    "excluded_datasets",
+    "seed_selection",
+    "view_registry",
+    "model_matrix",
+    "registry_parameter_decisions",
+    "metric_policy",
+    "leakage_policy",
+    "decision_policy",
+    "resource_policy",
+    "retry_policy",
+    "runtime_estimate",
+    "summary"
+  ],
+  "title": "PilotProtocolArtifact",
+  "type": "object"
+}
